@@ -7,19 +7,23 @@ afterEach(cleanup);
 
 const TestButton = ({
   disabled,
-  children
+  children,
+  id
 }: {
   disabled: boolean;
   children: React.ReactNode;
+  id?: string;
 }) => {
   const ref = React.useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabindex(
     ref,
-    disabled
+    disabled,
+    id
   );
   return (
     <button
       ref={ref}
+      id={id}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
       tabIndex={tabIndex}
@@ -44,6 +48,26 @@ const TestToolbar = ({
   </Provider>
 );
 
+const TestToolbarWithIDs = ({
+  flags = [false, false, false]
+}: {
+  flags?: Array<boolean>;
+}) => (
+  <Provider>
+    <TestButton disabled={flags[0]} id="user-id-1">
+      Button One
+    </TestButton>
+    <div>
+      <TestButton disabled={flags[1]} id="user-id-2">
+        Button Two
+      </TestButton>
+    </div>
+    <TestButton disabled={flags[2]} id="user-id-3">
+      Button Three
+    </TestButton>
+  </Provider>
+);
+
 test("displays correctly initially when no buttons are disabled", async () => {
   const flags = [false, false, false];
   const { getByText } = render(<TestToolbar flags={flags} />);
@@ -55,6 +79,14 @@ test("displays correctly initially when no buttons are disabled", async () => {
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
     "false"
   );
+});
+
+test("displays correctly initially when custom IDs are used", async () => {
+  const flags = [false, false, false];
+  const { getByText } = render(<TestToolbarWithIDs flags={flags} />);
+  expect(getByText("Button One").id).toEqual("user-id-1");
+  expect(getByText("Button Two").id).toEqual("user-id-2");
+  expect(getByText("Button Three").id).toEqual("user-id-3");
 });
 
 test("displays correctly initially when first button is disabled", async () => {

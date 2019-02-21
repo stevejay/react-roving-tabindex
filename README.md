@@ -1,8 +1,12 @@
 # react-roving-tabindex
 
-> React implementation of a roving tabindex
+> React Hooks implementation of a roving tabindex
 
 [![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master)
+
+## Requirements
+
+This package has been written using the React Hooks API, so it is only usable with React version 16.8 or greater.
 
 ## Install
 
@@ -19,6 +23,11 @@ import {
   useRovingTabIndex,
   useFocusEffect
 } from "react-roving-tabindex";
+
+type Props = {
+  disabled?: boolean;
+  children: React.ReactNode;
+};
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
   const ref = React.useRef<HTMLButtonElement>(null);

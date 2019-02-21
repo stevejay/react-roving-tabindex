@@ -14,6 +14,8 @@ This package has been written using the React Hooks API, so it is only usable wi
 npm install --save react-roving-tabindex
 ```
 
+This package includes TypeScript typings.
+
 ## Usage
 
 ```tsx
@@ -34,8 +36,8 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
   // onKeyDown and onClick are stable for the lifetime of the component
   // they are used in:
   const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
-    ref,
-    disabled
+    ref, // don't change the value of this ref
+    disabled // change this as you like
   );
   // Use some mechanism to set focus on the focused button,
   // in this case the included useFocusEffect hook:
@@ -43,7 +45,7 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
   return (
     <button
       ref={ref}
-      tabIndex={tabIndex}
+      tabIndex={tabIndex} // must be applied here
       disabled={disabled}
       onKeyDown={onKeyDown}
       onClick={onClick}
@@ -55,6 +57,10 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
 
 const App = () => (
   <RovingTabIndexProvider>
+    {/*
+      it's fine for the roving tabindex components to be nested
+      in other DOM or React components
+    */}
     <ToolbarButton>First Button</ToolbarButton>
     <ToolbarButton>Second Button</ToolbarButton>
   </RovingTabIndexProvider>

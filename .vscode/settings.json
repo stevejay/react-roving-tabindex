@@ -1,0 +1,30 @@
+{
+  "search.exclude": {
+    ".build": true,
+    ".serverless": true,
+    ".webpack": true,
+    "build/": true
+  },
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    ".webpack/": true,
+    "node_modules/": true,
+    ".serverless/": true,
+    "src/**/*.css": true,
+    "build/": true
+  },
+  "typescript.extension.sortImports.sortMethod": "path",
+  "typescript.extension.sortImports.pathSortOrder": [
+    "package",
+    "relativeUpLevel",
+    "relativeDownLevel"
+  ],
+  "typescript.extension.sortImports.quoteStyle": "double",
+  "typescript.extension.sortImports.sortOnSave": false
+}

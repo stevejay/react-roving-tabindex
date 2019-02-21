@@ -2,7 +2,6 @@ import findIndex from "array-find-index";
 import React from "react";
 import warning from "warning";
 
-// const DOCUMENT_POSITION_FOLLOWING = 4;
 const DOCUMENT_POSITION_PRECEDING = 2;
 
 type TabStop = {
@@ -65,17 +64,7 @@ function reducer(state: State, action: Action): State {
         warning(false, `${newTabStop.id} tab stop already registered`);
         return state;
       }
-    //   const indexBefore = findLastIndex(
-    //     state.tabStops,
-    //     tabStop =>
-    //       !!(
-    //         tabStop.domElementRef.current.compareDocumentPosition(
-    //           newTabStop.domElementRef.current
-    //         ) & DOCUMENT_POSITION_FOLLOWING
-    //       )
-    //   );
-
-      const indexBefore = findIndex(
+      const indexAfter = findIndex(
         state.tabStops,
         tabStop =>
           !!(
@@ -84,13 +73,12 @@ function reducer(state: State, action: Action): State {
             ) & DOCUMENT_POSITION_PRECEDING
           )
       );
-
       return {
         ...state,
         tabStops: [
-          ...state.tabStops.slice(0, indexBefore + 1),
+          ...state.tabStops.slice(0, indexAfter),
           newTabStop,
-          ...state.tabStops.slice(indexBefore + 1)
+          ...state.tabStops.slice(indexAfter)
         ]
       };
     }

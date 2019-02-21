@@ -33,14 +33,13 @@ type Props = {
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
   const ref = React.useRef<HTMLButtonElement>(null);
-  // onKeyDown and onClick are stable for the lifetime of the component
-  // they are used in:
+  // onKeyDown and onClick are stable for the lifetime of the component:
   const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
     ref, // don't change the value of this ref
-    disabled // change this as you like
+    disabled // change this as you like throughout the lifetime of the component
   );
-  // Use some mechanism to set focus on the focused button,
-  // in this case the included useFocusEffect hook:
+  // Use some mechanism to set focus on the button if it gets focused,
+  // in this case using the included useFocusEffect hook:
   useFocusEffect(focused, ref);
   return (
     <button

@@ -16,18 +16,20 @@ npm install --save react-roving-tabindex
 import React from "react";
 import {
   RovingTabIndexProvider,
-  useRovingTabIndex
+  useRovingTabIndex,
+  useFocusEffect
 } from "react-roving-tabindex";
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
   const ref = React.useRef<HTMLButtonElement>(null);
   // onKeyDown and onClick are stable for the lifetime of the component
-  // they are used in.
+  // they are used in:
   const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
     ref,
     disabled
   );
-  // Use some mechanism to set focus on the focused button:
+  // Use some mechanism to set focus on the focused button,
+  // in this case the included useFocusEffect hook:
   useFocusEffect(focused, ref);
   return (
     <button

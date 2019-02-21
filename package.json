@@ -13,8 +13,9 @@
     "npm": ">=5"
   },
   "scripts": {
-    "test": "cross-env CI=1 react-scripts-ts test --env=jsdom",
-    "test:watch": "react-scripts-ts test --env=jsdom",
+    "test": "cross-env CI=1 jest --env=jsdom",
+    "test:watch": "jest --env=jsdom  --watch",
+    "test:coverage": "jest --env=jsdom --coverage",
     "build": "rollup -c",
     "start": "rollup -c -w",
     "prepare": "npm run build",
@@ -32,17 +33,25 @@
     "react-dom": ">=16.8.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
     "@svgr/rollup": "^4.1.0",
     "@types/array-find-index": "^1.0.0",
+    "@types/jest": "^24.0.6",
     "@types/lodash.uniqueid": "^4.0.5",
     "@types/react": "^16.8.4",
     "@types/react-dom": "^16.8.2",
     "@types/warning": "^3.0.0",
+    "babel-jest": "^24.1.0",
     "cross-env": "^5.2.0",
     "gh-pages": "^2.0.1",
+    "jest": "^24.1.0",
     "npm-check": "^5.9.0",
     "react": "^16.8.2",
     "react-dom": "^16.8.2",
+    "react-testing-library": "^5.9.0",
     "rollup": "^1.2.2",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-node-resolve": "^4.0.0",
@@ -54,5 +63,10 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "babel-jest"
+    }
+  }
 }

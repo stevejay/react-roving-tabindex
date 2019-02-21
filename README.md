@@ -13,17 +13,41 @@ npm install --save react-roving-tabindex
 ## Usage
 
 ```tsx
-import * as React from 'react'
+import React from "react";
+import {
+  RovingTabIndexProvider,
+  useRovingTabIndex
+} from "react-roving-tabindex";
 
-import MyComponent from 'react-roving-tabindex'
+const ToolbarButton = ({ disabled = false, children }: Props) => {
+  const ref = React.useRef<HTMLButtonElement>(null);
+  // onKeyDown and onClick are stable for the lifetime of the component
+  // they are used in.
+  const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
+    ref,
+    disabled
+  );
+  // Use some mechanism to set focus on the focused button:
+  useFocusEffect(focused, ref);
+  return (
+    <button
+      ref={ref}
+      tabIndex={tabIndex}
+      disabled={disabled}
+      onKeyDown={onKeyDown}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+};
 
-class Example extends React.Component {
-  render () {
-    return (
-      <MyComponent />
-    )
-  }
-}
+const App = () => (
+  <RovingTabIndexProvider>
+    <ToolbarButton>First Button</ToolbarButton>
+    <ToolbarButton>Second Button</ToolbarButton>
+  </RovingTabIndexProvider>
+);
 ```
 
 ## License

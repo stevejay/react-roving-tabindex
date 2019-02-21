@@ -67,6 +67,18 @@ const App = () => (
 );
 ```
 
+You can optionally pass a custom ID to the `useRovingTabIndex` hook as the third argument:
+
+```jsx
+const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
+  ref, // don't change the value of this ref
+  disabled, // change this as you like
+  "custom-id-1" // some custom id
+);
+```
+
+The value initially passed with be used for the lifetime of the containing component.
+
 ## License
 
 MIT © [stevejay](https://github.com/stevejay)

@@ -28,7 +28,8 @@
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
     "upgrade-interactive": "npm-check --update",
-    "storybook": "start-storybook -p 9001 -c .storybook"
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "deploy-storybook": "storybook-to-ghpages"
   },
   "dependencies": {
     "array-find-index": "^1.0.2",
@@ -45,6 +46,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
     "@storybook/react": "^4.1.13",
+    "@storybook/storybook-deployer": "^2.8.1",
     "@svgr/rollup": "^4.1.0",
     "@types/array-find-index": "^1.0.0",
     "@types/jest": "^24.0.9",

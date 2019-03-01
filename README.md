@@ -53,8 +53,8 @@ type Props = {
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
   const ref = React.useRef<HTMLButtonElement>(null);
-  // onKeyDown and onClick are stable for the lifetime of the component:
-  const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
+  // handleKeyDown and handleClick are stable for the lifetime of the component:
+  const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref, // don't change the value of this ref
     disabled // change this as you like throughout the lifetime of the component
   );
@@ -66,8 +66,8 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
       ref={ref}
       tabIndex={tabIndex} // must be applied here
       disabled={disabled}
-      onKeyDown={onKeyDown}
-      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      onClick={handleClick}
     >
       {children}
     </button>
@@ -89,7 +89,7 @@ const App = () => (
 You can optionally pass a custom ID to the `useRovingTabIndex` hook as the third argument:
 
 ```jsx
-const [tabIndex, focused, onKeyDown, onClick] = useRovingTabIndex(
+const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
   ref, // don't change the value of this ref
   disabled, // change this as you like
   "custom-id-1" // some custom id

@@ -1,7 +1,7 @@
 import React from "react";
 import { render, cleanup, fireEvent } from "react-testing-library";
 import Provider from "../Provider";
-import useRovingTabindex from "../use-roving-tabindex";
+import useRovingTabIndex from "../use-roving-tabindex";
 
 afterEach(cleanup);
 
@@ -15,7 +15,7 @@ const TestButton = ({
   id?: string;
 }) => {
   const ref = React.useRef<HTMLButtonElement>(null);
-  const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabindex(
+  const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
     disabled,
     id

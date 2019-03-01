@@ -3,7 +3,9 @@
     ".build": true,
     ".serverless": true,
     ".webpack": true,
-    "build/": true
+    "build/": true,
+    "coverage/": true,
+    "dist/": true
   },
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
@@ -17,7 +19,9 @@
     "node_modules/": true,
     ".serverless/": true,
     "src/**/*.css": true,
-    "build/": true
+    "build/": true,
+    "coverage/": true,
+    "dist/": true
   },
   "typescript.extension.sortImports.sortMethod": "path",
   "typescript.extension.sortImports.pathSortOrder": [

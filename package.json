@@ -1,6 +1,6 @@
 {
   "name": "react-roving-tabindex",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "React Hooks implementation of a roving tabindex",
   "author": "stevejay",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "upgrade-interactive": "npm-check --update",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "deploy-storybook": "storybook-to-ghpages",
-    "prepublish": "npm run build"
+    "publish": "npm run build && npm publish"
   },
   "dependencies": {
     "array-find-index": "^1.0.2",

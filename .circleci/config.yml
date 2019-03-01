@@ -1,5 +1,6 @@
 # Javascript Node CircleCI 2.0 configuration file
 version: 2.1
+
 jobs:
   build:
     docker:
@@ -27,3 +28,12 @@ jobs:
 
       - run: npm run build
       - run: npm run test
+
+workflows:
+  build:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore:
+                - gh-pages

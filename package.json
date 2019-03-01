@@ -26,8 +26,7 @@
     "start": "rollup -c -w",
     "upgrade-interactive": "npm-check --update",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "deploy-storybook": "storybook-to-ghpages",
-    "publish": "npm run build && npm publish"
+    "deploy-storybook": "storybook-to-ghpages"
   },
   "dependencies": {
     "array-find-index": "^1.0.2",

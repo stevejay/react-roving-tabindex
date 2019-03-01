@@ -26,7 +26,7 @@ export default function useRovingTabIndex(
   id?: string
 ): ReturnType {
   // This id is stable for the life of the component:
-  const tabindexId = React.useRef(id || uniqueId("roving-tabindex_"));
+  const tabIndexId = React.useRef(id || uniqueId("roving-tabindex_"));
   const context = React.useContext(RovingTabIndexContext);
 
   // Registering and unregistering are tied to whether the input is disabled or not.
@@ -37,12 +37,12 @@ export default function useRovingTabIndex(
     }
     context.dispatch({
       type: ActionTypes.REGISTER,
-      payload: { id: tabindexId.current, domElementRef }
+      payload: { id: tabIndexId.current, domElementRef }
     });
     return () => {
       context.dispatch({
         type: ActionTypes.UNREGISTER,
-        payload: { id: tabindexId.current }
+        payload: { id: tabIndexId.current }
       });
     };
   }, [disabled]);
@@ -51,13 +51,13 @@ export default function useRovingTabIndex(
     if (event.key === "ArrowLeft") {
       context.dispatch({
         type: ActionTypes.TAB_TO_PREVIOUS,
-        payload: { id: tabindexId.current }
+        payload: { id: tabIndexId.current }
       });
       event.preventDefault();
     } else if (event.key === "ArrowRight") {
       context.dispatch({
         type: ActionTypes.TAB_TO_NEXT,
-        payload: { id: tabindexId.current }
+        payload: { id: tabIndexId.current }
       });
       event.preventDefault();
     }
@@ -66,11 +66,11 @@ export default function useRovingTabIndex(
   const handleClick = React.useCallback(() => {
     context.dispatch({
       type: ActionTypes.CLICKED,
-      payload: { id: tabindexId.current }
+      payload: { id: tabIndexId.current }
     });
   }, []);
 
-  const selected = !disabled && tabindexId.current === context.state.selectedId;
+  const selected = !disabled && tabIndexId.current === context.state.selectedId;
   const tabIndex = selected ? 0 : -1;
   const focused = selected && context.state.lastActionOrigin === "keyboard";
   return [tabIndex, focused, handleKeyDown, handleClick];

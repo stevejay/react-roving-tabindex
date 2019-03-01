@@ -1,9 +1,15 @@
 {
   "name": "react-roving-tabindex",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "React Hooks implementation of a roving tabindex",
   "author": "stevejay",
   "license": "MIT",
+  "keywords": [
+    "roving",
+    "tabindex",
+    "react",
+    "hooks"
+  ],
   "repository": "stevejay/react-roving-tabindex",
   "main": "dist/index.js",
   "module": "dist/index.es.js",

@@ -96,7 +96,7 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 );
 ```
 
-The value initially passed with be used for the lifetime of the containing component.
+This is useful if you need to support server-side rendering. The value initially passed with be used for the lifetime of the containing component.
 
 ## License
 

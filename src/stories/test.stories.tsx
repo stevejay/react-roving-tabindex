@@ -41,7 +41,7 @@ const TestButton = ({
   );
 };
 
-storiesOf("Button", module).add("Text", () => (
+storiesOf("RovingTabIndex", module).add("Example", () => (
   <State store={store}>
     {state => (
       <RovingTabIndexProvider>

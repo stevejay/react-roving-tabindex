@@ -4,6 +4,8 @@ import warning from "warning";
 
 const DOCUMENT_POSITION_PRECEDING = 2;
 
+type KeyDirection = "horizontal" | "vertical" | "both";
+
 type TabStop = {
   id: string;
   domElementRef: React.RefObject<any>;
@@ -13,11 +15,15 @@ type State = {
   selectedId: string | null;
   lastActionOrigin: "mouse" | "keyboard";
   tabStops: Array<TabStop>;
+  firstId: string | null;
+  lastId: string | null;
 };
 
 export enum ActionTypes {
   REGISTER = "REGISTER",
   UNREGISTER = "UNREGISTER",
+  TAB_TO_FIRST = "TAB_TO_FIRST",
+  TAB_TO_LAST = "TAB_TO_LAST",
   TAB_TO_PREVIOUS = "TAB_TO_PREVIOUS",
   TAB_TO_NEXT = "TAB_TO_NEXT",
   CLICKED = "CLICKED"
@@ -30,6 +36,14 @@ type Action =
     }
   | {
       type: ActionTypes.UNREGISTER;
+      payload: { id: TabStop["id"] };
+    }
+  | {
+      type: ActionTypes.TAB_TO_FIRST;
+      payload: { id: TabStop["id"] };
+    }
+  | {
+      type: ActionTypes.TAB_TO_LAST;
       payload: { id: TabStop["id"] };
     }
   | {
@@ -48,16 +62,19 @@ type Action =
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionTypes.REGISTER: {
+      const { tabStops } = state;
       const newTabStop = action.payload;
-      if (state.tabStops.length === 0) {
+      if (tabStops.length === 0) {
         return {
           ...state,
           selectedId: newTabStop.id,
-          tabStops: [newTabStop]
+          tabStops: [newTabStop],
+          firstId: newTabStop.id,
+          lastId: newTabStop.id
         };
       }
       const index = findIndex(
-        state.tabStops,
+        tabStops,
         tabStop => tabStop.id === newTabStop.id
       );
       if (index >= 0) {
@@ -65,7 +82,7 @@ function reducer(state: State, action: Action): State {
         return state;
       }
       const indexAfter = findIndex(
-        state.tabStops,
+        tabStops,
         tabStop =>
           !!(
             tabStop.domElementRef.current.compareDocumentPosition(
@@ -73,13 +90,23 @@ function reducer(state: State, action: Action): State {
             ) & DOCUMENT_POSITION_PRECEDING
           )
       );
+      const firstIndex = findIndex(tabStops, tabStop => tabStop.id === state.firstId);
+      const firstStop = tabStops[firstIndex];
+      const newTabStopIsFirst = firstStop.domElementRef.current.compareDocumentPosition(newTabStop.domElementRef.current) & DOCUMENT_POSITION_PRECEDING;
+      const firstId = newTabStopIsFirst ? newTabStop.id : state.firstId;
+      const lastIndex = findIndex(tabStops, tabStop => tabStop.id === state.lastId);
+      const lastStop = tabStops[lastIndex];
+      const newTabStopIsLast = newTabStop.domElementRef.current.compareDocumentPosition(lastStop.domElementRef.current) & DOCUMENT_POSITION_PRECEDING;
+      const lastId = newTabStopIsLast ? newTabStop.id : state.lastId;
       return {
         ...state,
         tabStops: [
-          ...state.tabStops.slice(0, indexAfter),
+          ...tabStops.slice(0, indexAfter),
           newTabStop,
-          ...state.tabStops.slice(indexAfter)
-        ]
+          ...tabStops.slice(indexAfter)
+        ],
+        firstId,
+        lastId
       };
     }
     case ActionTypes.UNREGISTER: {
@@ -98,6 +125,14 @@ function reducer(state: State, action: Action): State {
               : tabStops[0].id
             : state.selectedId,
         tabStops
+      };
+    }
+    case ActionTypes.TAB_TO_FIRST:
+    case ActionTypes.TAB_TO_LAST: {
+      return {
+        ...state,
+        lastActionOrigin: "keyboard",
+        selectedId: action.type === ActionTypes.TAB_TO_FIRST ? state.firstId : state.lastId
       };
     }
     case ActionTypes.TAB_TO_PREVIOUS:
@@ -135,32 +170,40 @@ function reducer(state: State, action: Action): State {
 }
 
 type Context = {
+  direction: KeyDirection,
   state: State;
   dispatch: React.Dispatch<Action>;
 };
 
 export const RovingTabIndexContext = React.createContext<Context>({
+  direction: "horizontal",
   state: {
     selectedId: null,
     lastActionOrigin: "mouse",
-    tabStops: []
+    tabStops: [],
+    firstId: null,
+    lastId: null
   },
   dispatch: () => {}
 });
 
 type Props = {
   children: React.ReactNode;
+  direction?: KeyDirection;
 };
 
-const Provider = ({ children }: Props) => {
+const Provider = ({ children, direction = "horizontal" }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, {
     selectedId: null,
     lastActionOrigin: "mouse",
-    tabStops: []
+    tabStops: [],
+    firstId: null,
+    lastId: null
   });
 
   const context = React.useMemo<Context>(
     () => ({
+      direction,
       state,
       dispatch
     }),

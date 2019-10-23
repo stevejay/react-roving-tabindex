@@ -18,6 +18,8 @@ export type State = {
 export enum ActionTypes {
   REGISTER = "REGISTER",
   UNREGISTER = "UNREGISTER",
+  TAB_TO_FIRST = "TAB_TO_FIRST",
+  TAB_TO_LAST = "TAB_TO_LAST",
   TAB_TO_PREVIOUS = "TAB_TO_PREVIOUS",
   TAB_TO_NEXT = "TAB_TO_NEXT",
   CLICKED = "CLICKED"
@@ -31,6 +33,12 @@ export type Action =
   | {
       type: ActionTypes.UNREGISTER;
       payload: { id: TabStop["id"] };
+    }
+  | {
+      type: ActionTypes.TAB_TO_FIRST;
+    }
+  | {
+      type: ActionTypes.TAB_TO_LAST;
     }
   | {
       type: ActionTypes.TAB_TO_PREVIOUS;
@@ -137,6 +145,23 @@ export function reducer(state: State, action: Action): State {
           : index >= state.tabStops.length - 1
           ? 0
           : index + 1;
+
+      return {
+        ...state,
+        lastActionOrigin: "keyboard",
+        selectedId: state.tabStops[newIndex].id
+      };
+    }
+    case ActionTypes.TAB_TO_FIRST:
+    case ActionTypes.TAB_TO_LAST: {
+      if (!state.tabStops.length) {
+        return state;
+      }
+
+      const newIndex =
+        action.type === ActionTypes.TAB_TO_FIRST
+          ? 0
+          : state.tabStops.length - 1;
 
       return {
         ...state,

@@ -1,12 +1,9 @@
 import { uniqueId } from "lodash";
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { State, Store } from "@sambego/storybook-state";
+import { withKnobs, boolean } from "@storybook/addon-knobs";
+import { action } from "@storybook/addon-actions";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
-
-const store = new Store({
-  active: [true, true, false, true, true]
-});
 
 const TestButton = ({
   disabled,
@@ -24,6 +21,7 @@ const TestButton = ({
     disabled
   );
   useFocusEffect(focused, ref);
+
   return (
     <button
       ref={ref}
@@ -41,45 +39,49 @@ const TestButton = ({
   );
 };
 
-storiesOf("RovingTabIndex", module).add("Example", () => (
-  <State store={store}>
-    {state => (
-      <RovingTabIndexProvider>
-        <div>
-          <span>
-            <TestButton
-              disabled={!state.active[0]}
-              onClick={() => window.alert("Button One clicked")}
-            >
-              Button One
-            </TestButton>
-          </span>
+const stories = storiesOf("RovingTabIndex", module);
+
+stories.addDecorator(withKnobs);
+
+stories.add("Example", () => (
+  <RovingTabIndexProvider>
+    <div>
+      <span>
+        <TestButton
+          disabled={boolean("Button One Disabled", false)}
+          onClick={action("Button One clicked")}
+        >
+          Button One
+        </TestButton>
+      </span>
+      <TestButton
+        disabled={boolean("Button Two Disabled", false)}
+        onClick={action("Button Two clicked")}
+      >
+        Button Two
+      </TestButton>
+      <TestButton
+        disabled={boolean("Button Three Disabled", true)}
+        onClick={action("Button Three clicked")}
+      >
+        Button Three
+      </TestButton>
+      <span>
+        <span>
           <TestButton
-            disabled={!state.active[1]}
-            onClick={() => window.alert("Button Two clicked")}
-          >
-            Button Two
-          </TestButton>
-          <TestButton
-            disabled={!state.active[2]}
-            onClick={() => window.alert("Button Three clicked")}
-          >
-            Button Three
-          </TestButton>
-          <TestButton
-            disabled={!state.active[3]}
-            onClick={() => window.alert("Button Four clicked")}
+            disabled={boolean("Button Four Disabled", false)}
+            onClick={action("Button Four clicked")}
           >
             Button Four
           </TestButton>
-          <TestButton
-            disabled={!state.active[4]}
-            onClick={() => window.alert("Button Five clicked")}
-          >
-            Button Five
-          </TestButton>
-        </div>
-      </RovingTabIndexProvider>
-    )}
-  </State>
+        </span>
+      </span>
+      <TestButton
+        disabled={boolean("Button Five Disabled", false)}
+        onClick={action("Button Five clicked")}
+      >
+        Button Five
+      </TestButton>
+    </div>
+  </RovingTabIndexProvider>
 ));

@@ -40,7 +40,7 @@ describe("reducer", () => {
   });
 
   describe("when registering a tab stop", () => {
-    describe("when no tab stops have already been registered", () => {
+    describe("when no tab stops have been registered", () => {
       const givenState: State = Object.freeze({
         selectedId: null,
         lastActionOrigin: "mouse",
@@ -387,6 +387,118 @@ describe("reducer", () => {
           type: ActionTypes.TAB_TO_NEXT,
           payload: { id: buttonOneId }
         };
+
+        const result = reducer(givenState, action);
+
+        expect(result).toEqual({
+          selectedId: buttonTwoId,
+          lastActionOrigin: "keyboard",
+          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+        });
+      });
+    });
+  });
+
+  describe("when tabbing to the first tab stop", () => {
+    describe("when no tab stops have been registered", () => {
+      const givenState: State = Object.freeze({
+        selectedId: null,
+        lastActionOrigin: "mouse",
+        tabStops: []
+      });
+
+      it("should not change state", () => {
+        const action: Action = { type: ActionTypes.TAB_TO_FIRST };
+        const result = reducer(givenState, action);
+        expect(result).toEqual(givenState);
+      });
+    });
+
+    describe("when the current tab stop is the first tab stop", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonOneId,
+        lastActionOrigin: "mouse",
+        tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      });
+
+      it("should only alter the action origin", () => {
+        const action: Action = { type: ActionTypes.TAB_TO_FIRST };
+
+        const result = reducer(givenState, action);
+
+        expect(result).toEqual({
+          selectedId: buttonOneId,
+          lastActionOrigin: "keyboard",
+          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+        });
+      });
+    });
+
+    describe("when the current tab stop is not the first tab stop", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonTwoId,
+        lastActionOrigin: "mouse",
+        tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      });
+
+      it("should set the first tab stop as the current tab stop", () => {
+        const action: Action = { type: ActionTypes.TAB_TO_FIRST };
+
+        const result = reducer(givenState, action);
+
+        expect(result).toEqual({
+          selectedId: buttonOneId,
+          lastActionOrigin: "keyboard",
+          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+        });
+      });
+    });
+  });
+
+  describe("when tabbing to the last tab stop", () => {
+    describe("when no tab stops have been registered", () => {
+      const givenState: State = Object.freeze({
+        selectedId: null,
+        lastActionOrigin: "mouse",
+        tabStops: []
+      });
+
+      it("should not change state", () => {
+        const action: Action = { type: ActionTypes.TAB_TO_LAST };
+        const result = reducer(givenState, action);
+        expect(result).toEqual(givenState);
+      });
+    });
+
+    describe("when the current tab stop is the last tab stop", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonTwoId,
+        lastActionOrigin: "mouse",
+        tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      });
+
+      it("should only alter the action origin", () => {
+        const action: Action = { type: ActionTypes.TAB_TO_LAST };
+
+        const result = reducer(givenState, action);
+
+        expect(result).toEqual({
+          selectedId: buttonTwoId,
+          lastActionOrigin: "keyboard",
+          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+        });
+      });
+    });
+
+    describe("when the current tab stop is not the last tab stop", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonOneId,
+        lastActionOrigin: "mouse",
+        tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      });
+
+      it("should set the last tab stop as the current tab stop", () => {
+        const action: Action = { type: ActionTypes.TAB_TO_LAST };
 
         const result = reducer(givenState, action);
 

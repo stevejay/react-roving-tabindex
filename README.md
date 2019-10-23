@@ -11,7 +11,9 @@ The roving tabindex is a useful accessibility refinement for a grouped set of in
 - the group as a whole is treated as a single tab stop, allowing the Web page as a whole to be navigated more quickly using the keyboard
 - the last selected input in the group is remembered, so when tabbing back to the group, that last selected input is the one that receives focus
 
-The left and right arrow keys are used to select inputs within the group. More information is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
+The left and right arrow keys are used to select inputs within the group, while the Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) are used to navigate respectively to the group's first and last inputs.
+
+More information about implementing a roving tabindex is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
 
 ### Implementation Considerations
 

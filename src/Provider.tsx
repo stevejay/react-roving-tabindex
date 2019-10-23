@@ -129,12 +129,6 @@ function reducer(state: State, action: Action): State {
     }
     case ActionTypes.TAB_TO_FIRST:
     case ActionTypes.TAB_TO_LAST: {
-      const id = action.payload.id;
-      const index = findIndex(state.tabStops, tabStop => tabStop.id === id);
-      if (index === -1) {
-        warning(false, `${id} tab stop not registered`);
-        return state;
-      }
       return {
         ...state,
         lastActionOrigin: "keyboard",

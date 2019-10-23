@@ -60,6 +60,12 @@ export default function useRovingTabIndex(
         payload: { id: tabIndexId.current }
       });
       event.preventDefault();
+    } else if (event.key === "Home") {
+      context.dispatch({ type: ActionTypes.TAB_TO_FIRST });
+      event.preventDefault();
+    } else if (event.key === "End") {
+      context.dispatch({ type: ActionTypes.TAB_TO_LAST });
+      event.preventDefault();
     }
   }, []);
 

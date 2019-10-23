@@ -4,12 +4,12 @@ import warning from "warning";
 
 const DOCUMENT_POSITION_PRECEDING = 2;
 
-type TabStop = {
-  id: string;
-  domElementRef: React.RefObject<any>;
+export type TabStop = {
+  readonly id: string;
+  readonly domElementRef: React.RefObject<any>;
 };
 
-type State = {
+export type State = {
   selectedId: string | null;
   lastActionOrigin: "mouse" | "keyboard";
   tabStops: Array<TabStop>;
@@ -23,7 +23,7 @@ export enum ActionTypes {
   CLICKED = "CLICKED"
 }
 
-type Action =
+export type Action =
   | {
       type: ActionTypes.REGISTER;
       payload: TabStop;
@@ -45,10 +45,11 @@ type Action =
       payload: { id: TabStop["id"] };
     };
 
-function reducer(state: State, action: Action): State {
+export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionTypes.REGISTER: {
       const newTabStop = action.payload;
+
       if (state.tabStops.length === 0) {
         return {
           ...state,
@@ -56,58 +57,78 @@ function reducer(state: State, action: Action): State {
           tabStops: [newTabStop]
         };
       }
+
       const index = findIndex(
         state.tabStops,
         tabStop => tabStop.id === newTabStop.id
       );
+
       if (index >= 0) {
         warning(false, `${newTabStop.id} tab stop already registered`);
         return state;
       }
-      const indexAfter = findIndex(
+
+      let indexToInsertAt = findIndex(
         state.tabStops,
         tabStop =>
+          // Return true if newTabStop's element is located earlier in the DOM
+          // than tabStop's element, else false:
           !!(
             tabStop.domElementRef.current.compareDocumentPosition(
               newTabStop.domElementRef.current
             ) & DOCUMENT_POSITION_PRECEDING
           )
       );
+
+      // findIndex returns -1 when newTabStop should be inserted
+      // at the end of tabStops (the compareDocumentPosition test
+      // always returns false in that case).
+      if (indexToInsertAt === -1) {
+        indexToInsertAt = state.tabStops.length;
+      }
+
       return {
         ...state,
         tabStops: [
-          ...state.tabStops.slice(0, indexAfter),
+          ...state.tabStops.slice(0, indexToInsertAt),
           newTabStop,
-          ...state.tabStops.slice(indexAfter)
+          ...state.tabStops.slice(indexToInsertAt)
         ]
       };
     }
     case ActionTypes.UNREGISTER: {
       const id = action.payload.id;
-      const tabStops = state.tabStops.filter(tabStop => tabStop.id !== id);
-      if (tabStops.length === state.tabStops.length) {
+
+      const filteredTabStops = state.tabStops.filter(
+        tabStop => tabStop.id !== id
+      );
+
+      if (filteredTabStops.length === state.tabStops.length) {
         warning(false, `${id} tab stop already unregistered`);
         return state;
       }
+
       return {
         ...state,
         selectedId:
           state.selectedId === id
-            ? tabStops.length === 0
+            ? filteredTabStops.length === 0
               ? null
-              : tabStops[0].id
+              : filteredTabStops[0].id
             : state.selectedId,
-        tabStops
+        tabStops: filteredTabStops
       };
     }
     case ActionTypes.TAB_TO_PREVIOUS:
     case ActionTypes.TAB_TO_NEXT: {
       const id = action.payload.id;
       const index = findIndex(state.tabStops, tabStop => tabStop.id === id);
+
       if (index === -1) {
         warning(false, `${id} tab stop not registered`);
         return state;
       }
+
       const newIndex =
         action.type === ActionTypes.TAB_TO_PREVIOUS
           ? index <= 0
@@ -116,6 +137,7 @@ function reducer(state: State, action: Action): State {
           : index >= state.tabStops.length - 1
           ? 0
           : index + 1;
+
       return {
         ...state,
         lastActionOrigin: "keyboard",

@@ -95,13 +95,13 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
   "custom-id-1" // some custom id
 );
 ```
+This is useful if you need to support server-side rendering. The value initially passed with be used for the lifetime of the containing component.
 
 You can change the navigation direction by passing a direction to the Provider. This will change the left and right directions for up and down.
 ```jsx
 <RovingTabIndexProvider direction="vertical" />
 ```
 
-This is useful if you need to support server-side rendering. The value initially passed with be used for the lifetime of the containing component.
 
 ## License
 

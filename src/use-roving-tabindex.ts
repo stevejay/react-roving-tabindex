@@ -103,6 +103,6 @@ export default function useRovingTabIndex(
 
   const selected = !disabled && tabIndexId.current === context.state.selectedId;
   const tabIndex = selected ? 0 : -1;
-  const focused = selected && context.state.lastActionOrigin === "keyboard";
+  const focused = selected && context.state.lastActionOrigin !== null;
   return [tabIndex, focused, handleKeyDown, handleClick];
 }

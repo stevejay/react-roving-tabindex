@@ -603,8 +603,8 @@ test("manages focus when switching between keyboard and mouse input", async () =
   const flags = [false, false, false];
   const { getByText } = render(<TestToolbar flags={flags} />);
 
-  fireEvent.mouseDown(getByText("Button One"));
-  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  fireEvent.click(getByText("Button One"));
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
     "false"
@@ -618,7 +618,7 @@ test("manages focus when switching between keyboard and mouse input", async () =
   );
 
   fireEvent.click(getByText("Button One"));
-  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
     "false"

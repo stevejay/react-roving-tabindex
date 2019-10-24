@@ -14,7 +14,7 @@ export type TabStop = {
 export type State = {
   direction: KeyDirection;
   selectedId: string | null;
-  lastActionOrigin: "mouse" | "keyboard";
+  lastActionOrigin: "mouse" | "keyboard" | null;
   tabStops: Array<TabStop>;
 };
 
@@ -204,7 +204,7 @@ export const RovingTabIndexContext = React.createContext<Context>({
   state: {
     direction: "horizontal",
     selectedId: null,
-    lastActionOrigin: "mouse",
+    lastActionOrigin: null,
     tabStops: []
   },
   dispatch: () => {}
@@ -219,7 +219,7 @@ const Provider = ({ children, direction = "horizontal" }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, {
     direction: "horizontal",
     selectedId: null,
-    lastActionOrigin: "mouse",
+    lastActionOrigin: null,
     tabStops: []
   });
 

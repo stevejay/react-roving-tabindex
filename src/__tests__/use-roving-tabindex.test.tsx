@@ -531,12 +531,80 @@ test("pressing end key", async () => {
   );
 });
 
+test("pressing home key", async () => {
+  const { getByText } = render(<TestToolbar />);
+
+  fireEvent.keyDown(getByText("Button One"), { key: "Home" });
+  expect(getByText("Button One").tabIndex).toEqual(0);
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+  expect(getByText("Button Two").tabIndex).toEqual(-1);
+  expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Three").tabIndex).toEqual(-1);
+  expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+    "false"
+  );
+
+  fireEvent.keyDown(getByText("Button Two"), { key: "Home" });
+  expect(getByText("Button One").tabIndex).toEqual(0);
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+  expect(getByText("Button Two").tabIndex).toEqual(-1);
+  expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Three").tabIndex).toEqual(-1);
+  expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+    "false"
+  );
+
+  fireEvent.keyDown(getByText("Button Three"), { key: "Home" });
+  expect(getByText("Button One").tabIndex).toEqual(0);
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+  expect(getByText("Button Two").tabIndex).toEqual(-1);
+  expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Three").tabIndex).toEqual(-1);
+  expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+    "false"
+  );
+});
+
+test("pressing end key", async () => {
+  const { getByText } = render(<TestToolbar />);
+
+  fireEvent.keyDown(getByText("Button One"), { key: "End" });
+  expect(getByText("Button One").tabIndex).toEqual(-1);
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Two").tabIndex).toEqual(-1);
+  expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Three").tabIndex).toEqual(0);
+  expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+    "true"
+  );
+
+  fireEvent.keyDown(getByText("Button Two"), { key: "End" });
+  expect(getByText("Button One").tabIndex).toEqual(-1);
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Two").tabIndex).toEqual(-1);
+  expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Three").tabIndex).toEqual(0);
+  expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+    "true"
+  );
+
+  fireEvent.keyDown(getByText("Button Three"), { key: "End" });
+  expect(getByText("Button One").tabIndex).toEqual(-1);
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Two").tabIndex).toEqual(-1);
+  expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button Three").tabIndex).toEqual(0);
+  expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+    "true"
+  );
+});
+
 test("manages focus when switching between keyboard and mouse input", async () => {
   const flags = [false, false, false];
   const { getByText } = render(<TestToolbar flags={flags} />);
 
-  fireEvent.mouseDown(getByText("Button One"));
-  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  fireEvent.click(getByText("Button One"));
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
     "false"
@@ -550,7 +618,7 @@ test("manages focus when switching between keyboard and mouse input", async () =
   );
 
   fireEvent.click(getByText("Button One"));
-  expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+  expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
     "false"

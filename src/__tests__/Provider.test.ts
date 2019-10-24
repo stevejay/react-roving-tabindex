@@ -1,8 +1,8 @@
 import React from "react";
-import { JSDOM } from "jsdom";
+import {JSDOM} from "jsdom";
 import warning from "warning";
-import { cleanup } from "@testing-library/react";
-import { ActionTypes, Action, reducer, State, TabStop } from "../Provider";
+import {cleanup} from "@testing-library/react";
+import {Action, ActionTypes, reducer, State, TabStop} from "../Provider";
 
 jest.mock("warning");
 
@@ -42,13 +42,14 @@ describe("reducer", () => {
   describe("when registering a tab stop", () => {
     describe("when no tab stops have been registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: null,
         lastActionOrigin: "mouse",
         tabStops: []
       });
 
       it("should add the tab stop as the only tab stop", () => {
-        const action = {
+        const action: Action = {
           type: ActionTypes.REGISTER,
           payload: buttonOneTabStop
         };
@@ -56,6 +57,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "mouse",
           tabStops: [buttonOneTabStop]
@@ -65,13 +67,14 @@ describe("reducer", () => {
 
     describe("when one earlier tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop]
       });
 
       it("should add the new tab stop after the existing tab stop", () => {
-        const action = {
+        const action: Action = {
           type: ActionTypes.REGISTER,
           payload: buttonTwoTabStop
         };
@@ -79,6 +82,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "mouse",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -88,13 +92,14 @@ describe("reducer", () => {
 
     describe("when one later tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonTwoId,
         lastActionOrigin: "mouse",
         tabStops: [buttonTwoTabStop]
       });
 
       it("should add the new tab stop before the existing tab stop", () => {
-        const action = {
+        const action: Action = {
           type: ActionTypes.REGISTER,
           payload: buttonOneTabStop
         };
@@ -102,6 +107,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "mouse",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -111,13 +117,14 @@ describe("reducer", () => {
 
     describe("when the same tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop]
       });
 
       it("should not add the tab stop again", () => {
-        const action = {
+        const action: Action = {
           type: ActionTypes.REGISTER,
           payload: buttonOneTabStop
         };
@@ -126,7 +133,7 @@ describe("reducer", () => {
       });
 
       it("should log a warning", () => {
-        const action = {
+        const action: Action = {
           type: ActionTypes.REGISTER,
           payload: buttonOneTabStop
         };
@@ -145,6 +152,7 @@ describe("reducer", () => {
   describe("when unregistering a tab stop", () => {
     describe("when the tab stop to remove is not registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: null,
         lastActionOrigin: "mouse",
         tabStops: []
@@ -180,6 +188,7 @@ describe("reducer", () => {
     describe("when the tab stop to remove is registered", () => {
       describe("when it is the currently selected tab stop", () => {
         const givenState: State = Object.freeze({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "mouse",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -194,6 +203,7 @@ describe("reducer", () => {
           const result = reducer(givenState, action);
 
           expect(result).toEqual({
+            direction: "horizontal",
             selectedId: buttonTwoId,
             lastActionOrigin: "mouse",
             tabStops: [buttonTwoTabStop]
@@ -203,6 +213,7 @@ describe("reducer", () => {
 
       describe("when it is not the currently selected tab stop", () => {
         const givenState: State = Object.freeze({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "mouse",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -217,6 +228,7 @@ describe("reducer", () => {
           const result = reducer(givenState, action);
 
           expect(result).toEqual({
+            direction: "horizontal",
             selectedId: buttonOneId,
             lastActionOrigin: "mouse",
             tabStops: [buttonOneTabStop]
@@ -228,6 +240,7 @@ describe("reducer", () => {
 
   describe("when clicking on a tab stop", () => {
     const givenState: State = Object.freeze({
+      direction: "horizontal",
       selectedId: buttonOneId,
       lastActionOrigin: "keyboard",
       tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -242,6 +255,7 @@ describe("reducer", () => {
       const result = reducer(givenState, action);
 
       expect(result).toEqual({
+        direction: "horizontal",
         selectedId: buttonTwoId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -252,6 +266,7 @@ describe("reducer", () => {
   describe("when tabbing to the next tab stop", () => {
     describe("when the current tab stop is not registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -279,6 +294,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is not the last tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -293,6 +309,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -302,6 +319,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is the last tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonTwoId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -316,6 +334,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -327,6 +346,7 @@ describe("reducer", () => {
   describe("when tabbing to the previous tab stop", () => {
     describe("when the current tab stop is not registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -354,6 +374,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is not the first tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonTwoId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -368,6 +389,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -377,6 +399,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is the first tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -391,6 +414,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -402,6 +426,7 @@ describe("reducer", () => {
   describe("when tabbing to the first tab stop", () => {
     describe("when no tab stops have been registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: null,
         lastActionOrigin: "mouse",
         tabStops: []
@@ -416,6 +441,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is the first tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -427,6 +453,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -436,6 +463,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is not the first tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonTwoId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -447,6 +475,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -458,6 +487,7 @@ describe("reducer", () => {
   describe("when tabbing to the last tab stop", () => {
     describe("when no tab stops have been registered", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: null,
         lastActionOrigin: "mouse",
         tabStops: []
@@ -472,6 +502,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is the last tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonTwoId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -483,6 +514,7 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -492,6 +524,7 @@ describe("reducer", () => {
 
     describe("when the current tab stop is not the last tab stop", () => {
       const givenState: State = Object.freeze({
+        direction: "horizontal",
         selectedId: buttonOneId,
         lastActionOrigin: "mouse",
         tabStops: [buttonOneTabStop, buttonTwoTabStop]
@@ -503,11 +536,37 @@ describe("reducer", () => {
         const result = reducer(givenState, action);
 
         expect(result).toEqual({
+          direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
           tabStops: [buttonOneTabStop, buttonTwoTabStop]
         });
       });
     });
+  });
+
+  describe("changing the direction", () => {
+    const givenState: State = Object.freeze({
+      direction: "horizontal",
+      selectedId: buttonOneId,
+      lastActionOrigin: "mouse",
+      tabStops: [buttonOneTabStop, buttonTwoTabStop]
+    });
+
+    const action: Action = {
+      type: ActionTypes.CHANGE_DIRECTION,
+      payload: {
+        direction: "vertical"
+      }
+    };
+
+    const result = reducer(givenState, action);
+
+    expect(result).toEqual({
+      direction: "vertical",
+      selectedId: buttonOneId,
+      lastActionOrigin: "mouse",
+      tabStops: [buttonOneTabStop, buttonTwoTabStop]
+    } as State)
   });
 });

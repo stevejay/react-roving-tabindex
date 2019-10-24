@@ -4,14 +4,17 @@ import warning from "warning";
 
 const DOCUMENT_POSITION_PRECEDING = 2;
 
+type KeyDirection = "horizontal" | "vertical" | "both";
+
 export type TabStop = {
   readonly id: string;
   readonly domElementRef: React.RefObject<any>;
 };
 
 export type State = {
+  direction: KeyDirection;
   selectedId: string | null;
-  lastActionOrigin: "mouse" | "keyboard";
+  lastActionOrigin: "mouse" | "keyboard" | null;
   tabStops: Array<TabStop>;
 };
 
@@ -22,7 +25,8 @@ export enum ActionTypes {
   TAB_TO_LAST = "TAB_TO_LAST",
   TAB_TO_PREVIOUS = "TAB_TO_PREVIOUS",
   TAB_TO_NEXT = "TAB_TO_NEXT",
-  CLICKED = "CLICKED"
+  CLICKED = "CLICKED",
+  CHANGE_DIRECTION = "CHANGE_DIRECTION"
 }
 
 export type Action =
@@ -51,14 +55,18 @@ export type Action =
   | {
       type: ActionTypes.CLICKED;
       payload: { id: TabStop["id"] };
+    }
+  | {
+      type: ActionTypes.CHANGE_DIRECTION;
+      payload: { direction: KeyDirection }
     };
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionTypes.REGISTER: {
+      const { tabStops } = state;
       const newTabStop = action.payload;
-
-      if (state.tabStops.length === 0) {
+      if (tabStops.length === 0) {
         return {
           ...state,
           selectedId: newTabStop.id,
@@ -67,7 +75,7 @@ export function reducer(state: State, action: Action): State {
       }
 
       const index = findIndex(
-        state.tabStops,
+        tabStops,
         tabStop => tabStop.id === newTabStop.id
       );
 
@@ -77,7 +85,7 @@ export function reducer(state: State, action: Action): State {
       }
 
       let indexToInsertAt = findIndex(
-        state.tabStops,
+        tabStops,
         tabStop =>
           // Return true if newTabStop's element is located earlier in the DOM
           // than tabStop's element, else false:
@@ -92,15 +100,15 @@ export function reducer(state: State, action: Action): State {
       // at the end of tabStops (the compareDocumentPosition test
       // always returns false in that case).
       if (indexToInsertAt === -1) {
-        indexToInsertAt = state.tabStops.length;
+        indexToInsertAt = tabStops.length;
       }
 
       return {
         ...state,
         tabStops: [
-          ...state.tabStops.slice(0, indexToInsertAt),
+          ...tabStops.slice(0, indexToInsertAt),
           newTabStop,
-          ...state.tabStops.slice(indexToInsertAt)
+          ...tabStops.slice(indexToInsertAt)
         ]
       };
     }
@@ -176,6 +184,12 @@ export function reducer(state: State, action: Action): State {
         selectedId: action.payload.id
       };
     }
+    case ActionTypes.CHANGE_DIRECTION: {
+      return {
+        ...state,
+        direction: action.payload.direction
+      };
+    }
     default:
       return state;
   }
@@ -188,8 +202,9 @@ type Context = {
 
 export const RovingTabIndexContext = React.createContext<Context>({
   state: {
+    direction: "horizontal",
     selectedId: null,
-    lastActionOrigin: "mouse",
+    lastActionOrigin: null,
     tabStops: []
   },
   dispatch: () => {}
@@ -197,12 +212,14 @@ export const RovingTabIndexContext = React.createContext<Context>({
 
 type Props = {
   children: React.ReactNode;
+  direction?: KeyDirection;
 };
 
-const Provider = ({ children }: Props) => {
+const Provider = ({ children, direction = "horizontal" }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, {
+    direction: "horizontal",
     selectedId: null,
-    lastActionOrigin: "mouse",
+    lastActionOrigin: null,
     tabStops: []
   });
 
@@ -213,6 +230,13 @@ const Provider = ({ children }: Props) => {
     }),
     [state]
   );
+
+  React.useEffect(() => {
+    dispatch({
+      type: ActionTypes.CHANGE_DIRECTION,
+      payload: { direction }
+    });
+  }, [direction, dispatch]);
 
   return (
     <RovingTabIndexContext.Provider value={context}>

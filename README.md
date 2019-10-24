@@ -11,7 +11,7 @@ The roving tabindex is a useful accessibility refinement for a grouped set of in
 - the group as a whole is treated as a single tab stop, allowing the Web page as a whole to be navigated more quickly using the keyboard
 - the last selected input in the group is remembered, so when tabbing back to the group, that last selected input is the one that receives focus
 
-The left and right arrow keys are used to select inputs within the group, while the Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) are used to navigate respectively to the group's first and last inputs.
+The left and right (or up and down) arrow keys are used to select inputs within the group, while the Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) are used to navigate respectively to the group's first and last inputs.
 
 More information about implementing a roving tabindex is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
 
@@ -97,8 +97,13 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
   "custom-id-1" // some custom id
 );
 ```
-
 This is useful if you need to support server-side rendering. The value initially passed with be used for the lifetime of the containing component.
+
+You can change the navigation direction by passing a direction to the Provider. This will change the left and right arrow keys for up and down.
+```jsx
+<RovingTabIndexProvider direction="horizontal|vertical|both" />
+```
+
 
 ## License
 

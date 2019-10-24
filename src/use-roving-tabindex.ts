@@ -1,5 +1,5 @@
 import React from "react";
-import { RovingTabIndexContext, ActionTypes } from "./Provider";
+import {ActionTypes, RovingTabIndexContext} from "./Provider";
 import uniqueId from "lodash.uniqueid";
 
 type ReturnType = [
@@ -8,6 +8,11 @@ type ReturnType = [
   (event: React.KeyboardEvent<any>) => void,
   () => void
 ];
+
+enum TabDirection {
+  Next,
+  Previous
+}
 
 // domElementRef:
 //   - a React DOM element ref of the DOM element that is the focus target
@@ -47,17 +52,37 @@ export default function useRovingTabIndex(
     };
   }, [disabled]);
 
+  const getDirection = (event: React.KeyboardEvent<any>): TabDirection | null => {
+    if (context.state.direction === "horizontal" || context.state.direction === "both") {
+      if (event.key === "ArrowLeft") {
+        return TabDirection.Previous;
+      } else if (event.key === "ArrowRight") {
+        return TabDirection.Next;
+      }
+    }
+    if (context.state.direction === "vertical" || context.state.direction === "both") {
+      if (event.key === "ArrowUp") {
+        return TabDirection.Previous;
+      } else if (event.key === "ArrowDown") {
+        return TabDirection.Next;
+      }
+    }
+    return null;
+  };
+
   const handleKeyDown = React.useCallback((event: React.KeyboardEvent<any>) => {
-    if (event.key === "ArrowLeft") {
+    const payload = { id: tabIndexId.current };
+    const direction = getDirection(event);
+    if (direction === TabDirection.Previous) {
       context.dispatch({
         type: ActionTypes.TAB_TO_PREVIOUS,
-        payload: { id: tabIndexId.current }
+        payload
       });
       event.preventDefault();
-    } else if (event.key === "ArrowRight") {
+    } else if (direction === TabDirection.Next) {
       context.dispatch({
         type: ActionTypes.TAB_TO_NEXT,
-        payload: { id: tabIndexId.current }
+        payload
       });
       event.preventDefault();
     } else if (event.key === "Home") {
@@ -67,7 +92,7 @@ export default function useRovingTabIndex(
       context.dispatch({ type: ActionTypes.TAB_TO_LAST });
       event.preventDefault();
     }
-  }, []);
+  }, [context.state]);
 
   const handleClick = React.useCallback(() => {
     context.dispatch({
@@ -78,6 +103,6 @@ export default function useRovingTabIndex(
 
   const selected = !disabled && tabIndexId.current === context.state.selectedId;
   const tabIndex = selected ? 0 : -1;
-  const focused = selected && context.state.lastActionOrigin === "keyboard";
+  const focused = selected && context.state.lastActionOrigin !== null;
   return [tabIndex, focused, handleKeyDown, handleClick];
 }

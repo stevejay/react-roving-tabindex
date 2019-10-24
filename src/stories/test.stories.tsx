@@ -1,7 +1,7 @@
 import { uniqueId } from "lodash";
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import { withKnobs, boolean } from "@storybook/addon-knobs";
+import {withKnobs, boolean, select} from "@storybook/addon-knobs";
 import { action } from "@storybook/addon-actions";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 
@@ -44,7 +44,7 @@ const stories = storiesOf("RovingTabIndex", module);
 stories.addDecorator(withKnobs);
 
 stories.add("Example", () => (
-  <RovingTabIndexProvider>
+  <RovingTabIndexProvider direction={select("Direction", {Horizontal: "horizontal", Vertical: "vertical", Both: "both"}, "horizontal")}>
     <div>
       <span>
         <TestButton

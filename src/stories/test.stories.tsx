@@ -8,13 +8,11 @@ import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 const TestButton = ({
   disabled,
   children,
-  onClick,
-  style
+  onClick
 }: {
   disabled: boolean;
   children: React.ReactNode;
   onClick: () => void;
-  style?: Record<string, string>
 }) => {
   const id = React.useRef<string>(uniqueId());
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -35,7 +33,6 @@ const TestButton = ({
       }}
       tabIndex={tabIndex}
       disabled={disabled}
-      style={style}
     >
       {children}
     </button>

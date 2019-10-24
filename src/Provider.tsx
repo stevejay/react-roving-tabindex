@@ -6,17 +6,16 @@ const DOCUMENT_POSITION_PRECEDING = 2;
 
 type KeyDirection = "horizontal" | "vertical" | "both";
 
-type TabStop = {
-  id: string;
-  domElementRef: React.RefObject<any>;
+export type TabStop = {
+  readonly id: string;
+  readonly domElementRef: React.RefObject<any>;
 };
 
-type State = {
+export type State = {
+  direction: KeyDirection;
   selectedId: string | null;
   lastActionOrigin: "mouse" | "keyboard";
   tabStops: Array<TabStop>;
-  firstId: string | null;
-  lastId: string | null;
 };
 
 export enum ActionTypes {
@@ -26,10 +25,11 @@ export enum ActionTypes {
   TAB_TO_LAST = "TAB_TO_LAST",
   TAB_TO_PREVIOUS = "TAB_TO_PREVIOUS",
   TAB_TO_NEXT = "TAB_TO_NEXT",
-  CLICKED = "CLICKED"
+  CLICKED = "CLICKED",
+  CHANGE_DIRECTION = "CHANGE_DIRECTION"
 }
 
-type Action =
+export type Action =
   | {
       type: ActionTypes.REGISTER;
       payload: TabStop;
@@ -40,11 +40,9 @@ type Action =
     }
   | {
       type: ActionTypes.TAB_TO_FIRST;
-      payload: { id: TabStop["id"] };
     }
   | {
       type: ActionTypes.TAB_TO_LAST;
-      payload: { id: TabStop["id"] };
     }
   | {
       type: ActionTypes.TAB_TO_PREVIOUS;
@@ -57,9 +55,13 @@ type Action =
   | {
       type: ActionTypes.CLICKED;
       payload: { id: TabStop["id"] };
+    }
+  | {
+      type: ActionTypes.CHANGE_DIRECTION;
+      payload: { direction: KeyDirection }
     };
 
-function reducer(state: State, action: Action): State {
+export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionTypes.REGISTER: {
       const { tabStops } = state;
@@ -68,81 +70,81 @@ function reducer(state: State, action: Action): State {
         return {
           ...state,
           selectedId: newTabStop.id,
-          tabStops: [newTabStop],
-          firstId: newTabStop.id,
-          lastId: newTabStop.id
+          tabStops: [newTabStop]
         };
       }
+
       const index = findIndex(
         tabStops,
         tabStop => tabStop.id === newTabStop.id
       );
+
       if (index >= 0) {
         warning(false, `${newTabStop.id} tab stop already registered`);
         return state;
       }
-      const indexAfter = findIndex(
+
+      let indexToInsertAt = findIndex(
         tabStops,
         tabStop =>
+          // Return true if newTabStop's element is located earlier in the DOM
+          // than tabStop's element, else false:
           !!(
             tabStop.domElementRef.current.compareDocumentPosition(
               newTabStop.domElementRef.current
             ) & DOCUMENT_POSITION_PRECEDING
           )
       );
-      const firstIndex = findIndex(tabStops, tabStop => tabStop.id === state.firstId);
-      const firstStop = tabStops[firstIndex];
-      const newTabStopIsFirst = firstStop.domElementRef.current.compareDocumentPosition(newTabStop.domElementRef.current) & DOCUMENT_POSITION_PRECEDING;
-      const firstId = newTabStopIsFirst ? newTabStop.id : state.firstId;
-      const lastIndex = findIndex(tabStops, tabStop => tabStop.id === state.lastId);
-      const lastStop = tabStops[lastIndex];
-      const newTabStopIsLast = newTabStop.domElementRef.current.compareDocumentPosition(lastStop.domElementRef.current) & DOCUMENT_POSITION_PRECEDING;
-      const lastId = newTabStopIsLast ? newTabStop.id : state.lastId;
+
+      // findIndex returns -1 when newTabStop should be inserted
+      // at the end of tabStops (the compareDocumentPosition test
+      // always returns false in that case).
+      if (indexToInsertAt === -1) {
+        indexToInsertAt = tabStops.length;
+      }
+
       return {
         ...state,
         tabStops: [
-          ...tabStops.slice(0, indexAfter),
+          ...tabStops.slice(0, indexToInsertAt),
           newTabStop,
-          ...tabStops.slice(indexAfter)
-        ],
-        firstId,
-        lastId
+          ...tabStops.slice(indexToInsertAt)
+        ]
       };
     }
     case ActionTypes.UNREGISTER: {
       const id = action.payload.id;
-      const tabStops = state.tabStops.filter(tabStop => tabStop.id !== id);
-      if (tabStops.length === state.tabStops.length) {
+
+      const filteredTabStops = state.tabStops.filter(
+        tabStop => tabStop.id !== id
+      );
+
+      if (filteredTabStops.length === state.tabStops.length) {
         warning(false, `${id} tab stop already unregistered`);
         return state;
       }
+
       return {
         ...state,
         selectedId:
           state.selectedId === id
-            ? tabStops.length === 0
+            ? filteredTabStops.length === 0
               ? null
-              : tabStops[0].id
+              : filteredTabStops[0].id
             : state.selectedId,
-        tabStops
-      };
-    }
-    case ActionTypes.TAB_TO_FIRST:
-    case ActionTypes.TAB_TO_LAST: {
-      return {
-        ...state,
-        lastActionOrigin: "keyboard",
-        selectedId: action.type === ActionTypes.TAB_TO_FIRST ? state.firstId : state.lastId
+        tabStops: filteredTabStops
       };
     }
     case ActionTypes.TAB_TO_PREVIOUS:
     case ActionTypes.TAB_TO_NEXT: {
       const id = action.payload.id;
       const index = findIndex(state.tabStops, tabStop => tabStop.id === id);
+
       if (index === -1) {
         warning(false, `${id} tab stop not registered`);
         return state;
       }
+
       const newIndex =
         action.type === ActionTypes.TAB_TO_PREVIOUS
           ? index <= 0
@@ -151,6 +153,24 @@ function reducer(state: State, action: Action): State {
           : index >= state.tabStops.length - 1
           ? 0
           : index + 1;
+
+      return {
+        ...state,
+        lastActionOrigin: "keyboard",
+        selectedId: state.tabStops[newIndex].id
+      };
+    }
+    case ActionTypes.TAB_TO_FIRST:
+    case ActionTypes.TAB_TO_LAST: {
+      if (!state.tabStops.length) {
+        return state;
+      }
+
+      const newIndex =
+        action.type === ActionTypes.TAB_TO_FIRST
+          ? 0
+          : state.tabStops.length - 1;
+
       return {
         ...state,
         lastActionOrigin: "keyboard",
@@ -164,25 +184,28 @@ function reducer(state: State, action: Action): State {
         selectedId: action.payload.id
       };
     }
+    case ActionTypes.CHANGE_DIRECTION: {
+      return {
+        ...state,
+        direction: action.payload.direction
+      };
+    }
     default:
       return state;
   }
 }
 
 type Context = {
-  direction: KeyDirection,
   state: State;
   dispatch: React.Dispatch<Action>;
 };
 
 export const RovingTabIndexContext = React.createContext<Context>({
-  direction: "horizontal",
   state: {
+    direction: "horizontal",
     selectedId: null,
     lastActionOrigin: "mouse",
-    tabStops: [],
-    firstId: null,
-    lastId: null
+    tabStops: []
   },
   dispatch: () => {}
 });
@@ -194,21 +217,26 @@ type Props = {
 
 const Provider = ({ children, direction = "horizontal" }: Props) => {
   const [state, dispatch] = React.useReducer(reducer, {
+    direction: "horizontal",
     selectedId: null,
     lastActionOrigin: "mouse",
-    tabStops: [],
-    firstId: null,
-    lastId: null
+    tabStops: []
   });
 
   const context = React.useMemo<Context>(
     () => ({
-      direction,
       state,
       dispatch
     }),
     [state]
   );
+
+  React.useEffect(() => {
+    dispatch({
+      type: ActionTypes.CHANGE_DIRECTION,
+      payload: { direction }
+    });
+  }, [direction, dispatch]);
 
   return (
     <RovingTabIndexContext.Provider value={context}>

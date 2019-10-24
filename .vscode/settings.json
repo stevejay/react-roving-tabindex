@@ -30,5 +30,8 @@
     "relativeDownLevel"
   ],
   "typescript.extension.sortImports.quoteStyle": "double",
-  "typescript.extension.sortImports.sortOnSave": false
+  "typescript.extension.sortImports.sortOnSave": false,
+  "cSpell.words": [
+    "cleanup"
+  ]
 }

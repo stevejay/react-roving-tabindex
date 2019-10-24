@@ -53,14 +53,14 @@ export default function useRovingTabIndex(
   }, [disabled]);
 
   const getDirection = (event: React.KeyboardEvent<any>): TabDirection | null => {
-    if (context.direction === "horizontal" || context.direction === "both") {
+    if (context.state.direction === "horizontal" || context.state.direction === "both") {
       if (event.key === "ArrowLeft") {
         return TabDirection.Previous;
       } else if (event.key === "ArrowRight") {
         return TabDirection.Next;
       }
     }
-    if (context.direction === "vertical" || context.direction === "both") {
+    if (context.state.direction === "vertical" || context.state.direction === "both") {
       if (event.key === "ArrowUp") {
         return TabDirection.Previous;
       } else if (event.key === "ArrowDown") {
@@ -86,17 +86,13 @@ export default function useRovingTabIndex(
       });
       event.preventDefault();
     } else if (event.key === "Home") {
-      context.dispatch({
-        type: ActionTypes.TAB_TO_FIRST,
-        payload
-      });
+      context.dispatch({ type: ActionTypes.TAB_TO_FIRST });
+      event.preventDefault();
     } else if (event.key === "End") {
-      context.dispatch({
-        type: ActionTypes.TAB_TO_LAST,
-        payload
-      });
+      context.dispatch({ type: ActionTypes.TAB_TO_LAST });
+      event.preventDefault();
     }
-  }, []);
+  }, [context.state]);
 
   const handleClick = React.useCallback(() => {
     context.dispatch({

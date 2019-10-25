@@ -108,4 +108,14 @@ You can change the navigation direction by passing a direction to the Provider. 
 
 ## License
 
-MIT © [stevejay](https://github.com/stevejay)
+MIT © [stevejay](ht
+
+## TODO
+
+- linting in build and husky
+
+## Development
+
+### Issues
+
+- The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311)

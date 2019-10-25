@@ -1,11 +1,12 @@
 import { uniqueId } from "lodash";
 import React from "react";
 import { storiesOf } from "@storybook/react";
-import {withKnobs, boolean, select} from "@storybook/addon-knobs";
+import { withKnobs, boolean, select } from "@storybook/addon-knobs";
 import { action } from "@storybook/addon-actions";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
+import { Button } from "./button";
 
-const TestButton = ({
+const ToolbarButton = ({
   disabled,
   children,
   onClick
@@ -20,10 +21,11 @@ const TestButton = ({
     ref,
     disabled
   );
+
   useFocusEffect(focused, ref);
 
   return (
-    <button
+    <Button
       ref={ref}
       id={id.current}
       onKeyDown={handleKeyDown}
@@ -35,7 +37,7 @@ const TestButton = ({
       disabled={disabled}
     >
       {children}
-    </button>
+    </Button>
   );
 };
 
@@ -44,44 +46,50 @@ const stories = storiesOf("RovingTabIndex", module);
 stories.addDecorator(withKnobs);
 
 stories.add("Example", () => (
-  <RovingTabIndexProvider direction={select("Direction", {Horizontal: "horizontal", Vertical: "vertical", Both: "both"}, "horizontal")}>
+  <RovingTabIndexProvider
+    direction={select(
+      "Direction",
+      { Horizontal: "horizontal", Vertical: "vertical", Both: "both" },
+      "horizontal"
+    )}
+  >
     <div>
       <span>
-        <TestButton
+        <ToolbarButton
           disabled={boolean("Button One Disabled", false)}
           onClick={action("Button One clicked")}
         >
           Button One
-        </TestButton>
+        </ToolbarButton>
       </span>
-      <TestButton
+      <ToolbarButton
         disabled={boolean("Button Two Disabled", false)}
         onClick={action("Button Two clicked")}
       >
         Button Two
-      </TestButton>
-      <TestButton
+      </ToolbarButton>
+      <ToolbarButton
         disabled={boolean("Button Three Disabled", true)}
         onClick={action("Button Three clicked")}
       >
         Button Three
-      </TestButton>
+      </ToolbarButton>
       <span>
         <span>
-          <TestButton
+          <ToolbarButton
             disabled={boolean("Button Four Disabled", false)}
             onClick={action("Button Four clicked")}
           >
             Button Four
-          </TestButton>
+          </ToolbarButton>
         </span>
       </span>
-      <TestButton
+      <ToolbarButton
         disabled={boolean("Button Five Disabled", false)}
         onClick={action("Button Five clicked")}
       >
         Button Five
-      </TestButton>
+      </ToolbarButton>
     </div>
   </RovingTabIndexProvider>
 ));

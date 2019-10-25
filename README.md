@@ -98,7 +98,7 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 );
 ```
 
-This is useful if you need to support server-side rendering. The value initially passed with be used for the lifetime of the containing component.
+This is useful if you need to support server-side rendering. The value initially passed will be used for the lifetime of the containing component.
 
 You can change the navigation direction by passing a direction to the Provider. This will change the left and right arrow keys for up and down.
 
@@ -109,3 +109,9 @@ You can change the navigation direction by passing a direction to the Provider. 
 ## License
 
 MIT © [stevejay](https://github.com/stevejay)
+
+## Development
+
+### Issues
+
+- The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311)

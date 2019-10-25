@@ -1,25 +1,19 @@
 import React from "react";
-import { render, cleanup, fireEvent } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import Provider from "../Provider";
 import useRovingTabIndex from "../use-roving-tabindex";
 
-afterEach(cleanup);
-
-const TestButton = ({
-  disabled,
-  children,
-  id
-}: {
+const TestButton: React.FC<{
   disabled: boolean;
-  children: React.ReactNode;
   id?: string;
-}) => {
+}> = ({ disabled, children, id }) => {
   const ref = React.useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
     disabled,
     id
   );
+
   return (
     <button
       ref={ref}
@@ -34,13 +28,10 @@ const TestButton = ({
   );
 };
 
-const TestToolbar = ({
-  flags = [false, false, false],
-  direction
-}: {
+const TestToolbar: React.FC<{
   direction?: "horizontal" | "vertical" | "both";
   flags?: Array<boolean>;
-}) => (
+}> = ({ flags = [false, false, false], direction }) => (
   <Provider direction={direction}>
     <TestButton disabled={flags[0]}>Button One</TestButton>
     <div>
@@ -50,11 +41,9 @@ const TestToolbar = ({
   </Provider>
 );
 
-const TestToolbarWithIDs = ({
-  flags = [false, false, false]
-}: {
+const TestToolbarWithIDs: React.FC<{
   flags?: Array<boolean>;
-}) => (
+}> = ({ flags = [false, false, false] }) => (
   <Provider>
     <TestButton disabled={flags[0]} id="user-id-1">
       Button One
@@ -111,106 +100,130 @@ test("updates correctly when a button changes to being disabled", async () => {
 
 describe("direction is 'horizontal'", () => {
   test("pressing arrow right key", async () => {
-    const {getByText} = render(<TestToolbar direction="horizontal"/>);
+    const { getByText } = render(<TestToolbar direction="horizontal" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow left key", async () => {
-    const {getByText} = render(<TestToolbar/>);
+    const { getByText } = render(<TestToolbar />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow up key", async () => {
-    const {getByText} = render(<TestToolbar/>);
+    const { getByText } = render(<TestToolbar />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
   });
 
   test("pressing down up key", async () => {
-    const {getByText} = render(<TestToolbar/>);
+    const { getByText } = render(<TestToolbar />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
@@ -219,106 +232,130 @@ describe("direction is 'horizontal'", () => {
 
 describe("direction is 'vertical'", () => {
   test("pressing arrow down key", async () => {
-    const {getByText} = render(<TestToolbar direction="vertical"/>);
+    const { getByText } = render(<TestToolbar direction="vertical" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow up key", async () => {
-    const {getByText} = render(<TestToolbar direction="vertical"/>);
+    const { getByText } = render(<TestToolbar direction="vertical" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow right key", async () => {
-    const {getByText} = render(<TestToolbar direction="vertical"/>);
+    const { getByText } = render(<TestToolbar direction="vertical" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
   });
 
   test("pressing arrow down key", async () => {
-    const {getByText} = render(<TestToolbar direction="vertical"/>);
+    const { getByText } = render(<TestToolbar direction="vertical" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(0);
     expect(getByText("Button Two").tabIndex).toEqual(-1);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
@@ -327,207 +364,255 @@ describe("direction is 'vertical'", () => {
 
 describe("direction is 'both'", () => {
   test("pressing arrow right key", async () => {
-    const {getByText} = render(<TestToolbar direction="both"/>);
+    const { getByText } = render(<TestToolbar direction="both" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowRight"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowRight" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow left key", async () => {
-    const {getByText} = render(<TestToolbar direction="both"/>);
+    const { getByText } = render(<TestToolbar direction="both" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowLeft"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowLeft" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow down key", async () => {
-    const {getByText} = render(<TestToolbar direction="vertical"/>);
+    const { getByText } = render(<TestToolbar direction="vertical" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowDown"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowDown" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 
   test("pressing arrow up key", async () => {
-    const {getByText} = render(<TestToolbar direction="vertical"/>);
+    const { getByText } = render(<TestToolbar direction="vertical" />);
 
-    fireEvent.keyDown(getByText("Button One"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button One"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(0);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "true"
+      "true"
     );
 
-    fireEvent.keyDown(getByText("Button Three"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button Three"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(-1);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(0);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
 
-    fireEvent.keyDown(getByText("Button Two"), {key: "ArrowUp"});
+    fireEvent.keyDown(getByText("Button Two"), { key: "ArrowUp" });
     expect(getByText("Button One").tabIndex).toEqual(0);
-    expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "true"
+    );
     expect(getByText("Button Two").tabIndex).toEqual(-1);
-    expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
     expect(getByText("Button Three").tabIndex).toEqual(-1);
     expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-        "false"
+      "false"
     );
   });
 });
 
 test("pressing home key", async () => {
-  const {getByText} = render(<TestToolbar />);
+  const { getByText } = render(<TestToolbar />);
 
-  fireEvent.keyDown(getByText("Button One"), {key: "Home"});
+  fireEvent.keyDown(getByText("Button One"), { key: "Home" });
   expect(getByText("Button One").tabIndex).toEqual(0);
   expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").tabIndex).toEqual(-1);
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").tabIndex).toEqual(-1);
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-      "false"
+    "false"
   );
 
-  fireEvent.keyDown(getByText("Button Two"), {key: "Home"});
+  fireEvent.keyDown(getByText("Button Two"), { key: "Home" });
   expect(getByText("Button One").tabIndex).toEqual(0);
   expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").tabIndex).toEqual(-1);
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").tabIndex).toEqual(-1);
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-      "false"
+    "false"
   );
 
-  fireEvent.keyDown(getByText("Button Three"), {key: "Home"});
+  fireEvent.keyDown(getByText("Button Three"), { key: "Home" });
   expect(getByText("Button One").tabIndex).toEqual(0);
   expect(getByText("Button One").getAttribute("data-focused")).toEqual("true");
   expect(getByText("Button Two").tabIndex).toEqual(-1);
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").tabIndex).toEqual(-1);
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-      "false"
+    "false"
   );
 });
 
 test("pressing end key", async () => {
-  const {getByText} = render(<TestToolbar />);
+  const { getByText } = render(<TestToolbar />);
 
-  fireEvent.keyDown(getByText("Button One"), {key: "End"});
+  fireEvent.keyDown(getByText("Button One"), { key: "End" });
   expect(getByText("Button One").tabIndex).toEqual(-1);
   expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Two").tabIndex).toEqual(-1);
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").tabIndex).toEqual(0);
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-      "true"
+    "true"
   );
 
-  fireEvent.keyDown(getByText("Button Two"), {key: "End"});
+  fireEvent.keyDown(getByText("Button Two"), { key: "End" });
   expect(getByText("Button One").tabIndex).toEqual(-1);
   expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Two").tabIndex).toEqual(-1);
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").tabIndex).toEqual(0);
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-      "true"
+    "true"
   );
 
-  fireEvent.keyDown(getByText("Button Three"), {key: "End"});
+  fireEvent.keyDown(getByText("Button Three"), { key: "End" });
   expect(getByText("Button One").tabIndex).toEqual(-1);
   expect(getByText("Button One").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Two").tabIndex).toEqual(-1);
   expect(getByText("Button Two").getAttribute("data-focused")).toEqual("false");
   expect(getByText("Button Three").tabIndex).toEqual(0);
   expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
-      "true"
+    "true"
   );
 });
 

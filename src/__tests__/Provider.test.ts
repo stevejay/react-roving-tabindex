@@ -1,12 +1,9 @@
 import React from "react";
-import {JSDOM} from "jsdom";
+import { JSDOM } from "jsdom";
 import warning from "warning";
-import {cleanup} from "@testing-library/react";
-import {Action, ActionTypes, reducer, State, TabStop} from "../Provider";
+import { Action, ActionTypes, reducer, State, TabStop } from "../Provider";
 
 jest.mock("warning");
-
-afterEach(cleanup);
 
 const testDOM = new JSDOM(`
   <body>
@@ -567,6 +564,6 @@ describe("reducer", () => {
       selectedId: buttonOneId,
       lastActionOrigin: "mouse",
       tabStops: [buttonOneTabStop, buttonTwoTabStop]
-    } as State)
+    });
   });
 });

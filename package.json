@@ -29,14 +29,12 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "deploy-storybook": "storybook-to-ghpages",
     "eslint": "eslint --max-warnings 0 \"src/**/*.{js,jsx,ts,tsx}\"",
-    "ts-check": "tsc --noEmit",
     "lint": "npm run eslint",
     "lint-staged": "lint-staged"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "npm run ts-check"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {

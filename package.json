@@ -27,7 +27,23 @@
     "start": "rollup -c -w",
     "upgrade-interactive": "npm-check --update",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "deploy-storybook": "storybook-to-ghpages"
+    "deploy-storybook": "storybook-to-ghpages",
+    "eslint": "eslint --max-warnings 0 \"src/**/*.{js,jsx,ts,tsx}\"",
+    "ts-check": "tsc --noEmit",
+    "lint": "npm run eslint",
+    "lint-staged": "lint-staged"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run ts-check"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,tsx,ts}": [
+      "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
+      "git add"
+    ]
   },
   "dependencies": {
     "array-find-index": "^1.0.2",
@@ -56,15 +72,24 @@
     "@types/storybook__react": "^4.0.2",
     "@types/styled-components": "4.1.8",
     "@types/warning": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.5.0",
+    "@typescript-eslint/parser": "^2.5.0",
     "awesome-typescript-loader": "^5.2.1",
     "babel-jest": "^24.9.0",
     "babel-loader": "^8.0.6",
     "cross-env": "^6.0.3",
+    "eslint": "^6.5.1",
+    "eslint-config-prettier": "^6.4.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.16.0",
     "gh-pages": "^2.1.1",
+    "husky": "^3.0.9",
     "jest": "^24.9.0",
     "jsdom": "^15.2.0",
+    "lint-staged": "^9.4.2",
     "lodash": "^4.17.15",
     "npm-check": "^5.9.0",
+    "prettier": "1.18.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
     "react-hooks-testing-library": "^0.6.0",

@@ -8,6 +8,7 @@ type KeyDirection = "horizontal" | "vertical" | "both";
 
 export type TabStop = {
   readonly id: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   readonly domElementRef: React.RefObject<any>;
 };
 
@@ -58,7 +59,7 @@ export type Action =
     }
   | {
       type: ActionTypes.CHANGE_DIRECTION;
-      payload: { direction: KeyDirection }
+      payload: { direction: KeyDirection };
     };
 
 export function reducer(state: State, action: Action): State {
@@ -215,7 +216,10 @@ type Props = {
   direction?: KeyDirection;
 };
 
-const Provider = ({ children, direction = "horizontal" }: Props) => {
+const Provider = ({
+  children,
+  direction = "horizontal"
+}: Props): React.ReactElement => {
   const [state, dispatch] = React.useReducer(reducer, {
     direction: "horizontal",
     selectedId: null,

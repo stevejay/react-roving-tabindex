@@ -6,15 +6,10 @@ import { action } from "@storybook/addon-actions";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 import { Button } from "./button";
 
-const ToolbarButton = ({
-  disabled,
-  children,
-  onClick
-}: {
+const ToolbarButton: React.FC<{
   disabled: boolean;
-  children: React.ReactNode;
   onClick: () => void;
-}) => {
+}> = ({ disabled, children, onClick }) => {
   const id = React.useRef<string>(uniqueId());
   const ref = React.useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
@@ -29,7 +24,7 @@ const ToolbarButton = ({
       ref={ref}
       id={id.current}
       onKeyDown={handleKeyDown}
-      onClick={() => {
+      onClick={(): void => {
         handleClick();
         onClick();
       }}

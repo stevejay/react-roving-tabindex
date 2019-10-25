@@ -119,3 +119,15 @@ MIT © [stevejay](ht
 ### Issues
 
 - The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311)
+
+You can then set Prettier's own options inside a .prettierrc file.
+
+In order to support special ESLint plugins (e.g. eslint-plugin-react), add extra exclusions for the plugins you use like so:
+{
+"extends": [
+"plugin:prettier/recommended",
+"prettier/flowtype",
+"prettier/react",
+"prettier/standard"
+]
+}

@@ -1,8 +1,5 @@
-import { cleanup } from "@testing-library/react";
 import { renderHook } from "@testing-library/react-hooks";
 import useFocusEffect from "../use-focus-effect";
-
-afterEach(cleanup);
 
 test("does not focus on mount when false", () => {
   const focusMock = jest.fn();

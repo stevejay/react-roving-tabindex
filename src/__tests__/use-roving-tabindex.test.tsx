@@ -1,9 +1,7 @@
 import React from "react";
-import { render, cleanup, fireEvent } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import Provider from "../Provider";
 import useRovingTabIndex from "../use-roving-tabindex";
-
-afterEach(cleanup);
 
 const TestButton: React.FC<{
   disabled: boolean;

@@ -32,6 +32,7 @@
   "typescript.extension.sortImports.quoteStyle": "double",
   "typescript.extension.sortImports.sortOnSave": false,
   "cSpell.words": [
-    "cleanup"
+    "cleanup",
+    "rerender"
   ]
 }

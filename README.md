@@ -110,10 +110,6 @@ You can change the navigation direction by passing a direction to the Provider. 
 
 MIT © [stevejay](ht
 
-## TODO
-
-- linting in build and husky
-
 ## Development
 
 ### Issues

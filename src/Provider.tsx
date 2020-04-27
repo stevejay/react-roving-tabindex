@@ -77,7 +77,7 @@ export function reducer(state: State, action: Action): State {
 
       const index = findIndex(
         tabStops,
-        tabStop => tabStop.id === newTabStop.id
+        (tabStop) => tabStop.id === newTabStop.id
       );
 
       if (index >= 0) {
@@ -87,7 +87,7 @@ export function reducer(state: State, action: Action): State {
 
       let indexToInsertAt = findIndex(
         tabStops,
-        tabStop =>
+        (tabStop) =>
           // Return true if newTabStop's element is located earlier in the DOM
           // than tabStop's element, else false:
           !!(
@@ -117,7 +117,7 @@ export function reducer(state: State, action: Action): State {
       const id = action.payload.id;
 
       const filteredTabStops = state.tabStops.filter(
-        tabStop => tabStop.id !== id
+        (tabStop) => tabStop.id !== id
       );
 
       if (filteredTabStops.length === state.tabStops.length) {
@@ -139,7 +139,7 @@ export function reducer(state: State, action: Action): State {
     case ActionTypes.TAB_TO_PREVIOUS:
     case ActionTypes.TAB_TO_NEXT: {
       const id = action.payload.id;
-      const index = findIndex(state.tabStops, tabStop => tabStop.id === id);
+      const index = findIndex(state.tabStops, (tabStop) => tabStop.id === id);
 
       if (index === -1) {
         warning(false, `${id} tab stop not registered`);
@@ -208,6 +208,7 @@ export const RovingTabIndexContext = React.createContext<Context>({
     lastActionOrigin: null,
     tabStops: []
   },
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   dispatch: () => {}
 });
 

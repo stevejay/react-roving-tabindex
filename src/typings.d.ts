@@ -8,7 +8,7 @@ declare module "*.css" {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface SvgrComponent
+declare interface SvgrComponent
   extends React.StatelessComponent<React.SVGAttributes<SVGElement>> {}
 
 declare module "*.svg" {

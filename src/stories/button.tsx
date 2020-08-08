@@ -13,6 +13,11 @@ const Button = styled.button`
   margin: 0.5rem;
   padding: 0 0.75em;
 
+  &:focus {
+    color: white;
+    background-color: rebeccapurple;
+  }
+
   &::-moz-focus-inner {
     border: 0;
     padding: 0;

@@ -1,3 +1,9 @@
+# 0.8.0
+
+- Updated dev dependencies.
+- Adjusted the package.json engines field to not support node v13.
+- Fixed the storybook styling.
+
 # 0.7.2
 
 - Updated dev dependencies.

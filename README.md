@@ -112,6 +112,8 @@ MIT © [stevejay](https://github.com/stevejay)
 
 ## Development
 
+If you have build errors when building Storybook locally, you are likely using Node v13. Please use either Node v14+ or Node v12.
+
 ### Issues
 
 - The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311)

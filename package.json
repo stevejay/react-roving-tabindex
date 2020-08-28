@@ -17,7 +17,7 @@
   "jsnext:main": "dist/index.es.js",
   "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=10 <=12",
+    "node": ">=10",
     "npm": ">=6"
   },
   "scripts": {

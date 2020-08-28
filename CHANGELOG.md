@@ -1,3 +1,8 @@
+# 0.9.0
+
+- Updated dev dependencies.
+- Removed upper limit for node in engines object in package.json.
+
 # 0.8.0
 
 - Updated dev dependencies.

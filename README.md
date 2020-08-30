@@ -2,7 +2,7 @@
 
 > React Hooks implementation of a roving tabindex. See the storybook [here](https://stevejay.github.io/react-roving-tabindex/) to try it out.
 
-[![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master)
+[![bundlephobia](https://img.shields.io/bundlephobia/minzip/react-roving-tabindex)](https://bundlephobia.com/result?p=react-roving-tabindex) [![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master)
 
 ## Background
 
@@ -45,7 +45,7 @@ import React from "react";
 import {
   RovingTabIndexProvider,
   useRovingTabIndex,
-  useFocusEffect,
+  useFocusEffect
 } from "react-roving-tabindex";
 
 type Props = {

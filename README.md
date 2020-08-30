@@ -6,27 +6,24 @@
 
 ## Background
 
-The roving tabindex is a useful accessibility refinement for a grouped set of inputs, such as a buttons toolbar. It is a mechanism for controlling tabbing within that group, such that:
+The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop, which speeds up keyboard navigation. Also, the last focused input in a group is remembered, so that it can receive focus again when the user tabs back to the group.
 
-- the group as a whole is treated as a single tab stop, allowing the Web page as a whole to be navigated more quickly using the keyboard
-- the last selected input in the group is remembered, so when tabbing back to the group, that last selected input is the one that receives focus
+When in the group, the left and right (or up and down) arrow keys move between the inputs. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move to the group's first and last inputs respectively.
 
-The left and right (or up and down) arrow keys are used to select inputs within the group, while the Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) are used to navigate respectively to the group's first and last inputs.
-
-More information about implementing a roving tabindex is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
+More information about the roving tabindex pattern is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
 
 ### Implementation Considerations
 
-There are two main architectural choices:
+There are two main architectural choices to be made:
 
-- whether dynamic enabling and unenabling of the inputs in the group should be supported
-- how the inputs are identified, including if they need to be direct children of the group container
+- Whether dynamic enabling and unenabling of the inputs in the group should be supported.
+- How the inputs in a group are identified, including if they need to be direct children of the group container.
 
-This particular implementation of a roving tabindex opts to support dynamic enabling and unenabling, and allows inputs to be nested in subcomponents and wrapper elements. The former behaviour is implemented by inputs dynamically registering and unregistering themselves as appropriate, and the latter behaviour is implemented using the React Context API to allow communication between the managing group component and the nested inputs, however deeply located they are in the group's component subtree.
+This package opts to support dynamic enabling and unenabling. It also allows inputs to be nested as necessary within subcomponents and wrapper elements. It uses React Context to communicate between the managing group component and the nested inputs.
 
 ## Requirements
 
-This package has been written using the React Hooks API, so it is only usable with React version 16.8 or greater.
+This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards.
 
 ## Installation
 
@@ -54,19 +51,23 @@ type Props = {
 };
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
+  // The ref of the input to be controlled.
   const ref = React.useRef<HTMLButtonElement>(null);
+
   // handleKeyDown and handleClick are stable for the lifetime of the component:
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
-    ref, // don't change the value of this ref
-    disabled // change this as you like throughout the lifetime of the component
+    ref, // Don't change the value of this ref.
+    disabled // But change this as you like throughout the lifetime of the component.
   );
-  // Use some mechanism to set focus on the button if it gets focused,
-  // in this case using the included useFocusEffect hook:
+
+  // Use some mechanism to set focus on the button if it gets focus.
+  // In this case I use the included useFocusEffect hook:
   useFocusEffect(focused, ref);
+
   return (
     <button
       ref={ref}
-      tabIndex={tabIndex} // must be applied here
+      tabIndex={tabIndex} // tabIndex must be applied here.
       disabled={disabled}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
@@ -77,10 +78,11 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
 };
 
 const App = () => (
+  // Wrap each group in a RovingTabIndexProvider.
   <RovingTabIndexProvider>
     {/*
       it's fine for the roving tabindex components to be nested
-      in other DOM or React components
+      in other DOM elements or React components.
     */}
     <ToolbarButton>First Button</ToolbarButton>
     <ToolbarButton>Second Button</ToolbarButton>
@@ -88,23 +90,29 @@ const App = () => (
 );
 ```
 
+### Custom ID
+
 You can optionally pass a custom ID to the `useRovingTabIndex` hook as the third argument:
 
 ```jsx
 const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
-  ref, // don't change the value of this ref
-  disabled, // change this as you like
-  "custom-id-1" // some custom id
+  ref,
+  disabled,
+  "custom-id-1" // A custom ID.
 );
 ```
 
-This is useful if you need to support server-side rendering. The value initially passed will be used for the lifetime of the containing component.
+This is useful if you need to support server-side rendering. The value initially passed will be used for the lifetime of the containing component. You cannot dynamically change this ID.
 
-You can change the navigation direction by passing a direction to the Provider. This will change the left and right arrow keys for up and down.
+### Navigation
+
+By default the left and right arrow keys are used to move between inputs. You can change this using the `direction` prop on the provider:
 
 ```jsx
 <RovingTabIndexProvider direction="horizontal|vertical|both" />
 ```
+
+The `vertical` option requires the up and down arrows for navigation. The `both` option is a mix of the other two options.
 
 ## License
 
@@ -116,4 +124,4 @@ If you have build errors when building Storybook locally, you are likely using N
 
 ### Issues
 
-- The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311)
+- The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311). This only affects the Storybook build.

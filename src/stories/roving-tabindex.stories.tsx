@@ -5,6 +5,7 @@ import { withKnobs, boolean, select } from "@storybook/addon-knobs";
 import { action } from "@storybook/addon-actions";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 import { Button } from "./button";
+import { Toolbar } from "./toolbar";
 
 const ToolbarButton: React.FC<{
   disabled: boolean;
@@ -41,50 +42,54 @@ const stories = storiesOf("RovingTabIndex", module);
 stories.addDecorator(withKnobs);
 
 stories.add("Example", () => (
-  <RovingTabIndexProvider
-    direction={select(
-      "Direction",
-      { Horizontal: "horizontal", Vertical: "vertical", Both: "both" },
-      "horizontal"
-    )}
-  >
-    <div>
-      <span>
-        <ToolbarButton
-          disabled={boolean("Button One Disabled", false)}
-          onClick={action("Button One clicked")}
-        >
-          Button One
-        </ToolbarButton>
-      </span>
-      <ToolbarButton
-        disabled={boolean("Button Two Disabled", false)}
-        onClick={action("Button Two clicked")}
+  <>
+    <Button>Something before to focus on</Button>
+    <Toolbar>
+      <RovingTabIndexProvider
+        direction={select(
+          "Direction",
+          { Horizontal: "horizontal", Vertical: "vertical", Both: "both" },
+          "horizontal"
+        )}
       >
-        Button Two
-      </ToolbarButton>
-      <ToolbarButton
-        disabled={boolean("Button Three Disabled", true)}
-        onClick={action("Button Three clicked")}
-      >
-        Button Three
-      </ToolbarButton>
-      <span>
         <span>
           <ToolbarButton
-            disabled={boolean("Button Four Disabled", false)}
-            onClick={action("Button Four clicked")}
+            disabled={boolean("Button One Disabled", false)}
+            onClick={action("Button One clicked")}
           >
-            Button Four
+            Button One
           </ToolbarButton>
         </span>
-      </span>
-      <ToolbarButton
-        disabled={boolean("Button Five Disabled", false)}
-        onClick={action("Button Five clicked")}
-      >
-        Button Five
-      </ToolbarButton>
-    </div>
-  </RovingTabIndexProvider>
+        <ToolbarButton
+          disabled={boolean("Button Two Disabled", false)}
+          onClick={action("Button Two clicked")}
+        >
+          Button Two
+        </ToolbarButton>
+        <ToolbarButton
+          disabled={boolean("Button Three Disabled", true)}
+          onClick={action("Button Three clicked")}
+        >
+          Button Three
+        </ToolbarButton>
+        <span>
+          <span>
+            <ToolbarButton
+              disabled={boolean("Button Four Disabled", false)}
+              onClick={action("Button Four clicked")}
+            >
+              Button Four
+            </ToolbarButton>
+          </span>
+        </span>
+        <ToolbarButton
+          disabled={boolean("Button Five Disabled", false)}
+          onClick={action("Button Five clicked")}
+        >
+          Button Five
+        </ToolbarButton>
+      </RovingTabIndexProvider>
+    </Toolbar>
+    <Button>Something after to focus on</Button>
+  </>
 ));

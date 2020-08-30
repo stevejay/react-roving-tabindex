@@ -39,8 +39,7 @@ export default {
     resolve(),
     typescript({
       rollupCommonJSResolveHack: true,
-      clean: true,
-      exclude: ["node_modules", "build", "dist", "example", "rollup.config.js"]
+      clean: true
     }),
     commonjs(),
     del({ targets: "dist/*" })

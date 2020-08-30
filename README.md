@@ -6,7 +6,7 @@
 
 ## Background
 
-The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop, which speeds up keyboard navigation. Also, the last focused input in a group is remembered, so that it can receive focus again when the user tabs back to the group.
+The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop, which speeds up keyboard navigation. The last focused input in a group is also remembered, so that it can receive focus again when the user tabs back to the group.
 
 When in the group, the left and right (or up and down) arrow keys move between the inputs. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move to the group's first and last inputs respectively.
 

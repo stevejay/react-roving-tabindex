@@ -125,6 +125,3 @@ If you have build errors when building Storybook locally, you are likely using N
 ### Issues
 
 - The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311). This only affects the Storybook build.
-
-(node:70459) DeprecationWarning: Configuration files such as "config", "presets" and "addons" are deprecated and will be removed in Storybook 7.0.
-Read more about it in the migration guide: https://github.com/storybookjs/storybook/blob/master/MIGRATION.md

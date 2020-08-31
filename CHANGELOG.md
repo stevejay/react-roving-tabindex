@@ -1,3 +1,13 @@
+# 1.0.0
+
+This release has no breaking changes compared to v0.9.0. I just thought it was time to promote the package to v1. The changes are to do with the build process and Storybook; no source files have been altered.
+
+- Rewrite Storybook files to support v6 format.
+- Remove some files that were being erroneously included in the dist directory.
+- Rewrite some of the readme file.
+- Remove an unused file from the src directory.
+- Update dev dependencies.
+
 # 0.9.0
 
 - Updated dev dependencies.

@@ -42,7 +42,7 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,tsx,ts}": [
+    "src/**/*.{js,jsx,tsx,ts}": [
       "eslint --fix --max-warnings 0 \"src/**/*.{js,jsx,ts,tsx}\""
     ]
   },
@@ -60,8 +60,7 @@
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
-    "@storybook/addon-actions": "^6.0.20",
-    "@storybook/addon-knobs": "^6.0.20",
+    "@storybook/addon-essentials": "^6.0.20",
     "@storybook/react": "^6.0.20",
     "@storybook/storybook-deployer": "^2.8.6",
     "@svgr/rollup": "^5.4.0",

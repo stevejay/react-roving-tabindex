@@ -69,7 +69,7 @@ export const Example: React.FC<ExampleProps> = ({
 }) => (
   <>
     <Button>Something before to focus on</Button>
-    <Toolbar role="group">
+    <Toolbar role="toolbar">
       <RovingTabIndexProvider direction={direction}>
         <span>
           <ToolbarButton

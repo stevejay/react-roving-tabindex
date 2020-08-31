@@ -21,6 +21,8 @@ There are two main architectural choices to be made:
 
 This package opts to support dynamic enabling and unenabling. It also allows inputs to be nested as necessary within subcomponents and wrapper elements. It uses React Context to communicate between the managing group component and the nested inputs.
 
+This package does not support nesting one roving tabindex group inside another. I believe that this complicates keyboard navigation too much.
+
 ## Requirements
 
 This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards.

@@ -1,14 +1,18 @@
 import { uniqueId } from "lodash";
 import React from "react";
-import { storiesOf } from "@storybook/react";
-import { withKnobs, boolean, select } from "@storybook/addon-knobs";
-import { action } from "@storybook/addon-actions";
+import { Meta } from "@storybook/react/types-6-0";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 import { Button } from "./button";
+import { Toolbar } from "./toolbar";
+import { State } from "../Provider";
+
+type ButtonClickHandler = (
+  event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+) => void;
 
 const ToolbarButton: React.FC<{
   disabled: boolean;
-  onClick: () => void;
+  onClick: ButtonClickHandler;
 }> = ({ disabled, children, onClick }) => {
   const id = React.useRef<string>(uniqueId());
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -24,9 +28,9 @@ const ToolbarButton: React.FC<{
       ref={ref}
       id={id.current}
       onKeyDown={handleKeyDown}
-      onClick={(): void => {
+      onClick={(event): void => {
         handleClick();
-        onClick();
+        onClick(event);
       }}
       tabIndex={tabIndex}
       disabled={disabled}
@@ -36,55 +40,108 @@ const ToolbarButton: React.FC<{
   );
 };
 
-const stories = storiesOf("RovingTabIndex", module);
+type ExampleProps = {
+  direction: State["direction"];
+  buttonOneDisabled: boolean;
+  onButtonOneClicked: ButtonClickHandler;
+  buttonTwoDisabled: boolean;
+  onButtonTwoClicked: ButtonClickHandler;
+  buttonThreeDisabled: boolean;
+  onButtonThreeClicked: ButtonClickHandler;
+  buttonFourDisabled: boolean;
+  onButtonFourClicked: ButtonClickHandler;
+  buttonFiveDisabled: boolean;
+  onButtonFiveClicked: ButtonClickHandler;
+};
 
-stories.addDecorator(withKnobs);
-
-stories.add("Example", () => (
-  <RovingTabIndexProvider
-    direction={select(
-      "Direction",
-      { Horizontal: "horizontal", Vertical: "vertical", Both: "both" },
-      "horizontal"
-    )}
-  >
-    <div>
-      <span>
-        <ToolbarButton
-          disabled={boolean("Button One Disabled", false)}
-          onClick={action("Button One clicked")}
-        >
-          Button One
-        </ToolbarButton>
-      </span>
-      <ToolbarButton
-        disabled={boolean("Button Two Disabled", false)}
-        onClick={action("Button Two clicked")}
-      >
-        Button Two
-      </ToolbarButton>
-      <ToolbarButton
-        disabled={boolean("Button Three Disabled", true)}
-        onClick={action("Button Three clicked")}
-      >
-        Button Three
-      </ToolbarButton>
-      <span>
+export const Example: React.FC<ExampleProps> = ({
+  direction,
+  buttonOneDisabled,
+  onButtonOneClicked,
+  buttonTwoDisabled,
+  onButtonTwoClicked,
+  buttonThreeDisabled,
+  onButtonThreeClicked,
+  buttonFourDisabled,
+  onButtonFourClicked,
+  buttonFiveDisabled,
+  onButtonFiveClicked
+}) => (
+  <>
+    <Button>Something before to focus on</Button>
+    <Toolbar role="group">
+      <RovingTabIndexProvider direction={direction}>
         <span>
           <ToolbarButton
-            disabled={boolean("Button Four Disabled", false)}
-            onClick={action("Button Four clicked")}
+            disabled={buttonOneDisabled}
+            onClick={onButtonOneClicked}
           >
-            Button Four
+            Button One
           </ToolbarButton>
         </span>
-      </span>
-      <ToolbarButton
-        disabled={boolean("Button Five Disabled", false)}
-        onClick={action("Button Five clicked")}
-      >
-        Button Five
-      </ToolbarButton>
-    </div>
-  </RovingTabIndexProvider>
-));
+        <ToolbarButton
+          disabled={buttonTwoDisabled}
+          onClick={onButtonTwoClicked}
+        >
+          Button Two
+        </ToolbarButton>
+        <ToolbarButton
+          disabled={buttonThreeDisabled}
+          onClick={onButtonThreeClicked}
+        >
+          Button Three
+        </ToolbarButton>
+        <span>
+          <span>
+            <ToolbarButton
+              disabled={buttonFourDisabled}
+              onClick={onButtonFourClicked}
+            >
+              Button Four
+            </ToolbarButton>
+          </span>
+        </span>
+        <ToolbarButton
+          disabled={buttonFiveDisabled}
+          onClick={onButtonFiveClicked}
+        >
+          Button Five
+        </ToolbarButton>
+      </RovingTabIndexProvider>
+    </Toolbar>
+    <Button>Something after to focus on</Button>
+  </>
+);
+
+export default {
+  title: "RovingTabIndex",
+  component: Example,
+  argTypes: {
+    direction: {
+      name: "Direction",
+      defaultValue: "horizontal"
+    },
+    onButtonOneClicked: { table: { disable: true } },
+    onButtonTwoClicked: { table: { disable: true } },
+    onButtonThreeClicked: { table: { disable: true } },
+    onButtonFourClicked: { table: { disable: true } },
+    onButtonFiveClicked: { table: { disable: true } },
+    buttonOneDisabled: {
+      name: "Disable Button One"
+    },
+    buttonTwoDisabled: {
+      name: "Disable Button Two"
+    },
+    buttonThreeDisabled: {
+      name: "Disable Button Three",
+      defaultValue: true
+    },
+    buttonFourDisabled: {
+      name: "Disable Button Four"
+    },
+    buttonFiveDisabled: {
+      name: "Disable Button Five"
+    }
+  },
+  parameters: { actions: { argTypesRegex: "^on.*" } }
+} as Meta;

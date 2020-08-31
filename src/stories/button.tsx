@@ -2,7 +2,8 @@ import styled from "styled-components";
 
 const Button = styled.button`
   appearance: none;
-  background: none repeat scroll 0 0 transparent;
+  background: none repeat scroll 0 0;
+  background-color: white;
   font-size: 1rem;
   font-family: sans-serif;
   line-height: 2rem;

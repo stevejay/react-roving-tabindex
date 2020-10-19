@@ -53,6 +53,7 @@ type ExampleProps = {
   onButtonFourClicked: ButtonClickHandler;
   buttonFiveDisabled: boolean;
   onButtonFiveClicked: ButtonClickHandler;
+  removeButtonFour: boolean;
 };
 
 export const Example: React.FC<ExampleProps> = ({
@@ -66,7 +67,8 @@ export const Example: React.FC<ExampleProps> = ({
   buttonFourDisabled,
   onButtonFourClicked,
   buttonFiveDisabled,
-  onButtonFiveClicked
+  onButtonFiveClicked,
+  removeButtonFour
 }) => (
   <>
     <Button>Something before to focus on</Button>
@@ -92,16 +94,18 @@ export const Example: React.FC<ExampleProps> = ({
         >
           Button Three
         </ToolbarButton>
-        <span>
+        {!removeButtonFour && (
           <span>
-            <ToolbarButton
-              disabled={buttonFourDisabled}
-              onClick={onButtonFourClicked}
-            >
-              Button Four
-            </ToolbarButton>
+            <span>
+              <ToolbarButton
+                disabled={buttonFourDisabled}
+                onClick={onButtonFourClicked}
+              >
+                Button Four
+              </ToolbarButton>
+            </span>
           </span>
-        </span>
+        )}
         <ToolbarButton
           disabled={buttonFiveDisabled}
           onClick={onButtonFiveClicked}
@@ -142,6 +146,9 @@ export default {
     },
     buttonFiveDisabled: {
       name: "Disable Button Five"
+    },
+    removeButtonFour: {
+      name: "Remove Button Four"
     }
   },
   parameters: { actions: { argTypesRegex: "^on.*" } }

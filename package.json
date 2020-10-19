@@ -1,6 +1,6 @@
 {
   "name": "react-roving-tabindex",
-  "version": "1.0.0",
+  "version": "2.0.0-alpha.1",
   "description": "React implementation of a roving tabindex",
   "author": "stevejay",
   "license": "MIT",

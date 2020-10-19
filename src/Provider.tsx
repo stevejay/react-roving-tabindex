@@ -1,4 +1,3 @@
-import findIndex from "array-find-index";
 import React from "react";
 import warning from "warning";
 
@@ -75,8 +74,7 @@ export function reducer(state: State, action: Action): State {
         };
       }
 
-      const index = findIndex(
-        tabStops,
+      const index = tabStops.findIndex(
         (tabStop) => tabStop.id === newTabStop.id
       );
 
@@ -85,8 +83,7 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
 
-      let indexToInsertAt = findIndex(
-        tabStops,
+      let indexToInsertAt = tabStops.findIndex(
         (tabStop) =>
           // Return true if newTabStop's element is located earlier in the DOM
           // than tabStop's element, else false:
@@ -139,7 +136,7 @@ export function reducer(state: State, action: Action): State {
     case ActionTypes.TAB_TO_PREVIOUS:
     case ActionTypes.TAB_TO_NEXT: {
       const id = action.payload.id;
-      const index = findIndex(state.tabStops, (tabStop) => tabStop.id === id);
+      const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
 
       if (index === -1) {
         warning(false, `${id} tab stop not registered`);

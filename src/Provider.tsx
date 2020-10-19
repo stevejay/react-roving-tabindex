@@ -5,18 +5,18 @@ const DOCUMENT_POSITION_PRECEDING = 2;
 
 type KeyDirection = "horizontal" | "vertical" | "both";
 
-export type TabStop = {
-  readonly id: string;
+export type TabStop = Readonly<{
+  id: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly domElementRef: React.RefObject<any>;
-};
+  domElementRef: React.RefObject<any>;
+}>;
 
-export type State = {
+export type State = Readonly<{
   direction: KeyDirection;
   selectedId: string | null;
   lastActionOrigin: "mouse" | "keyboard" | null;
-  tabStops: Array<TabStop>;
-};
+  tabStops: readonly TabStop[];
+}>;
 
 export enum ActionTypes {
   REGISTER = "REGISTER",
@@ -193,10 +193,10 @@ export function reducer(state: State, action: Action): State {
   }
 }
 
-type Context = {
+type Context = Readonly<{
   state: State;
   dispatch: React.Dispatch<Action>;
-};
+}>;
 
 export const RovingTabIndexContext = React.createContext<Context>({
   state: {

@@ -1,3 +1,4 @@
+import "jspolyfill-array.prototype.findIndex";
 import { uniqueId } from "lodash";
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";

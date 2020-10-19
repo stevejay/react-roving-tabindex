@@ -87,6 +87,7 @@
     "husky": "^4.2.5",
     "jest": "^26.2.2",
     "jsdom": "^16.3.0",
+    "jspolyfill-array.prototype.findIndex": "^0.1.0",
     "lint-staged": "^10.2.11",
     "lodash": "^4.17.19",
     "npm-check": "^5.9.2",

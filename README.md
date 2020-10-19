@@ -35,6 +35,8 @@ npm install --save react-roving-tabindex
 
 This package includes TypeScript typings.
 
+If you need to support IE 11 then you need to also install a polyfill for `Array.prototype.findIndex`. One option is the polyfill on the [MDN website](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex).
+
 ## Usage
 
 There is a storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/).
@@ -115,6 +117,12 @@ By default the left and right arrow keys are used to move between inputs. You ca
 ```
 
 The `vertical` option requires the up and down arrows for navigation. The `both` option is a mix of the other two options.
+
+## Upgrading
+
+### From version 1
+
+This package no longer includes a ponyfill for `Array.prototype.findIndex`. If you need to support IE 11 then you now need to install a polyfill for that method. One option is the polyfill on the [MDN website](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex).
 
 ## License
 

@@ -7,8 +7,9 @@ type KeyDirection = "horizontal" | "vertical" | "both";
 
 export type TabStop = Readonly<{
   id: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  domElementRef: React.RefObject<any>;
+  domElementRef: React.RefObject<Element>;
+  disabled: boolean;
+  rowIndex: number | null;
 }>;
 
 export type State = Readonly<{
@@ -26,7 +27,8 @@ export enum ActionTypes {
   TAB_TO_PREVIOUS = "TAB_TO_PREVIOUS",
   TAB_TO_NEXT = "TAB_TO_NEXT",
   CLICKED = "CLICKED",
-  CHANGE_DIRECTION = "CHANGE_DIRECTION"
+  CHANGE_DIRECTION = "CHANGE_DIRECTION",
+  TAB_STOP_OPTIONS_UPDATED = "TAB_STOP_OPTIONS_UPDATED"
 }
 
 export type Action =
@@ -59,87 +61,113 @@ export type Action =
   | {
       type: ActionTypes.CHANGE_DIRECTION;
       payload: { direction: KeyDirection };
+    }
+  | {
+      type: ActionTypes.TAB_STOP_OPTIONS_UPDATED;
+      payload: {
+        id: TabStop["id"];
+        rowIndex: TabStop["rowIndex"];
+        disabled: TabStop["disabled"];
+      };
     };
 
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionTypes.REGISTER: {
-      const { tabStops } = state;
       const newTabStop = action.payload;
-      if (tabStops.length === 0) {
-        return {
-          ...state,
-          selectedId: newTabStop.id,
-          tabStops: [newTabStop]
-        };
-      }
-
-      const index = tabStops.findIndex(
-        (tabStop) => tabStop.id === newTabStop.id
-      );
-
-      if (index >= 0) {
-        warning(false, `${newTabStop.id} tab stop already registered`);
+      if (!newTabStop.domElementRef.current) {
         return state;
       }
 
-      let indexToInsertAt = tabStops.findIndex(
-        (tabStop) =>
-          // Return true if newTabStop's element is located earlier in the DOM
-          // than tabStop's element, else false:
-          !!(
-            tabStop.domElementRef.current.compareDocumentPosition(
-              newTabStop.domElementRef.current
-            ) & DOCUMENT_POSITION_PRECEDING
-          )
+      const index = state.tabStops.findIndex(
+        (tabStop) => tabStop.id === newTabStop.id
       );
+      if (index !== -1) {
+        warning(false, `'${newTabStop.id}' tab stop already registered`);
+        return state;
+      }
+
+      let indexToInsertAt = state.tabStops.findIndex((tabStop) => {
+        // This mess is for TypeScript:
+        if (
+          !tabStop.domElementRef.current ||
+          !newTabStop.domElementRef.current
+        ) {
+          return -1;
+        }
+        // Return true if newTabStop's element is located earlier in the DOM
+        // than tabStop's element, else false:
+        return !!(
+          tabStop.domElementRef.current.compareDocumentPosition(
+            newTabStop.domElementRef.current
+          ) & DOCUMENT_POSITION_PRECEDING
+        );
+      });
 
       // findIndex returns -1 when newTabStop should be inserted
       // at the end of tabStops (the compareDocumentPosition test
       // always returns false in that case).
       if (indexToInsertAt === -1) {
-        indexToInsertAt = tabStops.length;
+        indexToInsertAt = state.tabStops.length;
       }
+
+      const newTabStops = [
+        ...state.tabStops.slice(0, indexToInsertAt),
+        newTabStop,
+        ...state.tabStops.slice(indexToInsertAt)
+      ];
 
       return {
         ...state,
-        tabStops: [
-          ...tabStops.slice(0, indexToInsertAt),
-          newTabStop,
-          ...tabStops.slice(indexToInsertAt)
-        ]
+        selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
+        tabStops: newTabStops
       };
     }
     case ActionTypes.UNREGISTER: {
       const id = action.payload.id;
-
-      const filteredTabStops = state.tabStops.filter(
-        (tabStop) => tabStop.id !== id
-      );
-
-      if (filteredTabStops.length === state.tabStops.length) {
-        warning(false, `${id} tab stop already unregistered`);
+      const newTabStops = state.tabStops.filter((tabStop) => tabStop.id !== id);
+      if (newTabStops.length === state.tabStops.length) {
+        warning(false, `'${id}' tab stop already unregistered`);
+        return state;
+      }
+      return {
+        ...state,
+        selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
+        tabStops: newTabStops
+      };
+    }
+    case ActionTypes.TAB_STOP_OPTIONS_UPDATED: {
+      const { id, rowIndex, disabled } = action.payload;
+      const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
+      if (index === -1) {
+        warning(false, `'${id}' tab stop not registered`);
         return state;
       }
 
+      const tabStop = state.tabStops[index];
+      if (tabStop.disabled === disabled && tabStop.rowIndex === rowIndex) {
+        return state;
+      }
+
+      const newTabStops = state.tabStops.slice();
+      newTabStops.splice(index, 1, {
+        ...tabStop,
+        rowIndex,
+        disabled
+      });
+
       return {
         ...state,
-        selectedId:
-          state.selectedId === id
-            ? filteredTabStops.length === 0
-              ? null
-              : filteredTabStops[0].id
-            : state.selectedId,
-        tabStops: filteredTabStops
+        selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
+        tabStops: newTabStops
       };
     }
     case ActionTypes.TAB_TO_PREVIOUS:
     case ActionTypes.TAB_TO_NEXT: {
       const id = action.payload.id;
       const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
-
       if (index === -1) {
-        warning(false, `${id} tab stop not registered`);
+        warning(false, `'${id}' tab stop not registered`);
         return state;
       }
 
@@ -191,6 +219,30 @@ export function reducer(state: State, action: Action): State {
     default:
       return state;
   }
+}
+
+function getUpdatedSelectedId(
+  tabStops: State["tabStops"],
+  currentSelectedId: State["selectedId"]
+): State["selectedId"] {
+  if (currentSelectedId === null) {
+    // There is not currently selected tab stop, so find
+    // the first tab stop that is not disabled and return
+    // its id, otherwise return null.
+    const index = tabStops.findIndex((tabStop) => !tabStop.disabled);
+    return index === -1 ? null : tabStops[index].id;
+  }
+
+  let index = tabStops.findIndex((tabStop) => tabStop.id === currentSelectedId);
+  if (index !== -1 && !tabStops[index].disabled) {
+    // The current selected id is still valid, so return it.
+    return currentSelectedId;
+  }
+
+  // Find the first tab stop that is not disabled and return
+  // its id, otherwise return null.
+  index = tabStops.findIndex((tabStop) => !tabStop.disabled);
+  return index === -1 ? null : tabStops[index].id;
 }
 
 type Context = Readonly<{

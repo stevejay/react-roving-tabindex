@@ -15,11 +15,12 @@ const ToolbarButton: React.FC<{
   disabled: boolean;
   onClick: ButtonClickHandler;
 }> = ({ disabled, children, onClick }) => {
-  const id = React.useRef<string>(uniqueId());
+  const id = React.useRef<string>(uniqueId("custom_"));
   const ref = React.useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
-    disabled
+    disabled,
+    { id: id.current }
   );
 
   useFocusEffect(focused, ref);
@@ -76,20 +77,20 @@ export const Example: React.FC<ExampleProps> = ({
       <RovingTabIndexProvider direction={direction}>
         <span>
           <ToolbarButton
-            disabled={buttonOneDisabled}
+            disabled={!!buttonOneDisabled}
             onClick={onButtonOneClicked}
           >
             Button One
           </ToolbarButton>
         </span>
         <ToolbarButton
-          disabled={buttonTwoDisabled}
+          disabled={!!buttonTwoDisabled}
           onClick={onButtonTwoClicked}
         >
           Button Two
         </ToolbarButton>
         <ToolbarButton
-          disabled={buttonThreeDisabled}
+          disabled={!!buttonThreeDisabled}
           onClick={onButtonThreeClicked}
         >
           Button Three
@@ -98,7 +99,7 @@ export const Example: React.FC<ExampleProps> = ({
           <span>
             <span>
               <ToolbarButton
-                disabled={buttonFourDisabled}
+                disabled={!!buttonFourDisabled}
                 onClick={onButtonFourClicked}
               >
                 Button Four
@@ -107,7 +108,7 @@ export const Example: React.FC<ExampleProps> = ({
           </span>
         )}
         <ToolbarButton
-          disabled={buttonFiveDisabled}
+          disabled={!!buttonFiveDisabled}
           onClick={onButtonFiveClicked}
         >
           Button Five

@@ -1,11 +1,9 @@
 import "jspolyfill-array.prototype.findIndex";
-import { uniqueId } from "lodash";
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 import { Button } from "./button";
 import { Toolbar } from "./toolbar";
-import { State } from "../Provider";
 
 type ButtonClickHandler = (
   event: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -13,14 +11,15 @@ type ButtonClickHandler = (
 
 const ToolbarButton: React.FC<{
   disabled: boolean;
+  id?: string;
   onClick: ButtonClickHandler;
-}> = ({ disabled, children, onClick }) => {
-  const id = React.useRef<string>(uniqueId("custom_"));
+}> = ({ disabled, id, children, onClick }) => {
+  const idRef = React.useRef<string>(id);
   const ref = React.useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
     disabled,
-    { id: id.current }
+    idRef.current ? { id: idRef.current } : undefined
   );
 
   useFocusEffect(focused, ref);
@@ -28,9 +27,8 @@ const ToolbarButton: React.FC<{
   return (
     <Button
       ref={ref}
-      id={id.current}
       onKeyDown={handleKeyDown}
-      onClick={(event): void => {
+      onClick={(event) => {
         handleClick();
         onClick(event);
       }}
@@ -43,7 +41,6 @@ const ToolbarButton: React.FC<{
 };
 
 type ExampleProps = {
-  direction: State["direction"];
   buttonOneDisabled: boolean;
   onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
@@ -57,8 +54,7 @@ type ExampleProps = {
   removeButtonFour: boolean;
 };
 
-export const Example: React.FC<ExampleProps> = ({
-  direction,
+export const WithoutCustomIds: React.FC<ExampleProps> = ({
   buttonOneDisabled,
   onButtonOneClicked,
   buttonTwoDisabled,
@@ -74,7 +70,7 @@ export const Example: React.FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider direction={direction}>
+      <RovingTabIndexProvider>
         <span>
           <ToolbarButton
             disabled={!!buttonOneDisabled}
@@ -119,14 +115,76 @@ export const Example: React.FC<ExampleProps> = ({
   </>
 );
 
+export const WithCustomIds: React.FC<ExampleProps> = ({
+  buttonOneDisabled,
+  onButtonOneClicked,
+  buttonTwoDisabled,
+  onButtonTwoClicked,
+  buttonThreeDisabled,
+  onButtonThreeClicked,
+  buttonFourDisabled,
+  onButtonFourClicked,
+  buttonFiveDisabled,
+  onButtonFiveClicked,
+  removeButtonFour
+}) => (
+  <>
+    <Button>Something before to focus on</Button>
+    <Toolbar role="toolbar">
+      <RovingTabIndexProvider>
+        <span>
+          <ToolbarButton
+            id="button-1"
+            disabled={!!buttonOneDisabled}
+            onClick={onButtonOneClicked}
+          >
+            Button One
+          </ToolbarButton>
+        </span>
+        <ToolbarButton
+          id="button-2"
+          disabled={!!buttonTwoDisabled}
+          onClick={onButtonTwoClicked}
+        >
+          Button Two
+        </ToolbarButton>
+        <ToolbarButton
+          id="button-3"
+          disabled={!!buttonThreeDisabled}
+          onClick={onButtonThreeClicked}
+        >
+          Button Three
+        </ToolbarButton>
+        {!removeButtonFour && (
+          <span>
+            <span>
+              <ToolbarButton
+                id="button-4"
+                disabled={!!buttonFourDisabled}
+                onClick={onButtonFourClicked}
+              >
+                Button Four
+              </ToolbarButton>
+            </span>
+          </span>
+        )}
+        <ToolbarButton
+          id="button-5"
+          disabled={!!buttonFiveDisabled}
+          onClick={onButtonFiveClicked}
+        >
+          Button Five
+        </ToolbarButton>
+      </RovingTabIndexProvider>
+    </Toolbar>
+    <Button>Something after to focus on</Button>
+  </>
+);
+
 export default {
-  title: "RovingTabIndex",
-  component: Example,
+  title: "Toolbar RovingTabIndex",
+  component: WithoutCustomIds,
   argTypes: {
-    direction: {
-      name: "Direction",
-      defaultValue: "horizontal"
-    },
     onButtonOneClicked: { table: { disable: true } },
     onButtonTwoClicked: { table: { disable: true } },
     onButtonThreeClicked: { table: { disable: true } },

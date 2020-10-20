@@ -1,12 +1,17 @@
-import React from "react";
+import { useLayoutEffect } from "react";
 
-// Invokes focus() on ref as a layout effect whenever focused
-// changes from false to true.
-export default function useFocusEffect(
+/**
+ * Focuses on the given DOM element as required.
+ * @param {boolean | null | undefined} focused Whether or not
+ * the specified DOM element should have focus() invoked on it.
+ * @param {React.RefObject<SVGElement | HTMLElement>} ref The DOM
+ * element to control the focus of.
+ */
+export function useFocusEffect(
   focused: boolean | null | undefined,
   ref: React.RefObject<SVGElement | HTMLElement>
 ): void {
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
     }

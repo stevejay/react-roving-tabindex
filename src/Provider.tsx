@@ -1,79 +1,31 @@
 import React from "react";
 import warning from "warning";
+import {
+  Action,
+  ActionType,
+  Context,
+  Key,
+  KeyConfig,
+  Navigation,
+  State
+} from "./types";
+
+export const DEFAULT_KEY_CONFIG: KeyConfig = {
+  [Key.ARROW_LEFT]: Navigation.PREVIOUS,
+  [Key.ARROW_RIGHT]: Navigation.NEXT,
+  [Key.ARROW_UP]: Navigation.PREVIOUS,
+  [Key.ARROW_DOWN]: Navigation.NEXT,
+  [Key.HOME]: Navigation.FIRST,
+  [Key.HOME_WITH_CTRL]: Navigation.FIRST,
+  [Key.END]: Navigation.LAST,
+  [Key.END_WITH_CTRL]: Navigation.LAST
+};
 
 const DOCUMENT_POSITION_PRECEDING = 2;
 
-type KeyDirection = "horizontal" | "vertical" | "both";
-
-export type TabStop = Readonly<{
-  id: string;
-  domElementRef: React.RefObject<Element>;
-  disabled: boolean;
-  rowIndex: number | null;
-}>;
-
-export type State = Readonly<{
-  direction: KeyDirection;
-  selectedId: string | null;
-  lastActionOrigin: "mouse" | "keyboard" | null;
-  tabStops: readonly TabStop[];
-}>;
-
-export enum ActionTypes {
-  REGISTER = "REGISTER",
-  UNREGISTER = "UNREGISTER",
-  TAB_TO_FIRST = "TAB_TO_FIRST",
-  TAB_TO_LAST = "TAB_TO_LAST",
-  TAB_TO_PREVIOUS = "TAB_TO_PREVIOUS",
-  TAB_TO_NEXT = "TAB_TO_NEXT",
-  CLICKED = "CLICKED",
-  CHANGE_DIRECTION = "CHANGE_DIRECTION",
-  TAB_STOP_OPTIONS_UPDATED = "TAB_STOP_OPTIONS_UPDATED"
-}
-
-export type Action =
-  | {
-      type: ActionTypes.REGISTER;
-      payload: TabStop;
-    }
-  | {
-      type: ActionTypes.UNREGISTER;
-      payload: { id: TabStop["id"] };
-    }
-  | {
-      type: ActionTypes.TAB_TO_FIRST;
-    }
-  | {
-      type: ActionTypes.TAB_TO_LAST;
-    }
-  | {
-      type: ActionTypes.TAB_TO_PREVIOUS;
-      payload: { id: TabStop["id"] };
-    }
-  | {
-      type: ActionTypes.TAB_TO_NEXT;
-      payload: { id: TabStop["id"] };
-    }
-  | {
-      type: ActionTypes.CLICKED;
-      payload: { id: TabStop["id"] };
-    }
-  | {
-      type: ActionTypes.CHANGE_DIRECTION;
-      payload: { direction: KeyDirection };
-    }
-  | {
-      type: ActionTypes.TAB_STOP_OPTIONS_UPDATED;
-      payload: {
-        id: TabStop["id"];
-        rowIndex: TabStop["rowIndex"];
-        disabled: TabStop["disabled"];
-      };
-    };
-
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case ActionTypes.REGISTER: {
+    case ActionType.REGISTER_TAB_STOP: {
       const newTabStop = action.payload;
       if (!newTabStop.domElementRef.current) {
         return state;
@@ -95,8 +47,8 @@ export function reducer(state: State, action: Action): State {
         ) {
           return -1;
         }
-        // Return true if newTabStop's element is located earlier in the DOM
-        // than tabStop's element, else false:
+        // Returns true if newTabStop's element is located earlier
+        // in the DOM than tabStop's element, else returns false:
         return !!(
           tabStop.domElementRef.current.compareDocumentPosition(
             newTabStop.domElementRef.current
@@ -104,7 +56,7 @@ export function reducer(state: State, action: Action): State {
         );
       });
 
-      // findIndex returns -1 when newTabStop should be inserted
+      // Array.findIndex returns -1 when newTabStop should be inserted
       // at the end of tabStops (the compareDocumentPosition test
       // always returns false in that case).
       if (indexToInsertAt === -1) {
@@ -123,7 +75,7 @@ export function reducer(state: State, action: Action): State {
         tabStops: newTabStops
       };
     }
-    case ActionTypes.UNREGISTER: {
+    case ActionType.UNREGISTER_TAB_STOP: {
       const id = action.payload.id;
       const newTabStops = state.tabStops.filter((tabStop) => tabStop.id !== id);
       if (newTabStops.length === state.tabStops.length) {
@@ -136,7 +88,7 @@ export function reducer(state: State, action: Action): State {
         tabStops: newTabStops
       };
     }
-    case ActionTypes.TAB_STOP_OPTIONS_UPDATED: {
+    case ActionType.TAB_STOP_UPDATED: {
       const { id, rowIndex, disabled } = action.payload;
       const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
       if (index === -1) {
@@ -146,15 +98,13 @@ export function reducer(state: State, action: Action): State {
 
       const tabStop = state.tabStops[index];
       if (tabStop.disabled === disabled && tabStop.rowIndex === rowIndex) {
+        // Nothing to do so short-circuit.
         return state;
       }
 
       const newTabStops = state.tabStops.slice();
-      newTabStops.splice(index, 1, {
-        ...tabStop,
-        rowIndex,
-        disabled
-      });
+      const newTabStop = { ...tabStop, rowIndex, disabled };
+      newTabStops.splice(index, 1, newTabStop);
 
       return {
         ...state,
@@ -162,65 +112,192 @@ export function reducer(state: State, action: Action): State {
         tabStops: newTabStops
       };
     }
-    case ActionTypes.TAB_TO_PREVIOUS:
-    case ActionTypes.TAB_TO_NEXT: {
+    case ActionType.KEY_DOWN: {
+      const { id, key, ctrlKey } = action.payload;
+      const navigation = getNavigationValue(key, ctrlKey, state.keyConfig);
+      if (!navigation) {
+        return state;
+      }
+      const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
+      if (index === -1) {
+        warning(false, `'${id}' tab stop not registered`);
+        return state;
+      }
+      const currentTabStop = state.tabStops[index];
+      if (currentTabStop.disabled) {
+        return state;
+      }
+      const isGrid = currentTabStop.rowIndex !== null;
+
+      switch (navigation) {
+        case Navigation.NEXT:
+          {
+            for (let i = index + 1; i < state.tabStops.length; ++i) {
+              const tabStop = state.tabStops[i];
+              if (isGrid && tabStop.rowIndex !== currentTabStop.rowIndex) {
+                break;
+              }
+              if (!tabStop.disabled) {
+                return {
+                  ...state,
+                  lastActionOrigin: "keyboard",
+                  selectedId: tabStop.id
+                };
+              }
+            }
+          }
+          break;
+        case Navigation.PREVIOUS:
+          {
+            for (let i = index - 1; i >= 0; --i) {
+              const tabStop = state.tabStops[i];
+              if (isGrid && tabStop.rowIndex !== currentTabStop.rowIndex) {
+                break;
+              }
+              if (!tabStop.disabled) {
+                return {
+                  ...state,
+                  lastActionOrigin: "keyboard",
+                  selectedId: tabStop.id
+                };
+              }
+            }
+          }
+          break;
+        case Navigation.FIRST:
+          {
+            for (let i = 0; i < state.tabStops.length; ++i) {
+              const tabStop = state.tabStops[i];
+              if (!tabStop.disabled) {
+                return {
+                  ...state,
+                  lastActionOrigin: "keyboard",
+                  selectedId: tabStop.id
+                };
+              }
+            }
+          }
+          break;
+        case Navigation.LAST:
+          {
+            for (let i = state.tabStops.length - 1; i >= 0; --i) {
+              const tabStop = state.tabStops[i];
+              if (!tabStop.disabled) {
+                return {
+                  ...state,
+                  lastActionOrigin: "keyboard",
+                  selectedId: tabStop.id
+                };
+              }
+            }
+          }
+          break;
+        case Navigation.PREVIOUS_ROW:
+          {
+            const currentRowTabStops = state.tabStops.filter(
+              (tabStop) => tabStop.rowIndex === currentTabStop.rowIndex
+            );
+            const previousRowIndex = index - currentRowTabStops.length;
+            if (previousRowIndex >= 0) {
+              const previousTabStop = state.tabStops[previousRowIndex];
+              if (!previousTabStop.disabled) {
+                return {
+                  ...state,
+                  lastActionOrigin: "keyboard",
+                  selectedId: previousTabStop.id
+                };
+              }
+            }
+          }
+          break;
+        case Navigation.NEXT_ROW:
+          {
+            const currentRowTabStops = state.tabStops.filter(
+              (tabStop) => tabStop.rowIndex === currentTabStop.rowIndex
+            );
+            const nextRowIndex = index + currentRowTabStops.length;
+            if (nextRowIndex < state.tabStops.length) {
+              const nextTabStop = state.tabStops[nextRowIndex];
+              if (!nextTabStop.disabled) {
+                return {
+                  ...state,
+                  lastActionOrigin: "keyboard",
+                  selectedId: nextTabStop.id
+                };
+              }
+            }
+          }
+          break;
+        case Navigation.FIRST_IN_ROW:
+          {
+            let newIndex: number | null = null;
+            for (let i = index - 1; i >= 0; --i) {
+              const tabStop = state.tabStops[i];
+              if (tabStop.rowIndex !== currentTabStop.rowIndex) {
+                break;
+              } else if (!tabStop.disabled) {
+                newIndex = i;
+              }
+            }
+            if (newIndex !== null) {
+              return {
+                ...state,
+                lastActionOrigin: "keyboard",
+                selectedId: state.tabStops[newIndex].id
+              };
+            }
+          }
+          break;
+        case Navigation.LAST_IN_ROW:
+          {
+            let newIndex: number | null = null;
+            for (let i = index + 1; i < state.tabStops.length; ++i) {
+              const tabStop = state.tabStops[i];
+              if (tabStop.rowIndex !== currentTabStop.rowIndex) {
+                break;
+              } else if (!tabStop.disabled) {
+                newIndex = i;
+              }
+            }
+            if (newIndex !== null) {
+              return {
+                ...state,
+                lastActionOrigin: "keyboard",
+                selectedId: state.tabStops[newIndex].id
+              };
+            }
+          }
+          break;
+      }
+      return state;
+    }
+    case ActionType.CLICKED: {
       const id = action.payload.id;
       const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
       if (index === -1) {
         warning(false, `'${id}' tab stop not registered`);
         return state;
       }
-
-      const newIndex =
-        action.type === ActionTypes.TAB_TO_PREVIOUS
-          ? index <= 0
-            ? state.tabStops.length - 1
-            : index - 1
-          : index >= state.tabStops.length - 1
-          ? 0
-          : index + 1;
-
-      return {
-        ...state,
-        lastActionOrigin: "keyboard",
-        selectedId: state.tabStops[newIndex].id
-      };
-    }
-    case ActionTypes.TAB_TO_FIRST:
-    case ActionTypes.TAB_TO_LAST: {
-      if (!state.tabStops.length) {
+      const currentTabStop = state.tabStops[index];
+      if (currentTabStop.disabled) {
         return state;
       }
-
-      const newIndex =
-        action.type === ActionTypes.TAB_TO_FIRST
-          ? 0
-          : state.tabStops.length - 1;
-
-      return {
-        ...state,
-        lastActionOrigin: "keyboard",
-        selectedId: state.tabStops[newIndex].id
-      };
-    }
-    case ActionTypes.CLICKED: {
       return {
         ...state,
         lastActionOrigin: "mouse",
-        selectedId: action.payload.id
+        selectedId: id
       };
     }
-    case ActionTypes.CHANGE_DIRECTION: {
-      return {
-        ...state,
-        direction: action.payload.direction
-      };
+    case ActionType.KEY_CONFIG_UPDATED: {
+      const keyConfig = action.payload.keyConfig;
+      return keyConfig === state.keyConfig ? state : { ...state, keyConfig };
     }
     default:
       return state;
   }
 }
 
+// Determine the updated value for selectedId:
 function getUpdatedSelectedId(
   tabStops: State["tabStops"],
   currentSelectedId: State["selectedId"]
@@ -245,52 +322,75 @@ function getUpdatedSelectedId(
   return index === -1 ? null : tabStops[index].id;
 }
 
-type Context = Readonly<{
-  state: State;
-  dispatch: React.Dispatch<Action>;
-}>;
+// Translate the user key down event info
+// into a navigation instruction.
+function getNavigationValue(
+  key: string,
+  ctrlKey: boolean,
+  keyConfig: KeyConfig
+): Navigation | null {
+  let translatedKey: Key | null = null;
+  switch (key) {
+    case Key.ARROW_LEFT:
+    case Key.ARROW_RIGHT:
+    case Key.ARROW_UP:
+    case Key.ARROW_DOWN:
+      translatedKey = key;
+      break;
+    case Key.HOME:
+      translatedKey = ctrlKey ? Key.HOME_WITH_CTRL : Key.HOME;
+      break;
+    case Key.END:
+      translatedKey = ctrlKey ? Key.END_WITH_CTRL : Key.END;
+      break;
+  }
+  return translatedKey === null ? null : keyConfig[translatedKey] || null;
+}
 
 export const RovingTabIndexContext = React.createContext<Context>({
   state: {
-    direction: "horizontal",
     selectedId: null,
     lastActionOrigin: null,
-    tabStops: []
+    tabStops: [],
+    keyConfig: DEFAULT_KEY_CONFIG
   },
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   dispatch: () => {}
 });
 
-type Props = {
-  children: React.ReactNode;
-  direction?: KeyDirection;
-};
-
-const Provider = ({
+/**
+ * Creates a roving tabindex context.
+ * @param {React.ReactNode} children The child content, which will
+ * include the DOM elements to rove between using the tab key.
+ * @param {keyConfig} keyConfig An optional key navigation configuration
+ * object that specifies exactly how the roving tabindex should move
+ * when particular keys are pressed by the user. A default config
+ * is used when none is supplied. If you pass a config object then
+ * it can be changed throughout the lifetime of the containing component.
+ * But it is best if its identity changes only if the configuration
+ * values themselves change.
+ */
+export const Provider = ({
   children,
-  direction = "horizontal"
-}: Props): React.ReactElement => {
+  keyConfig = DEFAULT_KEY_CONFIG
+}: {
+  children: React.ReactNode;
+  keyConfig?: KeyConfig;
+}): React.ReactElement => {
   const [state, dispatch] = React.useReducer(reducer, {
-    direction: "horizontal",
     selectedId: null,
     lastActionOrigin: null,
-    tabStops: []
+    tabStops: [],
+    keyConfig
   });
 
-  const context = React.useMemo<Context>(
-    () => ({
-      state,
-      dispatch
-    }),
-    [state]
-  );
-
+  // Update the keyConfig whenever it is changed:
   React.useEffect(() => {
-    dispatch({
-      type: ActionTypes.CHANGE_DIRECTION,
-      payload: { direction }
-    });
-  }, [direction, dispatch]);
+    dispatch({ type: ActionType.KEY_CONFIG_UPDATED, payload: { keyConfig } });
+  }, [keyConfig]);
+
+  // Create a cached object to use as the context value:
+  const context = React.useMemo<Context>(() => ({ state, dispatch }), [state]);
 
   return (
     <RovingTabIndexContext.Provider value={context}>
@@ -298,5 +398,3 @@ const Provider = ({
     </RovingTabIndexContext.Provider>
   );
 };
-
-export default Provider;

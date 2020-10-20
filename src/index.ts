@@ -1,3 +1,7 @@
-export { default as RovingTabIndexProvider } from "./Provider";
-export { default as useRovingTabIndex } from "./use-roving-tabindex";
-export { default as useFocusEffect } from "./use-focus-effect";
+export {
+  Provider as RovingTabIndexProvider,
+  DEFAULT_KEY_CONFIG
+} from "./Provider";
+export { useRovingTabIndex } from "./use-roving-tabindex";
+export { useFocusEffect } from "./use-focus-effect";
+export * from "./types";

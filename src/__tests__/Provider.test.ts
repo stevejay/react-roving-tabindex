@@ -1,7 +1,7 @@
 import React from "react";
 import { JSDOM } from "jsdom";
 import warning from "warning";
-import { Action, ActionTypes, reducer, State, TabStop } from "../Provider";
+import { Action, ActionType, reducer, State, TabStop } from "../Provider";
 
 jest.mock("warning");
 
@@ -47,7 +47,7 @@ describe("reducer", () => {
 
       it("should add the tab stop as the only tab stop", () => {
         const action: Action = {
-          type: ActionTypes.REGISTER,
+          type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
 
@@ -72,7 +72,7 @@ describe("reducer", () => {
 
       it("should add the new tab stop after the existing tab stop", () => {
         const action: Action = {
-          type: ActionTypes.REGISTER,
+          type: ActionType.REGISTER_TAB_STOP,
           payload: buttonTwoTabStop
         };
 
@@ -97,7 +97,7 @@ describe("reducer", () => {
 
       it("should add the new tab stop before the existing tab stop", () => {
         const action: Action = {
-          type: ActionTypes.REGISTER,
+          type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
 
@@ -122,7 +122,7 @@ describe("reducer", () => {
 
       it("should not add the tab stop again", () => {
         const action: Action = {
-          type: ActionTypes.REGISTER,
+          type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
         const result = reducer(givenState, action);
@@ -131,7 +131,7 @@ describe("reducer", () => {
 
       it("should log a warning", () => {
         const action: Action = {
-          type: ActionTypes.REGISTER,
+          type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
 
@@ -157,7 +157,7 @@ describe("reducer", () => {
 
       it("should not change state", () => {
         const action: Action = {
-          type: ActionTypes.UNREGISTER,
+          type: ActionType.UNREGISTER_TAB_STOP,
           payload: { id: buttonOneId }
         };
 
@@ -168,7 +168,7 @@ describe("reducer", () => {
 
       it("should log a warning", () => {
         const action: Action = {
-          type: ActionTypes.UNREGISTER,
+          type: ActionType.UNREGISTER_TAB_STOP,
           payload: { id: buttonOneId }
         };
 
@@ -193,7 +193,7 @@ describe("reducer", () => {
 
         it("should unregister the tab stop", () => {
           const action: Action = {
-            type: ActionTypes.UNREGISTER,
+            type: ActionType.UNREGISTER_TAB_STOP,
             payload: { id: buttonOneId }
           };
 
@@ -218,7 +218,7 @@ describe("reducer", () => {
 
         it("should unregister the tab stop", () => {
           const action: Action = {
-            type: ActionTypes.UNREGISTER,
+            type: ActionType.UNREGISTER_TAB_STOP,
             payload: { id: buttonTwoId }
           };
 
@@ -245,7 +245,7 @@ describe("reducer", () => {
 
     it("should set the clicked tab stop as the selected tab stop", () => {
       const action: Action = {
-        type: ActionTypes.CLICKED,
+        type: ActionType.CLICKED,
         payload: { id: buttonTwoId }
       };
 
@@ -270,7 +270,7 @@ describe("reducer", () => {
       });
 
       const action: Action = {
-        type: ActionTypes.TAB_TO_NEXT,
+        type: ActionType.TAB_TO_NEXT,
         payload: { id: buttonThreeId }
       };
 
@@ -299,7 +299,7 @@ describe("reducer", () => {
 
       it("should set the next tab stop as the current tab stop", () => {
         const action: Action = {
-          type: ActionTypes.TAB_TO_NEXT,
+          type: ActionType.TAB_TO_NEXT,
           payload: { id: buttonOneId }
         };
 
@@ -324,7 +324,7 @@ describe("reducer", () => {
 
       it("should wrap around to set the first tab stop as the current tab stop", () => {
         const action: Action = {
-          type: ActionTypes.TAB_TO_NEXT,
+          type: ActionType.TAB_TO_NEXT,
           payload: { id: buttonTwoId }
         };
 
@@ -350,7 +350,7 @@ describe("reducer", () => {
       });
 
       const action: Action = {
-        type: ActionTypes.TAB_TO_PREVIOUS,
+        type: ActionType.TAB_TO_PREVIOUS,
         payload: { id: buttonThreeId }
       };
 
@@ -379,7 +379,7 @@ describe("reducer", () => {
 
       it("should set the previous tab stop as the current tab stop", () => {
         const action: Action = {
-          type: ActionTypes.TAB_TO_NEXT,
+          type: ActionType.TAB_TO_NEXT,
           payload: { id: buttonTwoId }
         };
 
@@ -404,7 +404,7 @@ describe("reducer", () => {
 
       it("should wrap around to set the last tab stop as the current tab stop", () => {
         const action: Action = {
-          type: ActionTypes.TAB_TO_NEXT,
+          type: ActionType.TAB_TO_NEXT,
           payload: { id: buttonOneId }
         };
 
@@ -430,7 +430,7 @@ describe("reducer", () => {
       });
 
       it("should not change state", () => {
-        const action: Action = { type: ActionTypes.TAB_TO_FIRST };
+        const action: Action = { type: ActionType.TAB_TO_FIRST };
         const result = reducer(givenState, action);
         expect(result).toEqual(givenState);
       });
@@ -445,7 +445,7 @@ describe("reducer", () => {
       });
 
       it("should only alter the action origin", () => {
-        const action: Action = { type: ActionTypes.TAB_TO_FIRST };
+        const action: Action = { type: ActionType.TAB_TO_FIRST };
 
         const result = reducer(givenState, action);
 
@@ -467,7 +467,7 @@ describe("reducer", () => {
       });
 
       it("should set the first tab stop as the current tab stop", () => {
-        const action: Action = { type: ActionTypes.TAB_TO_FIRST };
+        const action: Action = { type: ActionType.TAB_TO_FIRST };
 
         const result = reducer(givenState, action);
 
@@ -491,7 +491,7 @@ describe("reducer", () => {
       });
 
       it("should not change state", () => {
-        const action: Action = { type: ActionTypes.TAB_TO_LAST };
+        const action: Action = { type: ActionType.TAB_TO_LAST };
         const result = reducer(givenState, action);
         expect(result).toEqual(givenState);
       });
@@ -506,7 +506,7 @@ describe("reducer", () => {
       });
 
       it("should only alter the action origin", () => {
-        const action: Action = { type: ActionTypes.TAB_TO_LAST };
+        const action: Action = { type: ActionType.TAB_TO_LAST };
 
         const result = reducer(givenState, action);
 
@@ -528,7 +528,7 @@ describe("reducer", () => {
       });
 
       it("should set the last tab stop as the current tab stop", () => {
-        const action: Action = { type: ActionTypes.TAB_TO_LAST };
+        const action: Action = { type: ActionType.TAB_TO_LAST };
 
         const result = reducer(givenState, action);
 
@@ -551,7 +551,7 @@ describe("reducer", () => {
     });
 
     const action: Action = {
-      type: ActionTypes.CHANGE_DIRECTION,
+      type: ActionType.CHANGE_DIRECTION,
       payload: {
         direction: "vertical"
       }

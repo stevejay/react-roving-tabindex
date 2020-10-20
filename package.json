@@ -9,7 +9,8 @@
     "react",
     "roving",
     "tab",
-    "tabindex"
+    "tabindex",
+    "grid"
   ],
   "repository": "stevejay/react-roving-tabindex",
   "main": "dist/index.js",

@@ -23,6 +23,13 @@ export const DEFAULT_KEY_CONFIG: KeyConfig = {
 
 const DOCUMENT_POSITION_PRECEDING = 2;
 
+// Note: The `allowFocusing` state property is required
+// to delay focusing of the selected tab stop
+// DOM element until the user has started interacting
+// with the roving tabindex's controls. If this delay
+// did not occur, the selected control would be focused
+// as soon as it was mounted, which is unlikely to be
+// the desired behaviour for the page.
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionType.REGISTER_TAB_STOP: {
@@ -140,7 +147,7 @@ export function reducer(state: State, action: Action): State {
               if (!tabStop.disabled) {
                 return {
                   ...state,
-                  lastActionOrigin: "keyboard",
+                  allowFocusing: true,
                   selectedId: tabStop.id
                 };
               }
@@ -157,7 +164,7 @@ export function reducer(state: State, action: Action): State {
               if (!tabStop.disabled) {
                 return {
                   ...state,
-                  lastActionOrigin: "keyboard",
+                  allowFocusing: true,
                   selectedId: tabStop.id
                 };
               }
@@ -171,7 +178,7 @@ export function reducer(state: State, action: Action): State {
               if (!tabStop.disabled) {
                 return {
                   ...state,
-                  lastActionOrigin: "keyboard",
+                  allowFocusing: true,
                   selectedId: tabStop.id
                 };
               }
@@ -185,7 +192,7 @@ export function reducer(state: State, action: Action): State {
               if (!tabStop.disabled) {
                 return {
                   ...state,
-                  lastActionOrigin: "keyboard",
+                  allowFocusing: true,
                   selectedId: tabStop.id
                 };
               }
@@ -194,17 +201,31 @@ export function reducer(state: State, action: Action): State {
           break;
         case Navigation.PREVIOUS_ROW:
           {
-            const currentRowTabStops = state.tabStops.filter(
-              (tabStop) => tabStop.rowIndex === currentTabStop.rowIndex
-            );
-            const previousRowIndex = index - currentRowTabStops.length;
-            if (previousRowIndex >= 0) {
-              const previousTabStop = state.tabStops[previousRowIndex];
-              if (!previousTabStop.disabled) {
+            if (
+              currentTabStop.rowIndex === null ||
+              currentTabStop.rowIndex === 0
+            ) {
+              return state;
+            }
+            const rowStartIndexes = {};
+            state.tabStops.forEach(({ rowIndex }, index) => {
+              if (
+                rowIndex !== null &&
+                rowStartIndexes[rowIndex] === undefined
+              ) {
+                rowStartIndexes[rowIndex] = index;
+              }
+            });
+            const columnOffset =
+              index - rowStartIndexes[currentTabStop.rowIndex];
+            for (let i = currentTabStop.rowIndex - 1; i >= 0; --i) {
+              const rowTabStop =
+                state.tabStops[rowStartIndexes[i] + columnOffset];
+              if (!rowTabStop.disabled) {
                 return {
                   ...state,
-                  lastActionOrigin: "keyboard",
-                  selectedId: previousTabStop.id
+                  allowFocusing: true,
+                  selectedId: rowTabStop.id
                 };
               }
             }
@@ -212,17 +233,34 @@ export function reducer(state: State, action: Action): State {
           break;
         case Navigation.NEXT_ROW:
           {
-            const currentRowTabStops = state.tabStops.filter(
-              (tabStop) => tabStop.rowIndex === currentTabStop.rowIndex
-            );
-            const nextRowIndex = index + currentRowTabStops.length;
-            if (nextRowIndex < state.tabStops.length) {
-              const nextTabStop = state.tabStops[nextRowIndex];
-              if (!nextTabStop.disabled) {
+            if (
+              currentTabStop.rowIndex === null ||
+              currentTabStop.rowIndex ===
+                state.tabStops[state.tabStops.length - 1].rowIndex
+            ) {
+              return state;
+            }
+            const rowStartIndexes = {};
+            state.tabStops.forEach(({ rowIndex }, index) => {
+              if (
+                rowIndex !== null &&
+                rowStartIndexes[rowIndex] === undefined
+              ) {
+                rowStartIndexes[rowIndex] = index;
+              }
+            });
+            const columnOffset =
+              index - rowStartIndexes[currentTabStop.rowIndex];
+            const maxRowIndex =
+              state.tabStops[state.tabStops.length - 1].rowIndex || 0;
+            for (let i = currentTabStop.rowIndex + 1; i <= maxRowIndex; ++i) {
+              const rowTabStop =
+                state.tabStops[rowStartIndexes[i] + columnOffset];
+              if (!rowTabStop.disabled) {
                 return {
                   ...state,
-                  lastActionOrigin: "keyboard",
-                  selectedId: nextTabStop.id
+                  allowFocusing: true,
+                  selectedId: rowTabStop.id
                 };
               }
             }
@@ -230,6 +268,9 @@ export function reducer(state: State, action: Action): State {
           break;
         case Navigation.FIRST_IN_ROW:
           {
+            if (currentTabStop.rowIndex === null) {
+              return state;
+            }
             let newIndex: number | null = null;
             for (let i = index - 1; i >= 0; --i) {
               const tabStop = state.tabStops[i];
@@ -242,7 +283,7 @@ export function reducer(state: State, action: Action): State {
             if (newIndex !== null) {
               return {
                 ...state,
-                lastActionOrigin: "keyboard",
+                allowFocusing: true,
                 selectedId: state.tabStops[newIndex].id
               };
             }
@@ -250,6 +291,9 @@ export function reducer(state: State, action: Action): State {
           break;
         case Navigation.LAST_IN_ROW:
           {
+            if (currentTabStop.rowIndex === null) {
+              return state;
+            }
             let newIndex: number | null = null;
             for (let i = index + 1; i < state.tabStops.length; ++i) {
               const tabStop = state.tabStops[i];
@@ -262,7 +306,7 @@ export function reducer(state: State, action: Action): State {
             if (newIndex !== null) {
               return {
                 ...state,
-                lastActionOrigin: "keyboard",
+                allowFocusing: true,
                 selectedId: state.tabStops[newIndex].id
               };
             }
@@ -279,14 +323,9 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const currentTabStop = state.tabStops[index];
-      if (currentTabStop.disabled) {
-        return state;
-      }
-      return {
-        ...state,
-        lastActionOrigin: "mouse",
-        selectedId: id
-      };
+      return currentTabStop.disabled
+        ? state
+        : { ...state, allowFocusing: true, selectedId: id };
     }
     case ActionType.KEY_CONFIG_UPDATED: {
       const keyConfig = action.payload.keyConfig;
@@ -322,8 +361,7 @@ function getUpdatedSelectedId(
   return index === -1 ? null : tabStops[index].id;
 }
 
-// Translate the user key down event info
-// into a navigation instruction.
+// Translate the user key down event info into a navigation instruction.
 function getNavigationValue(
   key: string,
   ctrlKey: boolean,
@@ -350,7 +388,7 @@ function getNavigationValue(
 export const RovingTabIndexContext = React.createContext<Context>({
   state: {
     selectedId: null,
-    lastActionOrigin: null,
+    allowFocusing: false,
     tabStops: [],
     keyConfig: DEFAULT_KEY_CONFIG
   },
@@ -379,7 +417,7 @@ export const Provider = ({
 }): React.ReactElement => {
   const [state, dispatch] = React.useReducer(reducer, {
     selectedId: null,
-    lastActionOrigin: null,
+    allowFocusing: false,
     tabStops: [],
     keyConfig
   });

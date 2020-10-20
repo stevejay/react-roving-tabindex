@@ -49,7 +49,7 @@ export type TabStop = Readonly<{
 
 export type State = Readonly<{
   selectedId: string | null;
-  lastActionOrigin: "mouse" | "keyboard" | null;
+  allowFocusing: boolean;
   tabStops: readonly TabStop[];
   keyConfig: KeyConfig;
 }>;

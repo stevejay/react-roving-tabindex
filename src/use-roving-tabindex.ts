@@ -112,11 +112,11 @@ export function useRovingTabIndex(
     context.dispatch({ type: ActionType.CLICKED, payload: { id: getId() } });
   }, []);
 
-  // Determine if the current tab stop is the selected one:
+  // Determine if the current tab stop is the currently active one:
   const selected = getId() === context.state.selectedId;
 
   const tabIndex = selected ? 0 : -1;
-  const focused = selected && context.state.lastActionOrigin !== null;
+  const focused = selected && context.state.allowFocusing;
   return [tabIndex, focused, handleKeyDown, handleClick];
 }
 

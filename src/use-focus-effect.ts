@@ -14,7 +14,6 @@ export function useFocusEffect(
   useLayoutEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
-      console.log("focussed", ref.current.id);
     }
   }, [focused]);
 }

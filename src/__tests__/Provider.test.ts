@@ -1,11 +1,12 @@
 import React from "react";
 import { JSDOM } from "jsdom";
 import warning from "warning";
-import { Action, ActionType, reducer, State, TabStop } from "../Provider";
+import { Action, ActionType, Key, State, TabStop } from "../types";
+import { DEFAULT_KEY_CONFIG, reducer } from "../Provider";
 
 jest.mock("warning");
 
-const testDOM = new JSDOM(`
+const toolbarTestDOM = new JSDOM(`
   <body>
     <button id="button-1">
     <button id="button-2">
@@ -13,24 +14,32 @@ const testDOM = new JSDOM(`
   </body>
 `);
 
-const getTestDOMElementRef = (id: string): React.RefObject<HTMLElement> => ({
-  current: testDOM.window.document.getElementById(id)
+const getToolbarTestDOMElementRef = (
+  id: string
+): React.RefObject<HTMLElement> => ({
+  current: toolbarTestDOM.window.document.getElementById(id)
 });
 
 describe("reducer", () => {
   const buttonOneId = "button-1";
+
   const buttonOneTabStop: TabStop = {
     id: buttonOneId,
-    domElementRef: getTestDOMElementRef(buttonOneId)
+    domElementRef: getToolbarTestDOMElementRef(buttonOneId),
+    disabled: false,
+    rowIndex: null
   };
 
   const buttonTwoId = "button-2";
+
   const buttonTwoTabStop: TabStop = {
     id: buttonTwoId,
-    domElementRef: getTestDOMElementRef(buttonTwoId)
+    domElementRef: getToolbarTestDOMElementRef(buttonTwoId),
+    disabled: false,
+    rowIndex: null
   };
 
-  const buttonThreeId = "button-3";
+  // const buttonThreeId = "button-3";
 
   beforeEach(() => {
     (warning as jest.Mock).mockReset();
@@ -39,10 +48,10 @@ describe("reducer", () => {
   describe("when registering a tab stop", () => {
     describe("when no tab stops have been registered", () => {
       const givenState: State = Object.freeze({
-        direction: "horizontal",
         selectedId: null,
-        lastActionOrigin: "mouse",
-        tabStops: []
+        allowFocusing: false,
+        tabStops: [],
+        keyConfig: DEFAULT_KEY_CONFIG
       });
 
       it("should add the tab stop as the only tab stop", () => {
@@ -50,24 +59,22 @@ describe("reducer", () => {
           type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
-
         const result = reducer(givenState, action);
-
-        expect(result).toEqual({
-          direction: "horizontal",
+        expect(result).toEqual<State>({
           selectedId: buttonOneId,
-          lastActionOrigin: "mouse",
-          tabStops: [buttonOneTabStop]
+          allowFocusing: false,
+          tabStops: [buttonOneTabStop],
+          keyConfig: DEFAULT_KEY_CONFIG
         });
       });
     });
 
     describe("when one earlier tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
-        direction: "horizontal",
         selectedId: buttonOneId,
-        lastActionOrigin: "mouse",
-        tabStops: [buttonOneTabStop]
+        allowFocusing: false,
+        tabStops: [buttonOneTabStop],
+        keyConfig: DEFAULT_KEY_CONFIG
       });
 
       it("should add the new tab stop after the existing tab stop", () => {
@@ -75,24 +82,22 @@ describe("reducer", () => {
           type: ActionType.REGISTER_TAB_STOP,
           payload: buttonTwoTabStop
         };
-
         const result = reducer(givenState, action);
-
-        expect(result).toEqual({
-          direction: "horizontal",
+        expect(result).toEqual<State>({
           selectedId: buttonOneId,
-          lastActionOrigin: "mouse",
-          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+          allowFocusing: false,
+          tabStops: [buttonOneTabStop, buttonTwoTabStop],
+          keyConfig: DEFAULT_KEY_CONFIG
         });
       });
     });
 
     describe("when one later tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
-        direction: "horizontal",
         selectedId: buttonTwoId,
-        lastActionOrigin: "mouse",
-        tabStops: [buttonTwoTabStop]
+        allowFocusing: false,
+        tabStops: [buttonTwoTabStop],
+        keyConfig: DEFAULT_KEY_CONFIG
       });
 
       it("should add the new tab stop before the existing tab stop", () => {
@@ -100,24 +105,22 @@ describe("reducer", () => {
           type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
-
         const result = reducer(givenState, action);
-
-        expect(result).toEqual({
-          direction: "horizontal",
+        expect(result).toEqual<State>({
           selectedId: buttonTwoId,
-          lastActionOrigin: "mouse",
-          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+          allowFocusing: false,
+          tabStops: [buttonOneTabStop, buttonTwoTabStop],
+          keyConfig: DEFAULT_KEY_CONFIG
         });
       });
     });
 
     describe("when the same tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
-        direction: "horizontal",
         selectedId: buttonOneId,
-        lastActionOrigin: "mouse",
-        tabStops: [buttonOneTabStop]
+        allowFocusing: false,
+        tabStops: [buttonOneTabStop],
+        keyConfig: DEFAULT_KEY_CONFIG
       });
 
       it("should not add the tab stop again", () => {
@@ -126,7 +129,7 @@ describe("reducer", () => {
           payload: buttonOneTabStop
         };
         const result = reducer(givenState, action);
-        expect(result).toEqual(givenState);
+        expect(result).toEqual<State>(givenState);
       });
 
       it("should log a warning", () => {
@@ -134,13 +137,11 @@ describe("reducer", () => {
           type: ActionType.REGISTER_TAB_STOP,
           payload: buttonOneTabStop
         };
-
         reducer(givenState, action);
-
         expect(warning).toHaveBeenNthCalledWith(
           1,
           false,
-          `${buttonOneId} tab stop already registered`
+          `'${buttonOneId}' tab stop already registered`
         );
       });
     });
@@ -149,21 +150,19 @@ describe("reducer", () => {
   describe("when unregistering a tab stop", () => {
     describe("when the tab stop to remove is not registered", () => {
       const givenState: State = Object.freeze({
-        direction: "horizontal",
         selectedId: null,
-        lastActionOrigin: "mouse",
-        tabStops: []
+        allowFocusing: false,
+        tabStops: [],
+        keyConfig: DEFAULT_KEY_CONFIG
       });
 
-      it("should not change state", () => {
+      it("should not change the reducer state", () => {
         const action: Action = {
           type: ActionType.UNREGISTER_TAB_STOP,
           payload: { id: buttonOneId }
         };
-
         const result = reducer(givenState, action);
-
-        expect(result).toEqual(givenState);
+        expect(result).toEqual<State>(givenState);
       });
 
       it("should log a warning", () => {
@@ -171,13 +170,11 @@ describe("reducer", () => {
           type: ActionType.UNREGISTER_TAB_STOP,
           payload: { id: buttonOneId }
         };
-
         reducer(givenState, action);
-
         expect(warning).toHaveBeenNthCalledWith(
           1,
           false,
-          `${buttonOneId} tab stop already unregistered`
+          `'${buttonOneId}' tab stop already unregistered`
         );
       });
     });
@@ -185,10 +182,10 @@ describe("reducer", () => {
     describe("when the tab stop to remove is registered", () => {
       describe("when it is the currently selected tab stop", () => {
         const givenState: State = Object.freeze({
-          direction: "horizontal",
           selectedId: buttonOneId,
-          lastActionOrigin: "mouse",
-          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+          allowFocusing: false,
+          tabStops: [buttonOneTabStop, buttonTwoTabStop],
+          keyConfig: DEFAULT_KEY_CONFIG
         });
 
         it("should unregister the tab stop", () => {
@@ -196,24 +193,22 @@ describe("reducer", () => {
             type: ActionType.UNREGISTER_TAB_STOP,
             payload: { id: buttonOneId }
           };
-
           const result = reducer(givenState, action);
-
-          expect(result).toEqual({
-            direction: "horizontal",
+          expect(result).toEqual<State>({
             selectedId: buttonTwoId,
-            lastActionOrigin: "mouse",
-            tabStops: [buttonTwoTabStop]
+            allowFocusing: false,
+            tabStops: [buttonTwoTabStop],
+            keyConfig: DEFAULT_KEY_CONFIG
           });
         });
       });
 
       describe("when it is not the currently selected tab stop", () => {
         const givenState: State = Object.freeze({
-          direction: "horizontal",
           selectedId: buttonOneId,
-          lastActionOrigin: "mouse",
-          tabStops: [buttonOneTabStop, buttonTwoTabStop]
+          allowFocusing: false,
+          tabStops: [buttonOneTabStop, buttonTwoTabStop],
+          keyConfig: DEFAULT_KEY_CONFIG
         });
 
         it("should unregister the tab stop", () => {
@@ -221,14 +216,92 @@ describe("reducer", () => {
             type: ActionType.UNREGISTER_TAB_STOP,
             payload: { id: buttonTwoId }
           };
-
           const result = reducer(givenState, action);
-
-          expect(result).toEqual({
-            direction: "horizontal",
+          expect(result).toEqual<State>({
             selectedId: buttonOneId,
-            lastActionOrigin: "mouse",
-            tabStops: [buttonOneTabStop]
+            allowFocusing: false,
+            tabStops: [buttonOneTabStop],
+            keyConfig: DEFAULT_KEY_CONFIG
+          });
+        });
+      });
+    });
+  });
+
+  describe("when updating a tab stop", () => {
+    describe("when the updated data is the same as the current data", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonOneId,
+        allowFocusing: false,
+        tabStops: [
+          buttonOneTabStop,
+          { ...buttonTwoTabStop, rowIndex: 1, disabled: true }
+        ],
+        keyConfig: DEFAULT_KEY_CONFIG
+      });
+
+      it("should not change the reducer state", () => {
+        const action: Action = {
+          type: ActionType.TAB_STOP_UPDATED,
+          payload: { id: buttonTwoId, rowIndex: 1, disabled: true }
+        };
+        const result = reducer(givenState, action);
+        expect(result).toEqual<State>(givenState);
+      });
+    });
+
+    describe("when the updated data is different to the current data", () => {
+      describe("when the updated tab stop is not selected", () => {
+        const givenState: State = Object.freeze({
+          selectedId: buttonOneId,
+          allowFocusing: false,
+          tabStops: [
+            buttonOneTabStop,
+            { ...buttonTwoTabStop, rowIndex: 1, disabled: true }
+          ],
+          keyConfig: DEFAULT_KEY_CONFIG
+        });
+
+        it("should change the tab stop data", () => {
+          const action: Action = {
+            type: ActionType.TAB_STOP_UPDATED,
+            payload: { id: buttonTwoId, rowIndex: 2, disabled: false }
+          };
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            tabStops: [
+              buttonOneTabStop,
+              { ...buttonTwoTabStop, rowIndex: 2, disabled: false }
+            ]
+          });
+        });
+      });
+
+      describe("when the updated tab stop is selected and becomes disabled", () => {
+        const givenState: State = Object.freeze({
+          selectedId: buttonTwoId,
+          allowFocusing: false,
+          tabStops: [
+            buttonOneTabStop,
+            { ...buttonTwoTabStop, disabled: false }
+          ],
+          keyConfig: DEFAULT_KEY_CONFIG
+        });
+
+        it("should change the tab stop data and the selectedId", () => {
+          const action: Action = {
+            type: ActionType.TAB_STOP_UPDATED,
+            payload: { id: buttonTwoId, rowIndex: null, disabled: true }
+          };
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: buttonOneId,
+            tabStops: [
+              buttonOneTabStop,
+              { ...buttonTwoTabStop, disabled: true }
+            ]
           });
         });
       });
@@ -236,30 +309,49 @@ describe("reducer", () => {
   });
 
   describe("when clicking on a tab stop", () => {
-    const givenState: State = Object.freeze({
-      direction: "horizontal",
-      selectedId: buttonOneId,
-      lastActionOrigin: "keyboard",
-      tabStops: [buttonOneTabStop, buttonTwoTabStop]
+    describe("when the tab stop is not disabled", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonOneId,
+        allowFocusing: false,
+        tabStops: [buttonOneTabStop, buttonTwoTabStop],
+        keyConfig: DEFAULT_KEY_CONFIG
+      });
+
+      it("should set the clicked tab stop as the selected tab stop", () => {
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: buttonTwoId }
+        };
+        const result = reducer(givenState, action);
+        expect(result).toEqual<State>({
+          selectedId: buttonTwoId,
+          allowFocusing: true,
+          tabStops: [buttonOneTabStop, buttonTwoTabStop],
+          keyConfig: DEFAULT_KEY_CONFIG
+        });
+      });
     });
 
-    it("should set the clicked tab stop as the selected tab stop", () => {
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: buttonTwoId }
-      };
+    describe("when the tab stop is disabled", () => {
+      const givenState: State = Object.freeze({
+        selectedId: buttonOneId,
+        allowFocusing: false,
+        tabStops: [buttonOneTabStop, { ...buttonTwoTabStop, disabled: true }],
+        keyConfig: DEFAULT_KEY_CONFIG
+      });
 
-      const result = reducer(givenState, action);
-
-      expect(result).toEqual({
-        direction: "horizontal",
-        selectedId: buttonTwoId,
-        lastActionOrigin: "mouse",
-        tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      it("should not change the reducer state", () => {
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: buttonTwoId }
+        };
+        const result = reducer(givenState, action);
+        expect(result).toEqual<State>(givenState);
       });
     });
   });
 
+  /*
   describe("when tabbing to the next tab stop", () => {
     describe("when the current tab stop is not registered", () => {
       const givenState: State = Object.freeze({
@@ -274,9 +366,9 @@ describe("reducer", () => {
         payload: { id: buttonThreeId }
       };
 
-      it("should not change state", () => {
+      it("should not change the reducer state", () => {
         const result = reducer(givenState, action);
-        expect(result).toEqual(givenState);
+        expect(result).toEqual<State>(givenState);
       });
 
       it("should log a warning", () => {
@@ -305,7 +397,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
@@ -330,7 +422,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
@@ -354,9 +446,9 @@ describe("reducer", () => {
         payload: { id: buttonThreeId }
       };
 
-      it("should not change state", () => {
+      it("should not change the reducer state", () => {
         const result = reducer(givenState, action);
-        expect(result).toEqual(givenState);
+        expect(result).toEqual<State>(givenState);
       });
 
       it("should log a warning", () => {
@@ -385,7 +477,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
@@ -410,7 +502,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
@@ -429,10 +521,10 @@ describe("reducer", () => {
         tabStops: []
       });
 
-      it("should not change state", () => {
+      it("should not change the reducer state", () => {
         const action: Action = { type: ActionType.TAB_TO_FIRST };
         const result = reducer(givenState, action);
-        expect(result).toEqual(givenState);
+        expect(result).toEqual<State>(givenState);
       });
     });
 
@@ -449,7 +541,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
@@ -471,7 +563,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonOneId,
           lastActionOrigin: "keyboard",
@@ -490,10 +582,10 @@ describe("reducer", () => {
         tabStops: []
       });
 
-      it("should not change state", () => {
+      it("should not change the reducer state", () => {
         const action: Action = { type: ActionType.TAB_TO_LAST };
         const result = reducer(givenState, action);
-        expect(result).toEqual(givenState);
+        expect(result).toEqual<State>(givenState);
       });
     });
 
@@ -510,7 +602,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
@@ -532,7 +624,7 @@ describe("reducer", () => {
 
         const result = reducer(givenState, action);
 
-        expect(result).toEqual({
+        expect(result).toEqual<State>({
           direction: "horizontal",
           selectedId: buttonTwoId,
           lastActionOrigin: "keyboard",
@@ -541,29 +633,30 @@ describe("reducer", () => {
       });
     });
   });
+  */
 
-  describe("changing the direction", () => {
+  describe("changing the key config", () => {
     const givenState: State = Object.freeze({
-      direction: "horizontal",
       selectedId: buttonOneId,
-      lastActionOrigin: "mouse",
-      tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      allowFocusing: false,
+      tabStops: [buttonOneTabStop, buttonTwoTabStop],
+      keyConfig: DEFAULT_KEY_CONFIG
     });
-
-    const action: Action = {
-      type: ActionType.CHANGE_DIRECTION,
-      payload: {
-        direction: "vertical"
-      }
+    const newKeyConfig = {
+      ...DEFAULT_KEY_CONFIG,
+      [Key.ARROW_UP]: undefined,
+      [Key.ARROW_DOWN]: undefined
     };
-
+    const action: Action = {
+      type: ActionType.KEY_CONFIG_UPDATED,
+      payload: { keyConfig: newKeyConfig }
+    };
     const result = reducer(givenState, action);
-
-    expect(result).toEqual({
-      direction: "vertical",
+    expect(result).toEqual<State>({
       selectedId: buttonOneId,
-      lastActionOrigin: "mouse",
-      tabStops: [buttonOneTabStop, buttonTwoTabStop]
+      allowFocusing: false,
+      tabStops: [buttonOneTabStop, buttonTwoTabStop],
+      keyConfig: newKeyConfig
     });
   });
 });

@@ -7,7 +7,6 @@ import {
   KeyboardEvent
 } from "react";
 import { RovingTabIndexContext } from "./Provider";
-import uniqueId from "lodash.uniqueid";
 import {
   ActionType,
   EventKey,
@@ -15,6 +14,7 @@ import {
   HookResponse,
   TabStop
 } from "./types";
+import { uniqueId } from "./unique-id";
 
 /**
  * Includes the given DOM element in the current roving tabindex.
@@ -50,7 +50,7 @@ export function useRovingTabIndex(
 
   function getId() {
     if (!idRef.current) {
-      idRef.current = uniqueId("rti_");
+      idRef.current = uniqueId();
     }
     return idRef.current;
   }

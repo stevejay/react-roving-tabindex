@@ -27,6 +27,7 @@ const ToolbarButton: React.FC<{
   return (
     <Button
       ref={ref}
+      id={idRef.current}
       onKeyDown={handleKeyDown}
       onClick={(event) => {
         handleClick();

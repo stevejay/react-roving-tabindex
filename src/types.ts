@@ -30,14 +30,14 @@ export enum Navigation {
 }
 
 export type KeyConfig = {
-  [Key.ARROW_LEFT]?: Navigation.PREVIOUS;
-  [Key.ARROW_RIGHT]?: Navigation.NEXT;
-  [Key.ARROW_UP]?: Navigation.PREVIOUS | Navigation.PREVIOUS_ROW;
-  [Key.ARROW_DOWN]?: Navigation.NEXT | Navigation.NEXT_ROW;
-  [Key.HOME]?: Navigation.FIRST | Navigation.FIRST_IN_ROW;
-  [Key.END]?: Navigation.LAST | Navigation.LAST_IN_ROW;
-  [Key.HOME_WITH_CTRL]?: Navigation.FIRST;
-  [Key.END_WITH_CTRL]?: Navigation.LAST;
+  [Key.ARROW_LEFT]?: Navigation.PREVIOUS | null;
+  [Key.ARROW_RIGHT]?: Navigation.NEXT | null;
+  [Key.ARROW_UP]?: Navigation.PREVIOUS | Navigation.PREVIOUS_ROW | null;
+  [Key.ARROW_DOWN]?: Navigation.NEXT | Navigation.NEXT_ROW | null;
+  [Key.HOME]?: Navigation.FIRST | Navigation.FIRST_IN_ROW | null;
+  [Key.END]?: Navigation.LAST | Navigation.LAST_IN_ROW | null;
+  [Key.HOME_WITH_CTRL]?: Navigation.FIRST | null;
+  [Key.END_WITH_CTRL]?: Navigation.LAST | null;
 };
 
 export type TabStop = Readonly<{
@@ -47,11 +47,14 @@ export type TabStop = Readonly<{
   rowIndex: number | null;
 }>;
 
+export type RowStartMap = Map<Exclude<TabStop["rowIndex"], null>, number>;
+
 export type State = Readonly<{
   selectedId: string | null;
   allowFocusing: boolean;
   tabStops: readonly TabStop[];
   keyConfig: KeyConfig;
+  rowStartMap: RowStartMap | null;
 }>;
 
 export enum ActionType {
@@ -107,6 +110,6 @@ export type HookOptions = { id?: string; rowIndex?: number };
 export type HookResponse = [
   number,
   boolean,
-  (event: React.KeyboardEvent<Element>) => void,
+  (event: React.KeyboardEvent) => void,
   () => void
 ];

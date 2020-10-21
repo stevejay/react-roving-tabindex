@@ -1,7 +1,7 @@
 {
   "name": "react-roving-tabindex",
-  "version": "2.0.0-alpha.1",
-  "description": "React implementation of a roving tabindex",
+  "version": "2.0.0-alpha.2",
+  "description": "React implementation of a roving tabindex, now with grid support",
   "author": "stevejay",
   "license": "MIT",
   "keywords": [
@@ -65,6 +65,7 @@
     "@storybook/storybook-deployer": "^2.8.7",
     "@svgr/rollup": "^5.4.0",
     "@testing-library/react": "^11.1.0",
+    "@testing-library/react-hooks": "^3.4.2",
     "@types/array-find-index": "^1.0.0",
     "@types/jest": "^26.0.15",
     "@types/jsdom": "^16.2.4",
@@ -94,7 +95,6 @@
     "prettier": "^2.1.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-hooks-testing-library": "^0.6.0",
     "react-test-renderer": "^16.14.0",
     "rollup": "^2.32.0",
     "rollup-plugin-commonjs": "^10.1.0",

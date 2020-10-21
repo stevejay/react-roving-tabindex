@@ -1,4 +1,11 @@
-import React from "react";
+import React, {
+  useMemo,
+  useEffect,
+  createContext,
+  useReducer,
+  ReactElement,
+  ReactNode
+} from "react";
 import warning from "warning";
 import {
   Action,
@@ -7,7 +14,9 @@ import {
   Key,
   KeyConfig,
   Navigation,
-  State
+  RowStartMap,
+  State,
+  TabStop
 } from "./types";
 
 export const DEFAULT_KEY_CONFIG: KeyConfig = {
@@ -30,6 +39,12 @@ const DOCUMENT_POSITION_PRECEDING = 2;
 // did not occur, the selected control would be focused
 // as soon as it was mounted, which is unlikely to be
 // the desired behaviour for the page.
+//
+// Note: The rowStartMap is only created if row-related
+// navigation occurs (e.g., move to row start or end), so
+// non-grid usage of this library does not pay the price
+// (minimal as it is) of constructing this map. The map
+// gets cleared if registering, unregistering, or updating.
 export function reducer(state: State, action: Action): State {
   switch (action.type) {
     case ActionType.REGISTER_TAB_STOP: {
@@ -38,30 +53,25 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
 
-      const index = state.tabStops.findIndex(
-        (tabStop) => tabStop.id === newTabStop.id
-      );
-      if (index !== -1) {
-        warning(false, `'${newTabStop.id}' tab stop already registered`);
-        return state;
-      }
-
-      let indexToInsertAt = state.tabStops.findIndex((tabStop) => {
-        // This mess is for TypeScript:
-        if (
-          !tabStop.domElementRef.current ||
-          !newTabStop.domElementRef.current
-        ) {
-          return -1;
+      let indexToInsertAt = -1;
+      for (let i = 0; i < state.tabStops.length; ++i) {
+        const loopTabStop = state.tabStops[i];
+        if (loopTabStop.id === newTabStop.id) {
+          warning(false, `'${newTabStop.id}' tab stop already registered`);
+          return state;
         }
-        // Returns true if newTabStop's element is located earlier
-        // in the DOM than tabStop's element, else returns false:
-        return !!(
-          tabStop.domElementRef.current.compareDocumentPosition(
-            newTabStop.domElementRef.current
-          ) & DOCUMENT_POSITION_PRECEDING
-        );
-      });
+        if (
+          indexToInsertAt === -1 &&
+          loopTabStop.domElementRef.current &&
+          !!(
+            loopTabStop.domElementRef.current.compareDocumentPosition(
+              newTabStop.domElementRef.current
+            ) & DOCUMENT_POSITION_PRECEDING
+          )
+        ) {
+          indexToInsertAt = i;
+        }
+      }
 
       // Array.findIndex returns -1 when newTabStop should be inserted
       // at the end of tabStops (the compareDocumentPosition test
@@ -69,17 +79,14 @@ export function reducer(state: State, action: Action): State {
       if (indexToInsertAt === -1) {
         indexToInsertAt = state.tabStops.length;
       }
-
-      const newTabStops = [
-        ...state.tabStops.slice(0, indexToInsertAt),
-        newTabStop,
-        ...state.tabStops.slice(indexToInsertAt)
-      ];
+      const newTabStops = state.tabStops.slice();
+      newTabStops.splice(indexToInsertAt, 0, newTabStop);
 
       return {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
-        tabStops: newTabStops
+        tabStops: newTabStops,
+        rowStartMap: null
       };
     }
     case ActionType.UNREGISTER_TAB_STOP: {
@@ -92,7 +99,8 @@ export function reducer(state: State, action: Action): State {
       return {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
-        tabStops: newTabStops
+        tabStops: newTabStops,
+        rowStartMap: null
       };
     }
     case ActionType.TAB_STOP_UPDATED: {
@@ -109,14 +117,15 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
 
-      const newTabStops = state.tabStops.slice();
       const newTabStop = { ...tabStop, rowIndex, disabled };
+      const newTabStops = state.tabStops.slice();
       newTabStops.splice(index, 1, newTabStop);
 
       return {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
-        tabStops: newTabStops
+        tabStops: newTabStops,
+        rowStartMap: null
       };
     }
     case ActionType.KEY_DOWN: {
@@ -145,11 +154,7 @@ export function reducer(state: State, action: Action): State {
                 break;
               }
               if (!tabStop.disabled) {
-                return {
-                  ...state,
-                  allowFocusing: true,
-                  selectedId: tabStop.id
-                };
+                return selectTabStop(state, tabStop);
               }
             }
           }
@@ -162,11 +167,7 @@ export function reducer(state: State, action: Action): State {
                 break;
               }
               if (!tabStop.disabled) {
-                return {
-                  ...state,
-                  allowFocusing: true,
-                  selectedId: tabStop.id
-                };
+                return selectTabStop(state, tabStop);
               }
             }
           }
@@ -176,11 +177,7 @@ export function reducer(state: State, action: Action): State {
             for (let i = 0; i < state.tabStops.length; ++i) {
               const tabStop = state.tabStops[i];
               if (!tabStop.disabled) {
-                return {
-                  ...state,
-                  allowFocusing: true,
-                  selectedId: tabStop.id
-                };
+                return selectTabStop(state, tabStop);
               }
             }
           }
@@ -190,11 +187,7 @@ export function reducer(state: State, action: Action): State {
             for (let i = state.tabStops.length - 1; i >= 0; --i) {
               const tabStop = state.tabStops[i];
               if (!tabStop.disabled) {
-                return {
-                  ...state,
-                  allowFocusing: true,
-                  selectedId: tabStop.id
-                };
+                return selectTabStop(state, tabStop);
               }
             }
           }
@@ -207,63 +200,53 @@ export function reducer(state: State, action: Action): State {
             ) {
               return state;
             }
-            const rowStartIndexes = {};
-            state.tabStops.forEach(({ rowIndex }, index) => {
-              if (
-                rowIndex !== null &&
-                rowStartIndexes[rowIndex] === undefined
-              ) {
-                rowStartIndexes[rowIndex] = index;
-              }
-            });
-            const columnOffset =
-              index - rowStartIndexes[currentTabStop.rowIndex];
+            const rowStartMap = state.rowStartMap || createRowStartMap(state);
+            const rowStartIndex = rowStartMap.get(currentTabStop.rowIndex);
+            if (rowStartIndex === undefined) {
+              return state;
+            }
+            const columnOffset = index - rowStartIndex;
             for (let i = currentTabStop.rowIndex - 1; i >= 0; --i) {
-              const rowTabStop =
-                state.tabStops[rowStartIndexes[i] + columnOffset];
+              const rowStartIndex = rowStartMap.get(i);
+              if (rowStartIndex === undefined) {
+                return state;
+              }
+              const rowTabStop = state.tabStops[rowStartIndex + columnOffset];
               if (!rowTabStop.disabled) {
-                return {
-                  ...state,
-                  allowFocusing: true,
-                  selectedId: rowTabStop.id
-                };
+                return selectTabStop(state, rowTabStop, rowStartMap);
               }
             }
+            return { ...state, allowFocusing: true, rowStartMap };
           }
           break;
         case Navigation.NEXT_ROW:
           {
+            const maxRowIndex =
+              state.tabStops[state.tabStops.length - 1].rowIndex;
             if (
               currentTabStop.rowIndex === null ||
-              currentTabStop.rowIndex ===
-                state.tabStops[state.tabStops.length - 1].rowIndex
+              maxRowIndex === null ||
+              currentTabStop.rowIndex === maxRowIndex
             ) {
               return state;
             }
-            const rowStartIndexes = {};
-            state.tabStops.forEach(({ rowIndex }, index) => {
-              if (
-                rowIndex !== null &&
-                rowStartIndexes[rowIndex] === undefined
-              ) {
-                rowStartIndexes[rowIndex] = index;
-              }
-            });
-            const columnOffset =
-              index - rowStartIndexes[currentTabStop.rowIndex];
-            const maxRowIndex =
-              state.tabStops[state.tabStops.length - 1].rowIndex || 0;
+            const rowStartMap = state.rowStartMap || createRowStartMap(state);
+            const rowStartIndex = rowStartMap.get(currentTabStop.rowIndex);
+            if (rowStartIndex === undefined) {
+              return state;
+            }
+            const columnOffset = index - rowStartIndex;
             for (let i = currentTabStop.rowIndex + 1; i <= maxRowIndex; ++i) {
-              const rowTabStop =
-                state.tabStops[rowStartIndexes[i] + columnOffset];
+              const rowStartIndex = rowStartMap.get(i);
+              if (rowStartIndex === undefined) {
+                return state;
+              }
+              const rowTabStop = state.tabStops[rowStartIndex + columnOffset];
               if (!rowTabStop.disabled) {
-                return {
-                  ...state,
-                  allowFocusing: true,
-                  selectedId: rowTabStop.id
-                };
+                return selectTabStop(state, rowTabStop, rowStartMap);
               }
             }
+            return { ...state, allowFocusing: true, rowStartMap };
           }
           break;
         case Navigation.FIRST_IN_ROW:
@@ -271,21 +254,18 @@ export function reducer(state: State, action: Action): State {
             if (currentTabStop.rowIndex === null) {
               return state;
             }
-            let newIndex: number | null = null;
-            for (let i = index - 1; i >= 0; --i) {
+            const rowStartMap = state.rowStartMap || createRowStartMap(state);
+            const rowStartIndex = rowStartMap.get(currentTabStop.rowIndex);
+            if (rowStartIndex === undefined) {
+              return state;
+            }
+            for (let i = rowStartIndex; i < state.tabStops.length; ++i) {
               const tabStop = state.tabStops[i];
               if (tabStop.rowIndex !== currentTabStop.rowIndex) {
                 break;
               } else if (!tabStop.disabled) {
-                newIndex = i;
+                return selectTabStop(state, state.tabStops[i], rowStartMap);
               }
-            }
-            if (newIndex !== null) {
-              return {
-                ...state,
-                allowFocusing: true,
-                selectedId: state.tabStops[newIndex].id
-              };
             }
           }
           break;
@@ -294,21 +274,17 @@ export function reducer(state: State, action: Action): State {
             if (currentTabStop.rowIndex === null) {
               return state;
             }
-            let newIndex: number | null = null;
-            for (let i = index + 1; i < state.tabStops.length; ++i) {
+            const rowStartMap = state.rowStartMap || createRowStartMap(state);
+            const rowEndIndex = rowStartMap.has(currentTabStop.rowIndex + 1)
+              ? (rowStartMap.get(currentTabStop.rowIndex + 1) || 0) - 1
+              : state.tabStops.length - 1;
+            for (let i = rowEndIndex; i >= 0; --i) {
               const tabStop = state.tabStops[i];
               if (tabStop.rowIndex !== currentTabStop.rowIndex) {
                 break;
               } else if (!tabStop.disabled) {
-                newIndex = i;
+                return selectTabStop(state, state.tabStops[i], rowStartMap);
               }
-            }
-            if (newIndex !== null) {
-              return {
-                ...state,
-                allowFocusing: true,
-                selectedId: state.tabStops[newIndex].id
-              };
             }
           }
           break;
@@ -325,7 +301,7 @@ export function reducer(state: State, action: Action): State {
       const currentTabStop = state.tabStops[index];
       return currentTabStop.disabled
         ? state
-        : { ...state, allowFocusing: true, selectedId: id };
+        : selectTabStop(state, currentTabStop);
     }
     case ActionType.KEY_CONFIG_UPDATED: {
       const keyConfig = action.payload.keyConfig;
@@ -355,13 +331,13 @@ function getUpdatedSelectedId(
     return currentSelectedId;
   }
 
-  // Find the first tab stop that is not disabled and return
+  // Finds the first tab stop that is not disabled and return
   // its id, otherwise return null.
   index = tabStops.findIndex((tabStop) => !tabStop.disabled);
   return index === -1 ? null : tabStops[index].id;
 }
 
-// Translate the user key down event info into a navigation instruction.
+// Translates the user key down event info into a navigation instruction.
 function getNavigationValue(
   key: string,
   ctrlKey: boolean,
@@ -385,20 +361,50 @@ function getNavigationValue(
   return translatedKey === null ? null : keyConfig[translatedKey] || null;
 }
 
-export const RovingTabIndexContext = React.createContext<Context>({
-  state: {
-    selectedId: null,
-    allowFocusing: false,
-    tabStops: [],
-    keyConfig: DEFAULT_KEY_CONFIG
-  },
+// Creates the new state for a tab stop when it becomes the selected one.
+function selectTabStop(
+  state: State,
+  tabStop: TabStop,
+  rowStartMap?: RowStartMap
+) {
+  return {
+    ...state,
+    allowFocusing: true,
+    selectedId: tabStop.id,
+    rowStartMap: rowStartMap || state.rowStartMap
+  };
+}
+
+// Creates the row start index lookup map
+// for the currently registered tab stops.
+function createRowStartMap(state: State) {
+  const map: RowStartMap = new Map();
+  for (let i = 0; i < state.tabStops.length; ++i) {
+    const { rowIndex } = state.tabStops[i];
+    if (rowIndex !== null && !map.has(rowIndex)) {
+      map.set(rowIndex, i);
+    }
+  }
+  return map;
+}
+
+const INITIAL_STATE: State = {
+  selectedId: null,
+  allowFocusing: false,
+  tabStops: [],
+  keyConfig: DEFAULT_KEY_CONFIG,
+  rowStartMap: null
+};
+
+export const RovingTabIndexContext = createContext<Context>({
+  state: INITIAL_STATE,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   dispatch: () => {}
 });
 
 /**
  * Creates a roving tabindex context.
- * @param {React.ReactNode} children The child content, which will
+ * @param {ReactNode} children The child content, which will
  * include the DOM elements to rove between using the tab key.
  * @param {keyConfig} keyConfig An optional key navigation configuration
  * object that specifies exactly how the roving tabindex should move
@@ -412,23 +418,21 @@ export const Provider = ({
   children,
   keyConfig = DEFAULT_KEY_CONFIG
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   keyConfig?: KeyConfig;
-}): React.ReactElement => {
-  const [state, dispatch] = React.useReducer(reducer, {
-    selectedId: null,
-    allowFocusing: false,
-    tabStops: [],
+}): ReactElement => {
+  const [state, dispatch] = useReducer(reducer, {
+    ...INITIAL_STATE,
     keyConfig
   });
 
-  // Update the keyConfig whenever it is changed:
-  React.useEffect(() => {
+  // Update the keyConfig whenever it changes:
+  useEffect(() => {
     dispatch({ type: ActionType.KEY_CONFIG_UPDATED, payload: { keyConfig } });
   }, [keyConfig]);
 
   // Create a cached object to use as the context value:
-  const context = React.useMemo<Context>(() => ({ state, dispatch }), [state]);
+  const context = useMemo<Context>(() => ({ state, dispatch }), [state]);
 
   return (
     <RovingTabIndexContext.Provider value={context}>

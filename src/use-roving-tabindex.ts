@@ -55,6 +55,7 @@ export function useRovingTabIndex(
     return idRef.current;
   }
 
+  const isMounted = useRef(false);
   const context = useContext(RovingTabIndexContext);
 
   // Register the tab stop on mount and unregister it on unmount:
@@ -77,25 +78,27 @@ export function useRovingTabIndex(
     };
   }, []);
 
-  // Update the tab stop data if rowIndex or disabled change:
-  // Note: A TAB_STOP_UPDATED event is dispatched directly
-  // after the REGISTER_TAB_STOP event on mount. This is okay
-  // because the values of rowIndex and disabled will not
-  // have changed, and in that case the reducer treats
-  // the TAB_STOP_UPDATED event as a no-op.
+  // Update the tab stop data if rowIndex or disabled change.
+  // The isMounted flag is used to prevent this effect running
+  // on mount, which would be benign but is redundant as the
+  // REGISTER_TAB_STOP action would have just been dispatched.
   useEffect(() => {
-    context.dispatch({
-      type: ActionType.TAB_STOP_UPDATED,
-      payload: {
-        id: getId(),
-        rowIndex: getRowIndexFromOptions(options),
-        disabled
-      }
-    });
+    if (isMounted.current) {
+      context.dispatch({
+        type: ActionType.TAB_STOP_UPDATED,
+        payload: {
+          id: getId(),
+          rowIndex: getRowIndexFromOptions(options),
+          disabled
+        }
+      });
+    } else {
+      isMounted.current = true;
+    }
   }, [options?.rowIndex, disabled]);
 
   // Create a stable callback function for handling key down events:
-  const handleKeyDown = useCallback((event: KeyboardEvent<Element>) => {
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
     const key = EventKey[event.key];
     if (!key) {
       return;

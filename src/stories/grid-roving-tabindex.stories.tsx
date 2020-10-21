@@ -19,9 +19,9 @@ const GRID_KEY_CONFIG: KeyConfig = {
   [Key.ARROW_UP]: Navigation.PREVIOUS_ROW,
   [Key.ARROW_DOWN]: Navigation.NEXT_ROW,
   [Key.HOME]: Navigation.FIRST_IN_ROW,
-  [Key.HOME_WITH_CTRL]: Navigation.FIRST,
+  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
   [Key.END]: Navigation.LAST_IN_ROW,
-  [Key.END_WITH_CTRL]: Navigation.LAST
+  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function

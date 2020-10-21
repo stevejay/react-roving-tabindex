@@ -21,8 +21,8 @@ export enum Key {
 export enum Navigation {
   PREVIOUS = "PREVIOUS",
   NEXT = "NEXT",
-  FIRST = "FIRST",
-  LAST = "LAST",
+  VERY_FIRST = "VERY_FIRST",
+  VERY_LAST = "VERY_LAST",
   PREVIOUS_ROW = "PREVIOUS_ROW",
   NEXT_ROW = "NEXT_ROW",
   FIRST_IN_ROW = "FIRST_IN_ROW",
@@ -34,10 +34,10 @@ export type KeyConfig = {
   [Key.ARROW_RIGHT]?: Navigation.NEXT | null;
   [Key.ARROW_UP]?: Navigation.PREVIOUS | Navigation.PREVIOUS_ROW | null;
   [Key.ARROW_DOWN]?: Navigation.NEXT | Navigation.NEXT_ROW | null;
-  [Key.HOME]?: Navigation.FIRST | Navigation.FIRST_IN_ROW | null;
-  [Key.END]?: Navigation.LAST | Navigation.LAST_IN_ROW | null;
-  [Key.HOME_WITH_CTRL]?: Navigation.FIRST | null;
-  [Key.END_WITH_CTRL]?: Navigation.LAST | null;
+  [Key.HOME]?: Navigation.VERY_FIRST | Navigation.FIRST_IN_ROW | null;
+  [Key.END]?: Navigation.VERY_LAST | Navigation.LAST_IN_ROW | null;
+  [Key.HOME_WITH_CTRL]?: Navigation.VERY_FIRST | null;
+  [Key.END_WITH_CTRL]?: Navigation.VERY_LAST | null;
 };
 
 export type TabStop = Readonly<{

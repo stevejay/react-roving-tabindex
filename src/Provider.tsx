@@ -24,10 +24,10 @@ export const DEFAULT_KEY_CONFIG: KeyConfig = {
   [Key.ARROW_RIGHT]: Navigation.NEXT,
   [Key.ARROW_UP]: Navigation.PREVIOUS,
   [Key.ARROW_DOWN]: Navigation.NEXT,
-  [Key.HOME]: Navigation.FIRST,
-  [Key.HOME_WITH_CTRL]: Navigation.FIRST,
-  [Key.END]: Navigation.LAST,
-  [Key.END_WITH_CTRL]: Navigation.LAST
+  [Key.HOME]: Navigation.VERY_FIRST,
+  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
+  [Key.END]: Navigation.VERY_LAST,
+  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
 };
 
 const DOCUMENT_POSITION_PRECEDING = 2;
@@ -172,7 +172,7 @@ export function reducer(state: State, action: Action): State {
             }
           }
           break;
-        case Navigation.FIRST:
+        case Navigation.VERY_FIRST:
           {
             for (let i = 0; i < state.tabStops.length; ++i) {
               const tabStop = state.tabStops[i];
@@ -182,7 +182,7 @@ export function reducer(state: State, action: Action): State {
             }
           }
           break;
-        case Navigation.LAST:
+        case Navigation.VERY_LAST:
           {
             for (let i = state.tabStops.length - 1; i >= 0; --i) {
               const tabStop = state.tabStops[i];

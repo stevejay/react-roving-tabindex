@@ -82,7 +82,7 @@ it("should assign an id to the tab stop if none is given", () => {
   });
 });
 
-it("should update the tab stop if the hook args change", () => {
+it("should update the tab stop if the hook args change on a re-render", () => {
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper = ({ children }) => (
     <MockRovingTabIndexProvider value={contextValue}>
@@ -107,6 +107,27 @@ it("should update the tab stop if the hook args change", () => {
     type: ActionType.TAB_STOP_UPDATED,
     payload: { id: "test-id", disabled: true, rowIndex: 999 }
   });
+});
+
+it("should not update the tab stop if the hook args do not change on a re-render", () => {
+  const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
+  const wrapper = ({ children }) => (
+    <MockRovingTabIndexProvider value={contextValue}>
+      {children}
+    </MockRovingTabIndexProvider>
+  );
+  const disabled = true;
+  const rowIndex = 999;
+
+  const { rerender } = renderHook(
+    () => useRovingTabIndex(MOCK_REF, disabled, { id: "test-id", rowIndex }),
+    { wrapper }
+  );
+
+  contextValue.dispatch.mockClear();
+  rerender();
+
+  expect(contextValue.dispatch).not.toHaveBeenCalled();
 });
 
 it("should return the correct values when the tab stop is not selected", () => {

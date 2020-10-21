@@ -1,4 +1,10 @@
-# 1.0.0
+# Changelog
+
+## 2.0.0
+
+This release is a complete rewrite to support a roving tabindex in a grid and a more flexible system for configuring keyboard navigation. It has three breaking changes compared to v1. Please see the project README file for the migration details.
+
+## 1.0.0
 
 This release has no breaking changes compared to v0.9.0. I just thought it was time to promote the package to v1. The changes are to do with the build process and Storybook; no source files have been altered.
 
@@ -8,18 +14,18 @@ This release has no breaking changes compared to v0.9.0. I just thought it was t
 - Remove an unused file from the src directory.
 - Update dev dependencies.
 
-# 0.9.0
+## 0.9.0
 
 - Updated dev dependencies.
 - Removed upper limit for node in engines object in package.json.
 
-# 0.8.0
+## 0.8.0
 
 - Updated dev dependencies.
 - Adjusted the package.json engines field to not support node v13.
 - Fixed the storybook styling.
 
-# 0.7.2
+## 0.7.2
 
 - Updated dev dependencies.
 - Updated README file.

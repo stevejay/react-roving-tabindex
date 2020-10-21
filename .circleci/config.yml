@@ -30,7 +30,6 @@ jobs:
           key: v1-dependencies-{{ checksum "package-lock.json" }}
 
       - run: npm run build
-      - run: npm run test
       - run: npm run test:coverage
 
       # - store_artifacts:

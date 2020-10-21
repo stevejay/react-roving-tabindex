@@ -15,6 +15,7 @@
   "repository": "stevejay/react-roving-tabindex",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "sideEffects": false,
   "jsnext:main": "dist/index.es.js",
   "types": "./dist/index.d.ts",
   "engines": {

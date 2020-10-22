@@ -25,6 +25,10 @@ This package opts to support dynamic enabling and unenabling. It also allows inp
 
 This package does not support nesting one roving tabindex group inside another. I believe that this complicates keyboard navigation too much.
 
+### When not to use this package
+
+If you need a roving tabindex in a very large grid/table then you might be better served with a bespoke implementation (but do test this first). By not including any unnecessary flexibility that this package offers then you will likely create a more performant implementation when the scale is such that performance becomes paramount. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the gridcells with the package, and there is an overhead to creating the row index mapping.
+
 ## Requirements
 
 This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards. It has peer dependencies of `react` and `react-dom`.

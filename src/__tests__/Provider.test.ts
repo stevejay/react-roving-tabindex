@@ -14,11 +14,14 @@ import { DEFAULT_KEY_CONFIG, reducer } from "../Provider";
 
 jest.mock("warning");
 
+const DOCUMENT_POSITION_FOLLOWING = 4;
+
 function createMockDomElementRef(index: number): RefObject<Element> {
   return {
     current: ({
       index,
-      compareDocumentPosition: (other) => (other.index < index ? 2 : 0)
+      compareDocumentPosition: (other) =>
+        other.index > index ? DOCUMENT_POSITION_FOLLOWING : 0
     } as unknown) as Element
   } as RefObject<Element>;
 }

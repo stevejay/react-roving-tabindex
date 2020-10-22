@@ -30,7 +30,7 @@ export const DEFAULT_KEY_CONFIG: KeyConfig = {
   [Key.END_WITH_CTRL]: Navigation.VERY_LAST
 };
 
-const DOCUMENT_POSITION_PRECEDING = 2;
+const DOCUMENT_POSITION_FOLLOWING = 4;
 
 // Note: The `allowFocusing` state property is required
 // to delay focusing of the selected tab stop
@@ -53,32 +53,39 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
 
+      // Iterate backwards through state.tabStops since it is
+      // most likely that the tab stop will need to be inserted
+      // at the end of that array.
       let indexToInsertAt = -1;
-      for (let i = 0; i < state.tabStops.length; ++i) {
+      for (let i = state.tabStops.length - 1; i >= 0; --i) {
         const loopTabStop = state.tabStops[i];
         if (loopTabStop.id === newTabStop.id) {
           warning(false, `'${newTabStop.id}' tab stop already registered`);
           return state;
         }
+        // The compareDocumentPosition condition is true
+        // if newTabStop follows loopTabStop:
         if (
           indexToInsertAt === -1 &&
           loopTabStop.domElementRef.current &&
           !!(
             loopTabStop.domElementRef.current.compareDocumentPosition(
               newTabStop.domElementRef.current
-            ) & DOCUMENT_POSITION_PRECEDING
+            ) & DOCUMENT_POSITION_FOLLOWING
           )
         ) {
-          indexToInsertAt = i;
+          indexToInsertAt = i + 1;
+          break;
         }
       }
 
-      // Array.findIndex returns -1 when newTabStop should be inserted
-      // at the end of tabStops (the compareDocumentPosition test
+      // The indexToInsertAt is -1 when newTabStop should be inserted
+      // at the start of tabStops (the compareDocumentPosition condition
       // always returns false in that case).
       if (indexToInsertAt === -1) {
-        indexToInsertAt = state.tabStops.length;
+        indexToInsertAt = 0;
       }
+
       const newTabStops = state.tabStops.slice();
       newTabStops.splice(indexToInsertAt, 0, newTabStop);
 

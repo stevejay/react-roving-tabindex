@@ -12,7 +12,7 @@ When in the group, the ArrowLeft and ArrowRight (or ArrowUp and ArrowDown) keys 
 
 More information about the roving tabindex pattern is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
 
-This pattern can also be used for a grid of items, as in [this calendar example](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Grid_Role#Calendar_example) on the MDN website. The containing element for the grid should be given the `grid` role, and each grid item should given the `gridcell` role. ArrowLeft and ArrowRight are used to move focus between items in a row, while the ArrowUp and ArrowDown keys move between the rows. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to a row's first and last items respectively. If the Control key is held while pressing the Home and End keys then focus is moved respectively to the very first and very last item in the grid.
+This pattern can also be used for a grid of items, as in [this calendar example](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Grid_Role#Calendar_example) on the MDN website. Conventionally, the containing element for the grid should be given the `grid` role, and each grid item should given the `gridcell` role. ArrowLeft and ArrowRight are used to move focus between items in a row, while the ArrowUp and ArrowDown keys move between the rows. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to a row's first and last items respectively. If the Control key is held while pressing the Home and End keys then focus is moved respectively to the very first and very last item in the grid.
 
 ### Implementation considerations
 
@@ -240,15 +240,15 @@ export const DEFAULT_KEY_CONFIG: KeyConfig = {
 };
 ```
 
-This configuration specifies the mapping between key press and focus movement, and it should be quite self-explanatory. The default mapping is likely what you want if you are migrating from version 1. If you do want to make changes, such as not supporting the ArrowLeft and ArrowRight keys then you can create and use a custom key configuration:
+This configuration specifies the mapping between key press and focus movement, and it should be quite self-explanatory. The default mapping is likely what you want if you are migrating from version 1. It is the equivalent of the setting `direction="both"`. If you do want to make changes, such as not supporting the ArrowLeft and ArrowRight keys then you can create and use a custom key configuration:
 
 ```ts
 import { DEFAULT_KEY_CONFIG, Key } from "react-roving-tabindex";
 
 export const CUSTOM_KEY_CONFIG = {
-  ...DEFAULT_KEY_CONFIG,
-  [Key.ARROW_LEFT]: undefined, // or null
-  [Key.ARROW_RIGHT]: undefined // or null
+  ...DEFAULT_KEY_CONFIG, // Copy the default configuration.
+  [Key.ARROW_LEFT]: undefined, // Or use null.
+  [Key.ARROW_RIGHT]: undefined // Or use null.
 };
 
 const SomeComponent = () => (
@@ -272,7 +272,7 @@ const [...] = useRovingTabIndex(ref, true, { id });
 //                                         ^^^^^^
 ```
 
-Note that it is fine to create a new object for that third argument each time the containing component is rendered; that will not by itself trigger a re-render. As a reminder, the assigned ID will be captured on mounting of the containing component and cannot be changed during that component's lifetime.
+Note that it is fine to create a new object for that third argument each time the containing component is rendered; by itself that will not trigger a re-render. As a reminder, the assigned ID will be captured on mounting of the containing component and cannot be changed during that component's lifetime.
 
 ### From version 0.x to version 1
 
@@ -289,3 +289,7 @@ If you have build errors when building the Storybook locally, you are likely usi
 ### Issues
 
 - The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311). This only affects the Storybook build.
+
+## TODO
+
+- Own handling of click and keydown (integrating them with the hook's handlers).

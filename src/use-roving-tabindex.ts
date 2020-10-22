@@ -37,8 +37,17 @@ import { uniqueId } from "./unique-id";
  * currently part of. You can update this row index as appropriate
  * throughout the lifetime of the containing component, for example if
  * the shape of the grid can change dynamically.
- * @returns {HookResponse} A tuple of values to be applied by the containing
+ * @returns A tuple of values to be applied by the containing
  * component for the roving tabindex to work correctly.
+ * Response index 0: The tabIndex value to apply to the tab stop
+ * element.
+ * Response index 1: Whether or not focus() should be invoked on the
+ * tab stop element.
+ * Response index 2: The onKeyDown callback to apply to the tab
+ * stop element. If the key press is relevant to the hook then
+ * event.preventDefault() will be invoked on the event.
+ * Response index 3: The onClick callback to apply to the tab
+ * stop element.
  */
 export function useRovingTabIndex(
   domElementRef: RefObject<Element>,

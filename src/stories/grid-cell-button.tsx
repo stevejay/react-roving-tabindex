@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+type Props = {
+  useAlternateGridLayout: boolean;
+};
+
 const GridCellButton = styled.button`
   appearance: none;
   background: none repeat scroll 0 0;
@@ -11,9 +15,9 @@ const GridCellButton = styled.button`
   border: 2px solid rebeccapurple;
   border-radius: 0.25em;
   border-spacing: 0;
-  /* margin: 0.5rem; */
   padding: 0 0.75em;
-  width: 25%;
+  width: ${(props: Props) =>
+    props.useAlternateGridLayout ? "33.333%" : "25%"};
 
   &:focus {
     color: white;

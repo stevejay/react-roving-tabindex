@@ -185,7 +185,7 @@ const GRID_KEY_CONFIG: KeyConfig = {
   [Key.END_WITH_CTRL]: Navigation.VERY_LAST
 };
 
-// Then use it...
+// ... then use it:
 const SomeComponent = () => (
   <RovingTabIndexProvider keyConfig={GRID_KEY_CONFIG}>
     {/* Whatever here */}
@@ -203,9 +203,9 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 );
 ```
 
-The `rowIndex` value should be the zero-based row index for the containing component in the grid it is in. Thus all items that represent the first row of grid items should have `{ rowIndex: 0 }` passed to the hook, the second row `{ rowIndex: 1 }`, and so on. If the shape of the grid can change dynamically then it is fine to update the rowIndex value. For example, the grid might initially has four items per row but be dynamically updated to have three items per row.
+The `rowIndex` value should be the zero-based row index for the containing component in the grid it is in. Thus all items that represent the first row of grid items should have `{ rowIndex: 0 }` passed to the hook, the second row `{ rowIndex: 1 }`, and so on. If the shape of the grid can change dynamically then it is fine to update the rowIndex value. For example, the grid might initially has four items per row but be dynamically updated to three items per row.
 
-Note that it is fine to create a new object for this third argument each time the containing component is rendered; it will not trigger a re-render. Also, if required you can combine the `rowIndex` with a custom `id` in the same options object.
+Note that it is fine to create a new object for this third argument each time the containing component is rendered; it will not trigger an unnecessary re-render. Also, if required you can combine the `rowIndex` with a custom `id` in the same options object.
 
 ## Upgrading
 

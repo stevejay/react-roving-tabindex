@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useEffect } from "react";
 
 /**
  * Focuses on the given DOM element as required.
@@ -11,7 +11,11 @@ export function useFocusEffect(
   focused: boolean | null | undefined,
   ref: React.RefObject<SVGElement | HTMLElement>
 ): void {
-  useLayoutEffect(() => {
+  // useLayoutEffect is not required as a focus outline is normally
+  // the browser's default rendering or a custom box shadow. Both
+  // do not affect layout or appearance beyond this outline so
+  // will not cause a jank-like change in appearance when added.
+  useEffect(() => {
     if (focused && ref.current) {
       ref.current.focus();
     }

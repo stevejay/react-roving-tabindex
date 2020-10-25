@@ -2,7 +2,7 @@
 
 > React Hooks implementation of a roving tabindex, now with grid support. See the storybook [here](https://stevejay.github.io/react-roving-tabindex/) to try it out.
 
-[![bundlephobia](https://img.shields.io/bundlephobia/minzip/react-roving-tabindex)](https://bundlephobia.com/result?p=react-roving-tabindex) [![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master)
+[![bundlephobia](https://img.shields.io/bundlephobia/minzip/react-roving-tabindex)](https://bundlephobia.com/result?p=react-roving-tabindex) [![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master) [![Coverage Status](https://coveralls.io/repos/github/stevejay/react-roving-tabindex/badge.svg?branch=master)](https://coveralls.io/github/stevejay/react-roving-tabindex?branch=master)
 
 ## Background
 
@@ -27,7 +27,7 @@ This package does not support nesting one roving tabindex group inside another. 
 
 ### When not to use this package
 
-If you need a roving tabindex in a very large grid/table then you might be better served with a bespoke implementation (but do test this first). By not including any unnecessary flexibility that this package offers then you will likely create a more performant implementation when the scale is such that performance becomes paramount. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the gridcells with the package, and there is an overhead to creating the row index mapping.
+This package is designed as a general solution for a roving tabindex in a toolbar or a smallish grid. If you need a roving tabindex in a very large grid or table (a few hundred cells or more) then you may be better served with a bespoke implementation. By not including any unnecessary flexibility that this package offers then you will likely create a more performant implementation when performance becomes paramount. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the cells with the package, and there is an overhead to creating the row index mapping.
 
 ## Requirements
 
@@ -136,6 +136,8 @@ The default navigation configuration is the following:
 The above configuration is included with this package as the following default key configuration object:
 
 ```ts
+import { Key, Navigation, KeyConfig } from "react-roving-tabindex";
+
 export const DEFAULT_KEY_CONFIG: KeyConfig = {
   [Key.ARROW_LEFT]: Navigation.PREVIOUS,
   [Key.ARROW_RIGHT]: Navigation.NEXT,
@@ -151,32 +153,43 @@ export const DEFAULT_KEY_CONFIG: KeyConfig = {
 This object is used automatically by default. If this is not suitable for your use case then you can pass your own key configuration object to the `RovingTabIndexProvider`. For example, you might want the ArrowUp and ArrowDown keys to have no effect:
 
 ```ts
-import { DEFAULT_KEY_CONFIG, Key } from "react-roving-tabindex";
+import {
+  DEFAULT_KEY_CONFIG,
+  Key,
+  RovingTabIndexProvider
+} from "react-roving-tabindex";
 
-export const MY_CONFIG = {
+export const CUSTOM_KEY_CONFIG = {
   ...DEFAULT_KEY_CONFIG,
   [Key.ARROW_UP]: undefined, // or null
   [Key.ARROW_DOWN]: undefined // or null
 };
 
 const SomeComponent = () => (
-  <RovingTabIndexProvider keyConfig={MY_CONFIG}>
+  <RovingTabIndexProvider keyConfig={CUSTOM_KEY_CONFIG}>
     {/* Whatever here */}
   </RovingTabIndexProvider>
 );
 ```
 
-Note that your custom key configuration object should be stable; please do not recreate it each time the component containing the `RovingTabIndexProvider` is invoked as this will trigger a re-render. You can however pass a new configuration whenever you need to dynamically change the key configuration behaviour.
+Note that your custom key configuration object should be stable; please do not recreate it each time the component containing the `RovingTabIndexProvider` is invoked as this will trigger a re-render. You can however pass a new configuration if you ever need to dynamically change the key configuration behaviour.
 
-Note also that the TypeScript typings for the key configuration object somewhat constrain the possible navigation options for each key to the most logical choices given the established a11y conventions for a roving tabindex.
+Note also that the TypeScript typings for the key configuration object somewhat constrain the possible navigation options for each key to the most logical choices given the established a11y conventions for a roving tabindex. For example, you cannot assign `Navigation.VERY_FIRST` to `Key.ARROW_LEFT`.
 
 ### Grid usage
 
-This package supports a roving tabindex in a grid of elements. For this to work you need to do two things in addition to following the instructions in the previous section.
+This package supports a roving tabindex in a grid of elements. For this to work you need to do two things in addition to following the basic usage instructions above.
 
 Firstly you need to create and pass a custom key configuration object to the `RovingTabIndexProvider` component. The exact configuration will depend on your needs but it will likely be something like the following:
 
 ```ts
+import {
+  Key,
+  KeyConfig,
+  Navigation,
+  RovingTabIndexProvider
+} from "react-roving-tabindex";
+
 // Create it...
 const GRID_KEY_CONFIG: KeyConfig = {
   [Key.ARROW_LEFT]: Navigation.PREVIOUS,
@@ -203,13 +216,13 @@ Secondly, for each usage of the `useRovingTabIndex` hook you need to pass a thir
 const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
   ref,
   disabled,
-  { rowIndex: 0 } // 0, 1, 2, ...
+  { rowIndex: 0 }
 );
 ```
 
 The `rowIndex` value should be the zero-based row index for the containing component in the grid it is in. Thus all items that represent the first row of grid items should have `{ rowIndex: 0 }` passed to the hook, the second row `{ rowIndex: 1 }`, and so on. If the shape of the grid can change dynamically then it is fine to update the rowIndex value. For example, the grid might initially has four items per row but be dynamically updated to three items per row.
 
-Note that it is fine to create a new object for this third argument each time the containing component is rendered; it will not trigger an unnecessary re-render. Also, if required you can combine the `rowIndex` with a custom `id` in the same options object.
+Note that it is fine to create a new object for this third argument each time the containing component is rendered; it will not trigger an unnecessary re-render. Also, if required you can combine the `rowIndex` with a custom `id` in the same options object (e.g., `{ rowIndex: 0, id: 'some-id' }`).
 
 ## Upgrading
 

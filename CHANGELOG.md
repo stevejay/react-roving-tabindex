@@ -2,7 +2,7 @@
 
 ## 2.0.0
 
-This release is a complete rewrite to support a roving tabindex in a grid and a more flexible system for configuring keyboard navigation. There are breaking changes compared to v1. Please see the project README file for the migration details.
+This release is a complete rewrite to support a roving tabindex in a grid. There are breaking changes compared to v1. Please see the project README file for the migration details.
 
 Other notable changes:
 

@@ -1,7 +1,12 @@
 import "jspolyfill-array.prototype.findIndex";
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
+import {
+  RovingTabIndexProvider,
+  useRovingTabIndex,
+  useFocusEffect,
+  KeyDirection
+} from "..";
 import { Button } from "./button";
 import { Toolbar } from "./toolbar";
 
@@ -42,6 +47,7 @@ const ToolbarButton: React.FC<{
 };
 
 type ExampleProps = {
+  direction: KeyDirection;
   buttonOneDisabled: boolean;
   onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
@@ -56,6 +62,7 @@ type ExampleProps = {
 };
 
 export const WithoutCustomIds: React.FC<ExampleProps> = ({
+  direction,
   buttonOneDisabled,
   onButtonOneClicked,
   buttonTwoDisabled,
@@ -71,7 +78,7 @@ export const WithoutCustomIds: React.FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider>
+      <RovingTabIndexProvider direction={direction}>
         <span>
           <ToolbarButton
             disabled={!!buttonOneDisabled}
@@ -117,6 +124,7 @@ export const WithoutCustomIds: React.FC<ExampleProps> = ({
 );
 
 export const WithCustomIds: React.FC<ExampleProps> = ({
+  direction,
   buttonOneDisabled,
   onButtonOneClicked,
   buttonTwoDisabled,
@@ -132,7 +140,7 @@ export const WithCustomIds: React.FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider>
+      <RovingTabIndexProvider direction={direction}>
         <span>
           <ToolbarButton
             id="button-1"
@@ -186,6 +194,10 @@ export default {
   title: "Toolbar RovingTabIndex",
   component: WithoutCustomIds,
   argTypes: {
+    direction: {
+      name: "Direction",
+      defaultValue: "horizontal"
+    },
     onButtonOneClicked: { table: { disable: true } },
     onButtonTwoClicked: { table: { disable: true } },
     onButtonThreeClicked: { table: { disable: true } },

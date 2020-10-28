@@ -7,16 +7,7 @@ export enum EventKey {
   End = "End"
 }
 
-export enum Key {
-  ARROW_LEFT = "ArrowLeft",
-  ARROW_RIGHT = "ArrowRight",
-  ARROW_UP = "ArrowUp",
-  ARROW_DOWN = "ArrowDown",
-  HOME = "Home",
-  END = "End",
-  HOME_WITH_CTRL = "HomeWithCtrl",
-  END_WITH_CTRL = "EndWithCtrl"
-}
+export type KeyDirection = "horizontal" | "vertical" | "both";
 
 export enum Navigation {
   PREVIOUS = "PREVIOUS",
@@ -28,17 +19,6 @@ export enum Navigation {
   FIRST_IN_ROW = "FIRST_IN_ROW",
   LAST_IN_ROW = "LAST_IN_ROW"
 }
-
-export type KeyConfig = {
-  [Key.ARROW_LEFT]?: Navigation.PREVIOUS | null;
-  [Key.ARROW_RIGHT]?: Navigation.NEXT | null;
-  [Key.ARROW_UP]?: Navigation.PREVIOUS | Navigation.PREVIOUS_ROW | null;
-  [Key.ARROW_DOWN]?: Navigation.NEXT | Navigation.NEXT_ROW | null;
-  [Key.HOME]?: Navigation.VERY_FIRST | Navigation.FIRST_IN_ROW | null;
-  [Key.END]?: Navigation.VERY_LAST | Navigation.LAST_IN_ROW | null;
-  [Key.HOME_WITH_CTRL]?: Navigation.VERY_FIRST | null;
-  [Key.END_WITH_CTRL]?: Navigation.VERY_LAST | null;
-};
 
 export type TabStop = Readonly<{
   id: string;
@@ -53,7 +33,7 @@ export type State = Readonly<{
   selectedId: string | null;
   allowFocusing: boolean;
   tabStops: readonly TabStop[];
-  keyConfig: KeyConfig;
+  direction: KeyDirection;
   rowStartMap: RowStartMap | null;
 }>;
 
@@ -63,7 +43,7 @@ export enum ActionType {
   KEY_DOWN = "KEY_DOWN",
   CLICKED = "CLICKED",
   TAB_STOP_UPDATED = "TAB_STOP_UPDATED",
-  KEY_CONFIG_UPDATED = "KEY_CONFIG_UPDATED"
+  DIRECTION_UPDATED = "DIRECTION_UPDATED"
 }
 
 export type Action =
@@ -96,8 +76,8 @@ export type Action =
       payload: { id: TabStop["id"] };
     }
   | {
-      type: ActionType.KEY_CONFIG_UPDATED;
-      payload: { keyConfig: KeyConfig };
+      type: ActionType.DIRECTION_UPDATED;
+      payload: { direction: KeyDirection };
     };
 
 export type Context = Readonly<{

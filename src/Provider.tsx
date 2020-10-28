@@ -11,24 +11,13 @@ import {
   Action,
   ActionType,
   Context,
-  Key,
-  KeyConfig,
+  EventKey,
+  KeyDirection,
   Navigation,
   RowStartMap,
   State,
   TabStop
 } from "./types";
-
-export const DEFAULT_KEY_CONFIG: KeyConfig = {
-  [Key.ARROW_LEFT]: Navigation.PREVIOUS,
-  [Key.ARROW_RIGHT]: Navigation.NEXT,
-  [Key.ARROW_UP]: Navigation.PREVIOUS,
-  [Key.ARROW_DOWN]: Navigation.NEXT,
-  [Key.HOME]: Navigation.VERY_FIRST,
-  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
-  [Key.END]: Navigation.VERY_LAST,
-  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
-};
 
 const DOCUMENT_POSITION_FOLLOWING = 4;
 
@@ -137,10 +126,6 @@ export function reducer(state: State, action: Action): State {
     }
     case ActionType.KEY_DOWN: {
       const { id, key, ctrlKey } = action.payload;
-      const navigation = getNavigationValue(key, ctrlKey, state.keyConfig);
-      if (!navigation) {
-        return state;
-      }
       const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
       if (index === -1) {
         warning(false, `'${id}' tab stop not registered`);
@@ -151,6 +136,15 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const isGrid = currentTabStop.rowIndex !== null;
+      const navigation = getNavigationValue(
+        key,
+        ctrlKey,
+        isGrid,
+        state.direction
+      );
+      if (!navigation) {
+        return state;
+      }
 
       switch (navigation) {
         case Navigation.NEXT:
@@ -310,9 +304,9 @@ export function reducer(state: State, action: Action): State {
         ? state
         : selectTabStop(state, currentTabStop);
     }
-    case ActionType.KEY_CONFIG_UPDATED: {
-      const keyConfig = action.payload.keyConfig;
-      return keyConfig === state.keyConfig ? state : { ...state, keyConfig };
+    case ActionType.DIRECTION_UPDATED: {
+      const direction = action.payload.direction;
+      return direction === state.direction ? state : { ...state, direction };
     }
     default:
       return state;
@@ -346,26 +340,45 @@ function getUpdatedSelectedId(
 
 // Translates the user key down event info into a navigation instruction.
 function getNavigationValue(
-  key: string,
+  key: EventKey,
   ctrlKey: boolean,
-  keyConfig: KeyConfig
+  isGrid: boolean,
+  direction: string
 ): Navigation | null {
-  let translatedKey: Key | null = null;
   switch (key) {
-    case Key.ARROW_LEFT:
-    case Key.ARROW_RIGHT:
-    case Key.ARROW_UP:
-    case Key.ARROW_DOWN:
-      translatedKey = key;
-      break;
-    case Key.HOME:
-      translatedKey = ctrlKey ? Key.HOME_WITH_CTRL : Key.HOME;
-      break;
-    case Key.END:
-      translatedKey = ctrlKey ? Key.END_WITH_CTRL : Key.END;
-      break;
+    case EventKey.ArrowLeft:
+      return isGrid || direction === "horizontal" || direction === "both"
+        ? Navigation.PREVIOUS
+        : null;
+    case EventKey.ArrowRight:
+      return isGrid || direction === "horizontal" || direction === "both"
+        ? Navigation.NEXT
+        : null;
+    case EventKey.ArrowUp:
+      if (isGrid) {
+        return Navigation.PREVIOUS_ROW;
+      } else {
+        return direction === "vertical" || direction === "both"
+          ? Navigation.PREVIOUS
+          : null;
+      }
+    case EventKey.ArrowDown:
+      if (isGrid) {
+        return Navigation.NEXT_ROW;
+      } else {
+        return direction === "vertical" || direction === "both"
+          ? Navigation.NEXT
+          : null;
+      }
+    case EventKey.Home:
+      return !isGrid || ctrlKey
+        ? Navigation.VERY_FIRST
+        : Navigation.FIRST_IN_ROW;
+    case EventKey.End:
+      return !isGrid || ctrlKey ? Navigation.VERY_LAST : Navigation.LAST_IN_ROW;
+    default:
+      return null;
   }
-  return translatedKey === null ? null : keyConfig[translatedKey] || null;
 }
 
 // Creates the new state for a tab stop when it becomes the selected one.
@@ -399,7 +412,7 @@ const INITIAL_STATE: State = {
   selectedId: null,
   allowFocusing: false,
   tabStops: [],
-  keyConfig: DEFAULT_KEY_CONFIG,
+  direction: "horizontal",
   rowStartMap: null
 };
 
@@ -413,30 +426,36 @@ export const RovingTabIndexContext = createContext<Context>({
  * Creates a roving tabindex context.
  * @param {ReactNode} children The child content, which will
  * include the DOM elements to rove between using the tab key.
- * @param {keyConfig} keyConfig An optional key navigation configuration
- * object that specifies exactly how the roving tabindex should move
- * when particular keys are pressed by the user. A default config
- * is used when none is supplied. If you pass a config object then
- * it can be changed throughout the lifetime of the containing component.
- * But it is best if its identity changes only if the configuration
- * values themselves change.
+ * @param {KeyDirection} direction An optional direction value
+ * that only applies when the roving tabindex is not being
+ * used within a grid. This value specifies the arrow key behaviour.
+ * When set to 'horizontal' then only the ArrowLeft and ArrowRight
+ * keys move to the previous and next tab stop respectively.
+ * When set to 'vertical' then only the ArrowUp and ArrowDown keys
+ * move to the previous and next tab stop respectively. When set
+ * to 'both' then both the ArrowLeft and ArrowUp keys can be used
+ * to move to the previous tab stop, and both the ArrowRight
+ * and ArrowDown keys can be used to move to the next tab stop.
+ * If you do not pass an explicit value then the 'horizontal'
+ * behaviour applies. You can change this direction value
+ * at any time.
  */
 export const Provider = ({
   children,
-  keyConfig = DEFAULT_KEY_CONFIG
+  direction = "horizontal"
 }: {
   children: ReactNode;
-  keyConfig?: KeyConfig;
+  direction?: KeyDirection;
 }): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
-    keyConfig
+    direction
   });
 
-  // Update the keyConfig whenever it changes:
+  // Update the direction whenever it changes:
   useEffect(() => {
-    dispatch({ type: ActionType.KEY_CONFIG_UPDATED, payload: { keyConfig } });
-  }, [keyConfig]);
+    dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
+  }, [direction]);
 
   // Create a cached object to use as the context value:
   const context = useMemo<Context>(() => ({ state, dispatch }), [state]);

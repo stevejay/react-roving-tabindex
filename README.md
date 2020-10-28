@@ -6,13 +6,13 @@
 
 ## Background
 
-The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop, which speeds up keyboard navigation. The last focused input in the group is also remembered, so that it can receive focus again when the user tabs back into the group.
+The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop which speeds up keyboard navigation. The last focused input in the group is also remembered. It receives focus again when the user tabs back into the group.
 
-When in the group, the ArrowLeft and ArrowRight (or ArrowUp and ArrowDown) keys move focus between the inputs. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to the group's first and last inputs respectively.
+When in the group, the ArrowLeft and ArrowRight keys move focus between the inputs. (You can also configure this library so that the ArrowUp and ArrowDown keys move focus.) The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to the group's first and last inputs respectively.
 
 More information about the roving tabindex pattern is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
 
-This pattern can also be used for a grid of items, as in [this calendar example](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Grid_Role#Calendar_example) on the MDN website. Conventionally, the containing element for the grid should be given the `grid` role, and each grid item should given the `gridcell` role. ArrowLeft and ArrowRight are used to move focus between items in a row, while the ArrowUp and ArrowDown keys move between the rows. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to a row's first and last items respectively. If the Control key is held while pressing the Home and End keys then focus is moved respectively to the very first and very last item in the grid.
+This pattern can also be used for a grid of items, as in [this calendar example](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Grid_Role#Calendar_example). Conventionally, the containing element for the grid should be given the `grid` role, and each grid item should be given the `gridcell` role. The ArrowLeft and ArrowRight keys are used to move focus between inputs in a row, while the ArrowUp and ArrowDown keys move focus between the rows. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to a row's first and last inputs respectively. If the Control key is held while pressing the Home and End keys then focus is moved to the very first and very last input in the grid respectively.
 
 ### Implementation considerations
 
@@ -27,7 +27,7 @@ This package does not support nesting one roving tabindex group inside another. 
 
 ### When not to use this package
 
-This package is designed as a general solution for a roving tabindex in a toolbar or a smallish grid. If you need a roving tabindex in a very large grid or table (a few hundred cells or more) then you may be better served with a bespoke implementation. By not including any unnecessary flexibility that this package offers then you will likely create a more performant implementation when performance becomes paramount. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the cells with the package, and there is an overhead to creating the row index mapping.
+This package is designed as a general solution for a roving tabindex in a toolbar or a smallish grid. If you need a roving tabindex in a very large grid or table (a few hundred cells or more) then you will likely be better served with a bespoke implementation. By not including any unnecessary flexibility that this package offers then you should create a more performant implementation. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the cells with the package, and there is an overhead to creating the row index mapping for a grid.
 
 ## Requirements
 
@@ -41,11 +41,11 @@ npm install --save react-roving-tabindex
 
 This package includes TypeScript typings.
 
-If you need to support IE then you need to also install polyfills for `Array.prototype.findIndex` and `Map`. If you are using React with IE then [you already need to use a `Map` polyfill](https://reactjs.org/docs/javascript-environment-requirements.html). If you use a global polyfill like [core-js](https://github.com/zloirock/core-js) or [babel-polyfill](https://babeljs.io/docs/usage/polyfill/) then it should also include a `findIndex` polyfill.
+If you need to support IE then you also need to install polyfills for `Array.prototype.findIndex` and `Map`. If you are using React with IE then [you already need to use a `Map` polyfill](https://reactjs.org/docs/javascript-environment-requirements.html). If you use a global polyfill like [core-js](https://github.com/zloirock/core-js) or [babel-polyfill](https://babeljs.io/docs/usage/polyfill/) then it should include a `findIndex` polyfill.
 
 ## Usage
 
-There is a storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/), with both basic and grid usage examples.
+There is a storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/), with both toolbar and grid usage examples.
 
 ### Basic usage
 
@@ -90,7 +90,7 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
 };
 
 const SomeComponent = () => (
-  // Wrap each group in a RovingTabIndexProvider.
+  // Wrap each roving tabindex group in a RovingTabIndexProvider.
   <RovingTabIndexProvider>
     {/*
       it's fine for the roving tabindex components to be nested
@@ -102,9 +102,45 @@ const SomeComponent = () => (
 );
 ```
 
+If you need to incorporate your own handling for `onClick` and/or `onKeyDown` events then just create handlers that invoke multiple handlers:
+
+```ts
+return (
+  <button
+    ref={ref}
+    tabIndex={tabIndex}
+    disabled={disabled}
+    onKeyDown={(event) => {
+      handleKeyDown(event); // handler from the hook
+      someKeyDownHandler(event); // your handler
+    }}
+    onClick={(event) => {
+      handleClick(event); // handler from the hook
+      someClickHandler(event); // your handler
+    }}
+  >
+    {children}
+  </button>
+);
+```
+
+#### Direction
+
+It is the ArrowLeft and ArrowRight keys that are used by default to move to the previous and next input respectively. The `RovingTabIndexProvider` has an optional `direction` property that allows you to change this:
+
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider direction="vertical">
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
+The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
+
 #### Optional ID parameter
 
-The `useRovingTabIndex` hook has an optional third argument that is an options object. One use for it is to pass a custom ID:
+The `useRovingTabIndex` hook has an optional third argument that is an options object. It can be used to pass a custom ID:
 
 ```jsx
 const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
@@ -116,101 +152,11 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 
 This is required if you need to support server-side rendering (SSR). Note that the value initially passed will be used for the lifetime of the containing component; you cannot dynamically update this ID.
 
-Note that it is fine to create a new object for this third argument each time the containing component is rendered; it will not trigger a re-render.
-
-#### Navigation
-
-The default navigation configuration is the following:
-
-| Key        | Resulting navigation |
-| ---------- | -------------------- |
-| ArrowLeft  | Previous tab stop    |
-| ArrowRight | Next tab stop        |
-| ArrowUp    | Previous tab stop    |
-| ArrowDown  | Next tab stop        |
-| Home       | Very first tab stop  |
-| Home+Ctrl  | Very first tab stop  |
-| End        | Very last tab stop   |
-| End+Ctrl   | Very last tab stop   |
-
-The above configuration is included with this package as the following default key configuration object:
-
-```ts
-import { Key, Navigation, KeyConfig } from "react-roving-tabindex";
-
-export const DEFAULT_KEY_CONFIG: KeyConfig = {
-  [Key.ARROW_LEFT]: Navigation.PREVIOUS,
-  [Key.ARROW_RIGHT]: Navigation.NEXT,
-  [Key.ARROW_UP]: Navigation.PREVIOUS,
-  [Key.ARROW_DOWN]: Navigation.NEXT,
-  [Key.HOME]: Navigation.VERY_FIRST,
-  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
-  [Key.END]: Navigation.VERY_LAST,
-  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
-};
-```
-
-This object is used automatically by default. If this is not suitable for your use case then you can pass your own key configuration object to the `RovingTabIndexProvider`. For example, you might want the ArrowUp and ArrowDown keys to have no effect:
-
-```ts
-import {
-  DEFAULT_KEY_CONFIG,
-  Key,
-  RovingTabIndexProvider
-} from "react-roving-tabindex";
-
-export const CUSTOM_KEY_CONFIG = {
-  ...DEFAULT_KEY_CONFIG,
-  [Key.ARROW_UP]: undefined, // or null
-  [Key.ARROW_DOWN]: undefined // or null
-};
-
-const SomeComponent = () => (
-  <RovingTabIndexProvider keyConfig={CUSTOM_KEY_CONFIG}>
-    {/* Whatever here */}
-  </RovingTabIndexProvider>
-);
-```
-
-Note that your custom key configuration object should be stable; please do not recreate it each time the component containing the `RovingTabIndexProvider` is invoked as this will trigger a re-render. You can however pass a new configuration if you ever need to dynamically change the key configuration behaviour.
-
-Note also that the TypeScript typings for the key configuration object somewhat constrain the possible navigation options for each key to the most logical choices given the established a11y conventions for a roving tabindex. For example, you cannot assign `Navigation.VERY_FIRST` to `Key.ARROW_LEFT`.
+It is fine to create a new object for this third argument each time the containing component is rendered. (This will not trigger an unnecessary re-render.)
 
 ### Grid usage
 
-This package supports a roving tabindex in a grid of elements. For this to work you need to do two things in addition to following the basic usage instructions above.
-
-Firstly you need to create and pass a custom key configuration object to the `RovingTabIndexProvider` component. The exact configuration will depend on your needs but it will likely be something like the following:
-
-```ts
-import {
-  Key,
-  KeyConfig,
-  Navigation,
-  RovingTabIndexProvider
-} from "react-roving-tabindex";
-
-// Create it...
-const GRID_KEY_CONFIG: KeyConfig = {
-  [Key.ARROW_LEFT]: Navigation.PREVIOUS,
-  [Key.ARROW_RIGHT]: Navigation.NEXT,
-  [Key.ARROW_UP]: Navigation.PREVIOUS_ROW,
-  [Key.ARROW_DOWN]: Navigation.NEXT_ROW,
-  [Key.HOME]: Navigation.FIRST_IN_ROW,
-  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
-  [Key.END]: Navigation.LAST_IN_ROW,
-  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
-};
-
-// ... then use it:
-const SomeComponent = () => (
-  <RovingTabIndexProvider keyConfig={GRID_KEY_CONFIG}>
-    {/* Whatever here */}
-  </RovingTabIndexProvider>
-);
-```
-
-Secondly, for each usage of the `useRovingTabIndex` hook you need to pass a third argument of a `rowIndex` value in an options object:
+This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ use the options object that is the third argument of the hook to pass a `rowIndex` value:
 
 ```ts
 const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
@@ -220,80 +166,39 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 );
 ```
 
-The `rowIndex` value should be the zero-based row index for the containing component in the grid it is in. Thus all items that represent the first row of grid items should have `{ rowIndex: 0 }` passed to the hook, the second row `{ rowIndex: 1 }`, and so on. If the shape of the grid can change dynamically then it is fine to update the rowIndex value. For example, the grid might initially has four items per row but be dynamically updated to three items per row.
+The `rowIndex` value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have `{ rowIndex: 0 }` passed to the hook, the second row `{ rowIndex: 1 }`, and so on. If the shape of the grid can change dynamically then it is fine to update the `rowIndex` value. For example, the grid might initially have four items per row but get updated to have three items per row.
 
-Note that it is fine to create a new object for this third argument each time the containing component is rendered; it will not trigger an unnecessary re-render. Also, if required you can combine the `rowIndex` with a custom `id` in the same options object (e.g., `{ rowIndex: 0, id: 'some-id' }`).
+It is fine to create a new object for this third argument each time the containing component is rendered. (This will not trigger an unnecessary re-render.) Also, if required you can combine the `rowIndex` with a custom `id` in the options object (e.g., `{ rowIndex: 0, id: 'some-id' }`).
+
+The `direction` property of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
 
 ## Upgrading
 
 ### From version 1 to version 2
 
-There are three breaking changes that might require updating your usages of this library.
+There are a few breaking changes in version 2.
 
-Firstly, this package no longer includes a ponyfill for `Array.prototype.findIndex` and also now uses the `Map` class. If you need to support IE then you will need to install a polyfill for both, although if you already support IE then you are almost certainly using a suitable global polyfill. Please see the Installation section earlier in this file for further guidance.
+This package no longer includes a ponyfill for `Array.prototype.findIndex` and now also uses the `Map` class. If you need to support IE then you will need to install a polyfill for both. That said, if you support IE then you are almost certainly using a suitable global polyfill already. Please see the Installation section earlier in this file for further guidance on polyfills.
 
-Secondly, the `direction` property of the `RovingTabIndexProvider` has been removed. Instead the behaviour of the roving tabindex for the possible key presses (ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Home, End, Home+Ctrl and End+Ctrl) is now configurable. Rather than specifying a direction, you can now pass a key configuration object to the `RovingTabIndexProvider` component:
-
-```ts
-const SomeComponent = () => (
-  <RovingTabIndexProvider keyConfig={YOUR_CONFIG}>
-    {/* Whatever here */}
-  </RovingTabIndexProvider>
-);
-```
-
-If you do not pass your own key configuration object then the following default one is automatically used:
-
-```ts
-export const DEFAULT_KEY_CONFIG: KeyConfig = {
-  [Key.ARROW_LEFT]: Navigation.PREVIOUS,
-  [Key.ARROW_RIGHT]: Navigation.NEXT,
-  [Key.ARROW_UP]: Navigation.PREVIOUS,
-  [Key.ARROW_DOWN]: Navigation.NEXT,
-  [Key.HOME]: Navigation.VERY_FIRST,
-  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
-  [Key.END]: Navigation.VERY_LAST,
-  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
-};
-```
-
-This configuration specifies the mapping between key press and focus movement, and it should be quite self-explanatory. The default mapping is likely what you want if you are migrating from version 1. It is the equivalent of the setting `direction="both"`. If you do want to make changes, such as not supporting the ArrowLeft and ArrowRight keys then you can create and use a custom key configuration:
-
-```ts
-import { DEFAULT_KEY_CONFIG, Key } from "react-roving-tabindex";
-
-export const CUSTOM_KEY_CONFIG = {
-  ...DEFAULT_KEY_CONFIG, // Copy the default configuration.
-  [Key.ARROW_LEFT]: undefined, // Or use null.
-  [Key.ARROW_RIGHT]: undefined // Or use null.
-};
-
-const SomeComponent = () => (
-  <RovingTabIndexProvider keyConfig={CUSTOM_KEY_CONFIG}>
-    {/* Whatever here */}
-  </RovingTabIndexProvider>
-);
-```
-
-The third and final breaking change is that the optional third argument to the `useRovingTabIndex` hook has changed type from a string ID to an object. This change only affects you if you have needed to pass your own IDs to the hook, in particular if you support server-side rendering (SSR). So if you have used the following...
+The optional third argument to the `useRovingTabIndex` hook has changed type from a string ID to an object. This change only affects you if you are passing your own IDs to the hook. So if you have previously used the following...
 
 ```ts
 const [...] = useRovingTabIndex(ref, true, id);
 //                                         ^^
 ```
 
-... then you will need to instead pass the ID in an object:
+... then you will need to now pass the ID in an object:
 
 ```ts
 const [...] = useRovingTabIndex(ref, true, { id });
 //                                         ^^^^^^
 ```
 
-Note that it is fine to create a new object for that third argument each time the containing component is rendered; by itself that will not trigger a re-render. As a reminder, the assigned ID will be captured on mounting of the containing component and cannot be changed during that component's lifetime.
+It is fine to create a new object for that third argument each time the containing component is rendered. (This will not trigger an unnecessary re-render.)
 
 ### From version 0.x to version 1
 
-The version 1 release has no breaking changes compared to v0.9.0. The version bump was because the package had matured.
+The version 1 release has no breaking changes compared to v0.9.0. The version bump was because the package had stabilized.
 
 ## License
 
@@ -306,7 +211,3 @@ If you have build errors when building the Storybook locally, you are likely usi
 ### Issues
 
 - The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311). This only affects the Storybook build.
-
-## TODO
-
-- Own handling of click and keydown (integrating them with the hook's handlers).

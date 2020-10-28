@@ -1,28 +1,10 @@
 import "jspolyfill-array.prototype.findIndex";
 import React from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import {
-  RovingTabIndexProvider,
-  useRovingTabIndex,
-  useFocusEffect,
-  KeyConfig,
-  Navigation,
-  Key
-} from "..";
+import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 import { Button } from "./button";
 import { Grid } from "./grid";
 import { GridCellButton } from "./grid-cell-button";
-
-const GRID_KEY_CONFIG: KeyConfig = {
-  [Key.ARROW_LEFT]: Navigation.PREVIOUS,
-  [Key.ARROW_RIGHT]: Navigation.NEXT,
-  [Key.ARROW_UP]: Navigation.PREVIOUS_ROW,
-  [Key.ARROW_DOWN]: Navigation.NEXT_ROW,
-  [Key.HOME]: Navigation.FIRST_IN_ROW,
-  [Key.HOME_WITH_CTRL]: Navigation.VERY_FIRST,
-  [Key.END]: Navigation.LAST_IN_ROW,
-  [Key.END_WITH_CTRL]: Navigation.VERY_LAST
-};
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const NOOP_HANDLER = () => {};
@@ -103,7 +85,7 @@ export const WithoutCustomIds: React.FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Grid role="grid">
-      <RovingTabIndexProvider keyConfig={GRID_KEY_CONFIG}>
+      <RovingTabIndexProvider>
         <GridButton
           disabled={!!buttonOneDisabled}
           useAlternateGridLayout={useAlternateGridLayout}

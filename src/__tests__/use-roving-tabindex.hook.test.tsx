@@ -1,14 +1,14 @@
 import { renderHook, act } from "@testing-library/react-hooks";
 import React, { RefObject, KeyboardEvent } from "react";
-import { DEFAULT_KEY_CONFIG, RovingTabIndexContext } from "../Provider";
-import { ActionType } from "../types";
+import { RovingTabIndexContext } from "../Provider";
+import { ActionType, State } from "../types";
 import { useRovingTabIndex } from "../use-roving-tabindex";
 
-const INITIAL_STATE = {
+const INITIAL_STATE: State = {
   selectedId: null,
   allowFocusing: false,
   tabStops: [],
-  keyConfig: DEFAULT_KEY_CONFIG,
+  direction: "horizontal",
   rowStartMap: null
 };
 

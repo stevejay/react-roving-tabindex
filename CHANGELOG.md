@@ -2,12 +2,13 @@
 
 ## 2.0.0
 
-This release is a complete rewrite to support a roving tabindex in a grid. There are breaking changes compared to v1. Please see the project README file for the migration details.
+This release is a complete rewrite to support a roving tabindex in a grid. There are a few breaking changes, hence the major version bump. Please see the project README file for how to migrate from version 1.
 
-Other notable changes:
+Notable changes:
 
 - Removed array-find-index ponyfill dependency.
 - Removed lodash.uniqueid dependency.
+- Replaced the optional ID argument to the useRovingTabIndex hook with an optional row index argument (for supporting grids).
 
 ## 1.0.0
 

@@ -85,8 +85,6 @@ export type Context = Readonly<{
   dispatch: React.Dispatch<Action>;
 }>;
 
-export type HookOptions = { id?: string; rowIndex?: number };
-
 export type HookResponse = [
   number,
   boolean,

@@ -1,5 +1,5 @@
 import "jspolyfill-array.prototype.findIndex";
-import React from "react";
+import React, { FC, useRef } from "react";
 import { Meta } from "@storybook/react/types-6-0";
 import {
   RovingTabIndexProvider,
@@ -14,17 +14,14 @@ type ButtonClickHandler = (
   event: React.MouseEvent<HTMLButtonElement, MouseEvent>
 ) => void;
 
-const ToolbarButton: React.FC<{
+const ToolbarButton: FC<{
   disabled: boolean;
-  id?: string;
   onClick: ButtonClickHandler;
-}> = ({ disabled, id, children, onClick }) => {
-  const idRef = React.useRef<string>(id);
-  const ref = React.useRef<HTMLButtonElement>(null);
+}> = ({ disabled, children, onClick }) => {
+  const ref = useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
-    disabled,
-    idRef.current ? { id: idRef.current } : undefined
+    disabled
   );
 
   useFocusEffect(focused, ref);
@@ -32,7 +29,6 @@ const ToolbarButton: React.FC<{
   return (
     <Button
       ref={ref}
-      id={idRef.current}
       onKeyDown={handleKeyDown}
       onClick={(event) => {
         handleClick();
@@ -61,7 +57,7 @@ type ExampleProps = {
   removeButtonFour: boolean;
 };
 
-export const WithoutCustomIds: React.FC<ExampleProps> = ({
+export const ToolbarExample: FC<ExampleProps> = ({
   direction,
   buttonOneDisabled,
   onButtonOneClicked,
@@ -112,73 +108,6 @@ export const WithoutCustomIds: React.FC<ExampleProps> = ({
           </span>
         )}
         <ToolbarButton
-          disabled={!!buttonFiveDisabled}
-          onClick={onButtonFiveClicked}
-        >
-          Button Five
-        </ToolbarButton>
-      </RovingTabIndexProvider>
-    </Toolbar>
-    <Button>Something after to focus on</Button>
-  </>
-);
-
-export const WithCustomIds: React.FC<ExampleProps> = ({
-  direction,
-  buttonOneDisabled,
-  onButtonOneClicked,
-  buttonTwoDisabled,
-  onButtonTwoClicked,
-  buttonThreeDisabled,
-  onButtonThreeClicked,
-  buttonFourDisabled,
-  onButtonFourClicked,
-  buttonFiveDisabled,
-  onButtonFiveClicked,
-  removeButtonFour
-}) => (
-  <>
-    <Button>Something before to focus on</Button>
-    <Toolbar role="toolbar">
-      <RovingTabIndexProvider direction={direction}>
-        <span>
-          <ToolbarButton
-            id="button-1"
-            disabled={!!buttonOneDisabled}
-            onClick={onButtonOneClicked}
-          >
-            Button One
-          </ToolbarButton>
-        </span>
-        <ToolbarButton
-          id="button-2"
-          disabled={!!buttonTwoDisabled}
-          onClick={onButtonTwoClicked}
-        >
-          Button Two
-        </ToolbarButton>
-        <ToolbarButton
-          id="button-3"
-          disabled={!!buttonThreeDisabled}
-          onClick={onButtonThreeClicked}
-        >
-          Button Three
-        </ToolbarButton>
-        {!removeButtonFour && (
-          <span>
-            <span>
-              <ToolbarButton
-                id="button-4"
-                disabled={!!buttonFourDisabled}
-                onClick={onButtonFourClicked}
-              >
-                Button Four
-              </ToolbarButton>
-            </span>
-          </span>
-        )}
-        <ToolbarButton
-          id="button-5"
           disabled={!!buttonFiveDisabled}
           onClick={onButtonFiveClicked}
         >
@@ -192,7 +121,7 @@ export const WithCustomIds: React.FC<ExampleProps> = ({
 
 export default {
   title: "Toolbar RovingTabIndex",
-  component: WithoutCustomIds,
+  component: ToolbarExample,
   argTypes: {
     direction: {
       name: "Direction",

@@ -1,5 +1,5 @@
 import "jspolyfill-array.prototype.findIndex";
-import React from "react";
+import React, { FC, useRef } from "react";
 import { Meta } from "@storybook/react/types-6-0";
 import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
 import { Button } from "./button";
@@ -13,26 +13,17 @@ type ButtonClickHandler = (
   event: React.MouseEvent<HTMLButtonElement, MouseEvent>
 ) => void;
 
-const GridButton: React.FC<{
+const GridButton: FC<{
   disabled: boolean;
   useAlternateGridLayout: boolean;
   rowIndex: number;
-  id?: string;
   onClick: ButtonClickHandler;
-}> = ({
-  disabled,
-  useAlternateGridLayout,
-  id,
-  rowIndex,
-  children,
-  onClick
-}) => {
-  const idRef = React.useRef<string>(id);
-  const ref = React.useRef<HTMLButtonElement>(null);
+}> = ({ disabled, useAlternateGridLayout, rowIndex, children, onClick }) => {
+  const ref = useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
     disabled,
-    idRef.current ? { id: idRef.current, rowIndex } : { rowIndex }
+    rowIndex
   );
 
   useFocusEffect(focused, ref);
@@ -69,7 +60,7 @@ type ExampleProps = {
   useAlternateGridLayout: boolean;
 };
 
-export const WithoutCustomIds: React.FC<ExampleProps> = ({
+export const GridExample: FC<ExampleProps> = ({
   buttonOneDisabled,
   onButtonOneClicked,
   buttonTwoDisabled,
@@ -190,7 +181,7 @@ export const WithoutCustomIds: React.FC<ExampleProps> = ({
 
 export default {
   title: "Grid RovingTabIndex",
-  component: WithoutCustomIds,
+  component: GridExample,
   argTypes: {
     onButtonOneClicked: { table: { disable: true } },
     onButtonTwoClicked: { table: { disable: true } },

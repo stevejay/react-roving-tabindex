@@ -50,7 +50,7 @@ There is a storybook for this package [here](https://stevejay.github.io/react-ro
 ### Basic usage
 
 ```tsx
-import React from "react";
+import React, { ReactNode, useRef } from "react";
 import {
   RovingTabIndexProvider,
   useRovingTabIndex,
@@ -59,12 +59,12 @@ import {
 
 type Props = {
   disabled?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
   // The ref of the input to be controlled.
-  const ref = React.useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
 
   // handleKeyDown and handleClick are stable for the lifetime of the component:
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
@@ -138,37 +138,19 @@ const SomeComponent = () => (
 
 The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
 
-#### Optional ID parameter
-
-The `useRovingTabIndex` hook has an optional third argument that is an options object. It can be used to pass a custom ID:
-
-```jsx
-const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
-  ref,
-  disabled,
-  { id: "custom-id-1" } // A custom ID.
-);
-```
-
-This is required if you need to support server-side rendering (SSR). Note that the value initially passed will be used for the lifetime of the containing component; you cannot dynamically update this ID.
-
-It is fine to create a new object for this third argument each time the containing component is rendered. (This will not trigger an unnecessary re-render.)
-
 ### Grid usage
 
-This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ use the options object that is the third argument of the hook to pass a `rowIndex` value:
+This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ pass a row index value as a third argument to the hook:
 
 ```ts
 const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
   ref,
   disabled,
-  { rowIndex: 0 }
+  someRowIndexValue
 );
 ```
 
-The `rowIndex` value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have `{ rowIndex: 0 }` passed to the hook, the second row `{ rowIndex: 1 }`, and so on. If the shape of the grid can change dynamically then it is fine to update the `rowIndex` value. For example, the grid might initially have four items per row but get updated to have three items per row.
-
-It is fine to create a new object for this third argument each time the containing component is rendered. (This will not trigger an unnecessary re-render.) Also, if required you can combine the `rowIndex` with a custom `id` in the options object (e.g., `{ rowIndex: 0, id: 'some-id' }`).
+The row index value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have `0` passed to the hook, the second row `1`, and so on. If the shape of the grid can change dynamically then it is fine to update the row index value. For example, the grid might initially have four items per row but get updated to have three items per row.
 
 The `direction` property of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
 
@@ -178,23 +160,20 @@ The `direction` property of the `RovingTabIndexProvider` is ignored when row ind
 
 There are a few breaking changes in version 2.
 
-This package no longer includes a ponyfill for `Array.prototype.findIndex` and now also uses the `Map` class. If you need to support IE then you will need to install a polyfill for both. That said, if you support IE then you are almost certainly using a suitable global polyfill already. Please see the Installation section earlier in this file for further guidance on polyfills.
+This package no longer includes a ponyfill for `Array.prototype.findIndex` and now also uses the `Map` class. If you need to support IE then you will need to install polyfills for both. That said, if you currently support IE then you are almost certainly using a suitable global polyfill already. Please see the Installation section earlier in this file for further guidance.
 
-The optional third argument to the `useRovingTabIndex` hook has changed type from a string ID to an object. This change only affects you if you are passing your own IDs to the hook. So if you have previously used the following...
+The optional ID argument that was the third argument to the `useRovingTabIndex` hook has been replaced with the new optional row index argument. The ID argument was included to support server-side rendering (SSR) but it is not actually required. By default this library auto-generates an ID within the hook. This is not a problem in SSR because it never gets generated and serialized on the server. Thus it is fine for it to be auto-generated even when SSR needs to be supported. So if you have previously used the following...
 
 ```ts
 const [...] = useRovingTabIndex(ref, true, id);
 //                                         ^^
 ```
 
-... then you will need to now pass the ID in an object:
+... then you can simply remove that third argument:
 
 ```ts
-const [...] = useRovingTabIndex(ref, true, { id });
-//                                         ^^^^^^
+const [...] = useRovingTabIndex(ref, true);
 ```
-
-It is fine to create a new object for that third argument each time the containing component is rendered. (This will not trigger an unnecessary re-render.)
 
 ### From version 0.x to version 1
 

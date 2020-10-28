@@ -1,18 +1,20 @@
 # react-roving-tabindex
 
-> React Hooks implementation of a roving tabindex. See the storybook [here](https://stevejay.github.io/react-roving-tabindex/) to try it out.
+> React Hooks implementation of a roving tabindex, now with grid support. See the storybook [here](https://stevejay.github.io/react-roving-tabindex/) to try it out.
 
-[![bundlephobia](https://img.shields.io/bundlephobia/minzip/react-roving-tabindex)](https://bundlephobia.com/result?p=react-roving-tabindex) [![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master)
+[![bundlephobia](https://img.shields.io/bundlephobia/minzip/react-roving-tabindex)](https://bundlephobia.com/result?p=react-roving-tabindex) [![NPM](https://img.shields.io/npm/v/react-roving-tabindex.svg)](https://www.npmjs.com/package/react-roving-tabindex) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com) [![CircleCI](https://img.shields.io/circleci/project/github/stevejay/react-roving-tabindex/master.svg)](https://circleci.com/gh/stevejay/react-roving-tabindex/tree/master) [![Coverage Status](https://coveralls.io/repos/github/stevejay/react-roving-tabindex/badge.svg?branch=master)](https://coveralls.io/github/stevejay/react-roving-tabindex?branch=master)
 
 ## Background
 
-The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop, which speeds up keyboard navigation. The last focused input in a group is also remembered, so that it can receive focus again when the user tabs back to the group.
+The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop which speeds up keyboard navigation. The last focused input in the group is also remembered. It receives focus again when the user tabs back into the group.
 
-When in the group, the left and right (or up and down) arrow keys move between the inputs. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move to the group's first and last inputs respectively.
+When in the group, the ArrowLeft and ArrowRight keys move focus between the inputs. (You can also configure this library so that the ArrowUp and ArrowDown keys move focus.) The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to the group's first and last inputs respectively.
 
 More information about the roving tabindex pattern is available [here](https://www.stefanjudis.com/today-i-learned/roving-tabindex/) and [here](https://developer.mozilla.org/en-US/docs/Web/Accessibility/Keyboard-navigable_JavaScript_widgets#Managing_focus_inside_groups).
 
-### Implementation Considerations
+This pattern can also be used for a grid of items, as in [this calendar example](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Grid_Role#Calendar_example). Conventionally, the containing element for the grid should be given the `grid` role, and each grid item should be given the `gridcell` role. The ArrowLeft and ArrowRight keys are used to move focus between inputs in a row, while the ArrowUp and ArrowDown keys move focus between the rows. The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to a row's first and last inputs respectively. If the Control key is held while pressing the Home and End keys then focus is moved to the very first and very last input in the grid respectively.
+
+### Implementation considerations
 
 There are two main architectural choices to be made:
 
@@ -23,9 +25,13 @@ This package opts to support dynamic enabling and unenabling. It also allows inp
 
 This package does not support nesting one roving tabindex group inside another. I believe that this complicates keyboard navigation too much.
 
+### When not to use this package
+
+This package is designed as a general solution for a roving tabindex in a toolbar or a smallish grid. If you need a roving tabindex in a very large grid or table (a few hundred cells or more) then you will likely be better served with a bespoke implementation. By not including any unnecessary flexibility that this package offers then you should create a more performant implementation. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the cells with the package, and there is an overhead to creating the row index mapping for a grid.
+
 ## Requirements
 
-This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards.
+This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards. It has peer dependencies of `react` and `react-dom`.
 
 ## Installation
 
@@ -35,12 +41,16 @@ npm install --save react-roving-tabindex
 
 This package includes TypeScript typings.
 
+If you need to support IE then you also need to install polyfills for `Array.prototype.findIndex` and `Map`. If you are using React with IE then [you already need to use a `Map` polyfill](https://reactjs.org/docs/javascript-environment-requirements.html). If you use a global polyfill like [core-js](https://github.com/zloirock/core-js) or [babel-polyfill](https://babeljs.io/docs/usage/polyfill/) then it should include a `findIndex` polyfill.
+
 ## Usage
 
-There is a storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/).
+There is a storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/), with both toolbar and grid usage examples.
+
+### Basic usage
 
 ```tsx
-import React from "react";
+import React, { ReactNode, useRef } from "react";
 import {
   RovingTabIndexProvider,
   useRovingTabIndex,
@@ -49,12 +59,12 @@ import {
 
 type Props = {
   disabled?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 const ToolbarButton = ({ disabled = false, children }: Props) => {
   // The ref of the input to be controlled.
-  const ref = React.useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
 
   // handleKeyDown and handleClick are stable for the lifetime of the component:
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
@@ -69,18 +79,18 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
   return (
     <button
       ref={ref}
-      tabIndex={tabIndex} // tabIndex must be applied here.
+      tabIndex={tabIndex} // tabIndex must be applied here
       disabled={disabled}
-      onKeyDown={handleKeyDown}
-      onClick={handleClick}
+      onKeyDown={handleKeyDown} // handler applied here
+      onClick={handleClick} // handler applied here
     >
       {children}
     </button>
   );
 };
 
-const App = () => (
-  // Wrap each group in a RovingTabIndexProvider.
+const SomeComponent = () => (
+  // Wrap each roving tabindex group in a RovingTabIndexProvider.
   <RovingTabIndexProvider>
     {/*
       it's fine for the roving tabindex components to be nested
@@ -92,29 +102,82 @@ const App = () => (
 );
 ```
 
-### Custom ID
+If you need to incorporate your own handling for `onClick` and/or `onKeyDown` events then just create handlers that invoke multiple handlers:
 
-You can optionally pass a custom ID to the `useRovingTabIndex` hook as the third argument:
-
-```jsx
-const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
-  ref,
-  disabled,
-  "custom-id-1" // A custom ID.
+```ts
+return (
+  <button
+    ref={ref}
+    tabIndex={tabIndex}
+    disabled={disabled}
+    onKeyDown={(event) => {
+      handleKeyDown(event); // handler from the hook
+      someKeyDownHandler(event); // your handler
+    }}
+    onClick={(event) => {
+      handleClick(event); // handler from the hook
+      someClickHandler(event); // your handler
+    }}
+  >
+    {children}
+  </button>
 );
 ```
 
-This is useful if you need to support server-side rendering. The value initially passed will be used for the lifetime of the containing component. You cannot dynamically change this ID.
+#### Direction
 
-### Navigation
+It is the ArrowLeft and ArrowRight keys that are used by default to move to the previous and next input respectively. The `RovingTabIndexProvider` has an optional `direction` property that allows you to change this:
 
-By default the left and right arrow keys are used to move between inputs. You can change this using the `direction` prop on the provider:
-
-```jsx
-<RovingTabIndexProvider direction="horizontal|vertical|both" />
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider direction="vertical">
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
 ```
 
-The `vertical` option requires the up and down arrows for navigation. The `both` option is a mix of the other two options.
+The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
+
+### Grid usage
+
+This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ pass a row index value as a third argument to the hook:
+
+```ts
+const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
+  ref,
+  disabled,
+  someRowIndexValue
+);
+```
+
+The row index value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have `0` passed to the hook, the second row `1`, and so on. If the shape of the grid can change dynamically then it is fine to update the row index value. For example, the grid might initially have four items per row but get updated to have three items per row.
+
+The `direction` property of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
+
+## Upgrading
+
+### From version 1 to version 2
+
+There are a few breaking changes in version 2.
+
+This package no longer includes a ponyfill for `Array.prototype.findIndex` and now also uses the `Map` class. If you need to support IE then you will need to install polyfills for both. That said, if you currently support IE then you are almost certainly using a suitable global polyfill already. Please see the Installation section earlier in this file for further guidance.
+
+The optional ID argument that was the third argument to the `useRovingTabIndex` hook has been replaced with the new optional row index argument. The ID argument was included to support server-side rendering (SSR) but it is not actually required. By default this library auto-generates an ID within the hook. This is not a problem in SSR because it never gets generated and serialized on the server. Thus it is fine for it to be auto-generated even when SSR needs to be supported. So if you have previously used the following...
+
+```ts
+const [...] = useRovingTabIndex(ref, true, id);
+//                                         ^^
+```
+
+... then you can simply remove that third argument:
+
+```ts
+const [...] = useRovingTabIndex(ref, true);
+```
+
+### From version 0.x to version 1
+
+The version 1 release has no breaking changes compared to v0.9.0. The version bump was because the package had stabilized.
 
 ## License
 
@@ -122,8 +185,14 @@ MIT © [stevejay](https://github.com/stevejay)
 
 ## Development
 
-If you have build errors when building Storybook locally, you are likely using Node v13. Please use either Node v14+ or Node v12.
+If you have build errors when building the Storybook locally, you are likely using Node v13. Please use either Node v14+ or Node v12.
+
+### Publishing
+
+- For beta versions: `npm publish --tag next`.
+- For releases: `npm publish`.
 
 ### Issues
 
 - The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311). This only affects the Storybook build.
+- The React dependencies have not yet been upgraded to version 17 because of [this Storybook issue](https://github.com/storybookjs/storybook/issues/12408). Regardless, this package works with React 17 and the `peerDependencies` semver in `package.json` for `react` and `react-dom` permits React 17.

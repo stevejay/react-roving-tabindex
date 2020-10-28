@@ -1,21 +1,24 @@
-import { uniqueId } from "lodash";
-import React from "react";
+import "jspolyfill-array.prototype.findIndex";
+import React, { FC, useRef } from "react";
 import { Meta } from "@storybook/react/types-6-0";
-import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
+import {
+  RovingTabIndexProvider,
+  useRovingTabIndex,
+  useFocusEffect,
+  KeyDirection
+} from "..";
 import { Button } from "./button";
 import { Toolbar } from "./toolbar";
-import { State } from "../Provider";
 
 type ButtonClickHandler = (
   event: React.MouseEvent<HTMLButtonElement, MouseEvent>
 ) => void;
 
-const ToolbarButton: React.FC<{
+const ToolbarButton: FC<{
   disabled: boolean;
   onClick: ButtonClickHandler;
 }> = ({ disabled, children, onClick }) => {
-  const id = React.useRef<string>(uniqueId());
-  const ref = React.useRef<HTMLButtonElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
     disabled
@@ -26,9 +29,8 @@ const ToolbarButton: React.FC<{
   return (
     <Button
       ref={ref}
-      id={id.current}
       onKeyDown={handleKeyDown}
-      onClick={(event): void => {
+      onClick={(event) => {
         handleClick();
         onClick(event);
       }}
@@ -41,7 +43,7 @@ const ToolbarButton: React.FC<{
 };
 
 type ExampleProps = {
-  direction: State["direction"];
+  direction: KeyDirection;
   buttonOneDisabled: boolean;
   onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
@@ -52,9 +54,10 @@ type ExampleProps = {
   onButtonFourClicked: ButtonClickHandler;
   buttonFiveDisabled: boolean;
   onButtonFiveClicked: ButtonClickHandler;
+  removeButtonFour: boolean;
 };
 
-export const Example: React.FC<ExampleProps> = ({
+export const ToolbarExample: FC<ExampleProps> = ({
   direction,
   buttonOneDisabled,
   onButtonOneClicked,
@@ -65,7 +68,8 @@ export const Example: React.FC<ExampleProps> = ({
   buttonFourDisabled,
   onButtonFourClicked,
   buttonFiveDisabled,
-  onButtonFiveClicked
+  onButtonFiveClicked,
+  removeButtonFour
 }) => (
   <>
     <Button>Something before to focus on</Button>
@@ -73,36 +77,38 @@ export const Example: React.FC<ExampleProps> = ({
       <RovingTabIndexProvider direction={direction}>
         <span>
           <ToolbarButton
-            disabled={buttonOneDisabled}
+            disabled={!!buttonOneDisabled}
             onClick={onButtonOneClicked}
           >
             Button One
           </ToolbarButton>
         </span>
         <ToolbarButton
-          disabled={buttonTwoDisabled}
+          disabled={!!buttonTwoDisabled}
           onClick={onButtonTwoClicked}
         >
           Button Two
         </ToolbarButton>
         <ToolbarButton
-          disabled={buttonThreeDisabled}
+          disabled={!!buttonThreeDisabled}
           onClick={onButtonThreeClicked}
         >
           Button Three
         </ToolbarButton>
-        <span>
+        {!removeButtonFour && (
           <span>
-            <ToolbarButton
-              disabled={buttonFourDisabled}
-              onClick={onButtonFourClicked}
-            >
-              Button Four
-            </ToolbarButton>
+            <span>
+              <ToolbarButton
+                disabled={!!buttonFourDisabled}
+                onClick={onButtonFourClicked}
+              >
+                Button Four
+              </ToolbarButton>
+            </span>
           </span>
-        </span>
+        )}
         <ToolbarButton
-          disabled={buttonFiveDisabled}
+          disabled={!!buttonFiveDisabled}
           onClick={onButtonFiveClicked}
         >
           Button Five
@@ -114,8 +120,8 @@ export const Example: React.FC<ExampleProps> = ({
 );
 
 export default {
-  title: "RovingTabIndex",
-  component: Example,
+  title: "Toolbar RovingTabIndex",
+  component: ToolbarExample,
   argTypes: {
     direction: {
       name: "Direction",
@@ -141,6 +147,9 @@ export default {
     },
     buttonFiveDisabled: {
       name: "Disable Button Five"
+    },
+    removeButtonFour: {
+      name: "Remove Button Four"
     }
   },
   parameters: { actions: { argTypesRegex: "^on.*" } }

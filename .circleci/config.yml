@@ -1,6 +1,9 @@
 # Javascript Node CircleCI 2.0 configuration file
 version: 2.1
 
+orbs:
+  coveralls: coveralls/coveralls@1.0.6
+
 jobs:
   build:
     docker:
@@ -27,7 +30,8 @@ jobs:
           key: v1-dependencies-{{ checksum "package-lock.json" }}
 
       - run: npm run build
-      - run: npm run test
+      - run: npm run test:coverage
+      - coveralls/upload
 
 workflows:
   build:

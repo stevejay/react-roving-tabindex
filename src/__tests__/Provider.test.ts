@@ -7,6 +7,15 @@ jest.mock("warning");
 
 const DOCUMENT_POSITION_FOLLOWING = 4;
 
+const INITIAL_STATE: State = Object.freeze({
+  selectedId: null,
+  allowFocusing: false,
+  tabStops: [],
+  direction: "horizontal",
+  allowFocusOnClick: true,
+  rowStartMap: null
+});
+
 function createMockDomElementRef(index: number): RefObject<Element> {
   return {
     current: ({
@@ -51,13 +60,7 @@ describe("reducer", () => {
 
   describe("when registering a tab stop", () => {
     describe("when no tab stops have been registered", () => {
-      const givenState: State = Object.freeze({
-        selectedId: null,
-        allowFocusing: false,
-        tabStops: [],
-        direction: "horizontal",
-        rowStartMap: null
-      });
+      const givenState: State = INITIAL_STATE;
 
       const action: Action = {
         type: ActionType.REGISTER_TAB_STOP,
@@ -76,11 +79,9 @@ describe("reducer", () => {
 
     describe("when one earlier tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+        tabStops: [ELEMENT_ONE_TAB_STOP]
       });
 
       const action: Action = {
@@ -99,11 +100,9 @@ describe("reducer", () => {
 
     describe("when one later tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_TWO_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+        tabStops: [ELEMENT_TWO_TAB_STOP]
       });
 
       const action: Action = {
@@ -122,11 +121,9 @@ describe("reducer", () => {
 
     describe("when the same tab stop has already been registered", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+        tabStops: [ELEMENT_ONE_TAB_STOP]
       });
 
       const action: Action = {
@@ -151,11 +148,9 @@ describe("reducer", () => {
 
     describe("when the tab stop being registered has no DOM element ref", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+        tabStops: [ELEMENT_ONE_TAB_STOP]
       });
 
       const action: Action = {
@@ -175,13 +170,7 @@ describe("reducer", () => {
 
   describe("when unregistering a tab stop", () => {
     describe("when the tab stop to remove is not registered", () => {
-      const givenState: State = Object.freeze({
-        selectedId: null,
-        allowFocusing: false,
-        tabStops: [],
-        direction: "horizontal",
-        rowStartMap: null
-      });
+      const givenState: State = INITIAL_STATE;
 
       const action: Action = {
         type: ActionType.UNREGISTER_TAB_STOP,
@@ -206,11 +195,9 @@ describe("reducer", () => {
     describe("when the tab stop to remove is registered", () => {
       describe("when it is the currently selected tab stop", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
-          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-          direction: "horizontal",
-          rowStartMap: null
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
         });
 
         const action: Action = {
@@ -230,11 +217,9 @@ describe("reducer", () => {
 
       describe("when it is not the currently selected tab stop", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
-          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-          direction: "horizontal",
-          rowStartMap: null
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
         });
 
         const action: Action = {
@@ -256,14 +241,12 @@ describe("reducer", () => {
   describe("when updating a tab stop", () => {
     describe("when the updated data is the same as the current data", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
         tabStops: [
           ELEMENT_ONE_TAB_STOP,
           { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
-        ],
-        direction: "horizontal",
-        rowStartMap: null
+        ]
       });
 
       const action: Action = {
@@ -280,14 +263,12 @@ describe("reducer", () => {
     describe("when the updated data is different to the current data", () => {
       describe("when the updated tab stop is not selected", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -309,14 +290,12 @@ describe("reducer", () => {
 
       describe("when the updated tab stop is selected and becomes disabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
             { ...ELEMENT_TWO_TAB_STOP, disabled: false }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -340,14 +319,12 @@ describe("reducer", () => {
 
     describe("when the updated data has an unregistered id", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
         tabStops: [
           ELEMENT_ONE_TAB_STOP,
           { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
-        ],
-        direction: "horizontal",
-        rowStartMap: null
+        ]
       });
 
       const action: Action = {
@@ -372,79 +349,155 @@ describe("reducer", () => {
   });
 
   describe("when clicking on a tab stop", () => {
-    describe("when the tab stop is not disabled", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+    describe("when allowFocusOnClick is true", () => {
+      describe("when the tab stop is not disabled", () => {
+        const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
+          selectedId: ELEMENT_ONE_ID,
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+          allowFocusing: false,
+          allowFocusOnClick: true
+        });
+
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: ELEMENT_TWO_ID }
+        };
+
+        it("should set the clicked tab stop as the selected tab stop", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_TWO_ID,
+            allowFocusing: true
+          });
+        });
       });
 
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: ELEMENT_TWO_ID }
-      };
+      describe("when the tab stop is disabled", () => {
+        const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
+          selectedId: ELEMENT_ONE_ID,
+          tabStops: [
+            ELEMENT_ONE_TAB_STOP,
+            { ...ELEMENT_TWO_TAB_STOP, disabled: true }
+          ],
+          allowFocusOnClick: true
+        });
 
-      it("should set the clicked tab stop as the selected tab stop", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          selectedId: ELEMENT_TWO_ID,
-          allowFocusing: true
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: ELEMENT_TWO_ID }
+        };
+
+        it("should not change the reducer state", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>(givenState);
+        });
+      });
+
+      describe("when the click action has an unregistered id", () => {
+        const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
+          selectedId: ELEMENT_ONE_ID,
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+          allowFocusOnClick: true
+        });
+
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: "unregistered-id" }
+        };
+
+        it("should not change the reducer state", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>(givenState);
+        });
+
+        it("should log a warning", () => {
+          reducer(givenState, action);
+          expect(warning).toHaveBeenNthCalledWith(
+            1,
+            false,
+            "'unregistered-id' tab stop not registered"
+          );
         });
       });
     });
 
-    describe("when the tab stop is disabled", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [
-          ELEMENT_ONE_TAB_STOP,
-          { ...ELEMENT_TWO_TAB_STOP, disabled: true }
-        ],
-        direction: "horizontal",
-        rowStartMap: null
+    describe("when allowFocusOnClick is false", () => {
+      describe("when the tab stop is not disabled", () => {
+        const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
+          selectedId: ELEMENT_ONE_ID,
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+          allowFocusing: true,
+          allowFocusOnClick: false
+        });
+
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: ELEMENT_TWO_ID }
+        };
+
+        it("should set the clicked tab stop as the selected tab stop", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_TWO_ID,
+            allowFocusing: false
+          });
+        });
       });
 
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: ELEMENT_TWO_ID }
-      };
+      describe("when the tab stop is disabled", () => {
+        const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
+          selectedId: ELEMENT_ONE_ID,
+          tabStops: [
+            ELEMENT_ONE_TAB_STOP,
+            { ...ELEMENT_TWO_TAB_STOP, disabled: true }
+          ],
+          allowFocusOnClick: false
+        });
 
-      it("should not change the reducer state", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>(givenState);
-      });
-    });
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: ELEMENT_TWO_ID }
+        };
 
-    describe("when the click action has an unregistered id", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
-      });
-
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: "unregistered-id" }
-      };
-
-      it("should not change the reducer state", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>(givenState);
+        it("should not change the reducer state", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>(givenState);
+        });
       });
 
-      it("should log a warning", () => {
-        reducer(givenState, action);
-        expect(warning).toHaveBeenNthCalledWith(
-          1,
-          false,
-          "'unregistered-id' tab stop not registered"
-        );
+      describe("when the click action has an unregistered id", () => {
+        const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
+          selectedId: ELEMENT_ONE_ID,
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+          allowFocusOnClick: false
+        });
+
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: "unregistered-id" }
+        };
+
+        it("should not change the reducer state", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>(givenState);
+        });
+
+        it("should log a warning", () => {
+          reducer(givenState, action);
+          expect(warning).toHaveBeenNthCalledWith(
+            1,
+            false,
+            "'unregistered-id' tab stop not registered"
+          );
+        });
       });
     });
   });
@@ -454,11 +507,9 @@ describe("reducer", () => {
       describe("when the ArrowRight key is pressed", () => {
         describe("when the next tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "horizontal",
-            rowStartMap: null
+            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
           });
 
           const action: Action = {
@@ -482,11 +533,9 @@ describe("reducer", () => {
 
         describe("when there is no next tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "horizontal",
-            rowStartMap: null
+            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
           });
 
           const action: Action = {
@@ -506,14 +555,12 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -533,15 +580,13 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is not the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -567,11 +612,9 @@ describe("reducer", () => {
       describe("when the ArrowLeft key is pressed", () => {
         describe("when the previous tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "horizontal",
-            rowStartMap: null
+            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
           });
 
           const action: Action = {
@@ -595,11 +638,9 @@ describe("reducer", () => {
 
         describe("when there is no previous tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "horizontal",
-            rowStartMap: null
+            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
           });
 
           const action: Action = {
@@ -619,14 +660,12 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -646,15 +685,13 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -679,11 +716,9 @@ describe("reducer", () => {
 
       describe("when the ArrowUp key is pressed", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
-          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-          direction: "horizontal",
-          rowStartMap: null
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
         });
 
         const action: Action = {
@@ -703,11 +738,9 @@ describe("reducer", () => {
 
       describe("when the ArrowDown key is pressed", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
-          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-          direction: "horizontal",
-          rowStartMap: null
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
         });
 
         const action: Action = {
@@ -728,15 +761,13 @@ describe("reducer", () => {
       describe("when the Home key is pressed", () => {
         describe("when the first tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -760,15 +791,13 @@ describe("reducer", () => {
 
         describe("when the first tab stop is not enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -792,15 +821,13 @@ describe("reducer", () => {
 
         describe("when the first tab stop is already the selected tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -825,15 +852,13 @@ describe("reducer", () => {
       describe("when the Home+Ctrl key is pressed", () => {
         describe("when the first tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -859,15 +884,13 @@ describe("reducer", () => {
       describe("when the End key is pressed", () => {
         describe("when the last tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -891,15 +914,13 @@ describe("reducer", () => {
 
         describe("when the last tab stop is not enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               { ...ELEMENT_THREE_TAB_STOP, disabled: true }
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -923,15 +944,13 @@ describe("reducer", () => {
 
         describe("when the last tab stop is already the selected tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -956,15 +975,13 @@ describe("reducer", () => {
       describe("when the End+Ctrl key is pressed", () => {
         describe("when the last tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
-            ],
-            direction: "horizontal",
-            rowStartMap: null
+            ]
           });
 
           const action: Action = {
@@ -992,11 +1009,10 @@ describe("reducer", () => {
       describe("when the ArrowDown key is pressed", () => {
         describe("when the next tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1020,11 +1036,10 @@ describe("reducer", () => {
 
         describe("when there is no next tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1044,14 +1059,13 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1071,15 +1085,14 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is not the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1105,11 +1118,10 @@ describe("reducer", () => {
       describe("when the ArrowUp key is pressed", () => {
         describe("when the previous tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1133,11 +1145,10 @@ describe("reducer", () => {
 
         describe("when there is no previous tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1157,14 +1168,13 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1184,15 +1194,14 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1217,11 +1226,10 @@ describe("reducer", () => {
 
       describe("when the ArrowLeft key is pressed", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-          direction: "vertical",
-          rowStartMap: null
+          direction: "vertical"
         });
 
         const action: Action = {
@@ -1241,11 +1249,10 @@ describe("reducer", () => {
 
       describe("when the ArrowRight key is pressed", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-          direction: "vertical",
-          rowStartMap: null
+          direction: "vertical"
         });
 
         const action: Action = {
@@ -1266,15 +1273,14 @@ describe("reducer", () => {
       describe("when the Home key is pressed", () => {
         describe("when the first tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1298,15 +1304,14 @@ describe("reducer", () => {
 
         describe("when the first tab stop is not enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1330,15 +1335,14 @@ describe("reducer", () => {
 
         describe("when the first tab stop is already the selected tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1363,15 +1367,14 @@ describe("reducer", () => {
       describe("when the Home+Ctrl key is pressed", () => {
         describe("when the first tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1397,15 +1400,14 @@ describe("reducer", () => {
       describe("when the End key is pressed", () => {
         describe("when the last tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1429,15 +1431,14 @@ describe("reducer", () => {
 
         describe("when the last tab stop is not enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               { ...ELEMENT_THREE_TAB_STOP, disabled: true }
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1461,15 +1462,14 @@ describe("reducer", () => {
 
         describe("when the last tab stop is already the selected tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1494,15 +1494,14 @@ describe("reducer", () => {
       describe("when the End+Ctrl key is pressed", () => {
         describe("when the last tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "vertical",
-            rowStartMap: null
+            direction: "vertical"
           });
 
           const action: Action = {
@@ -1530,11 +1529,10 @@ describe("reducer", () => {
       describe("when the ArrowRight key is pressed", () => {
         describe("when the next tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1558,11 +1556,10 @@ describe("reducer", () => {
 
         describe("when there is no next tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1582,14 +1579,13 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1609,15 +1605,14 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is not the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1643,11 +1638,10 @@ describe("reducer", () => {
       describe("when the ArrowLeft key is pressed", () => {
         describe("when the previous tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1671,11 +1665,10 @@ describe("reducer", () => {
 
         describe("when there is no previous tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1695,14 +1688,13 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1722,15 +1714,14 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1756,11 +1747,10 @@ describe("reducer", () => {
       describe("when the ArrowDown key is pressed", () => {
         describe("when the next tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1784,11 +1774,10 @@ describe("reducer", () => {
 
         describe("when there is no next tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1808,14 +1797,13 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1835,15 +1823,14 @@ describe("reducer", () => {
 
         describe("when the next tab stop is disabled and it is not the last tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1869,11 +1856,10 @@ describe("reducer", () => {
       describe("when the ArrowUp key is pressed", () => {
         describe("when the previous tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1897,11 +1883,10 @@ describe("reducer", () => {
 
         describe("when there is no previous tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1921,14 +1906,13 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1948,15 +1932,14 @@ describe("reducer", () => {
 
         describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               { ...ELEMENT_TWO_TAB_STOP, disabled: true },
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -1982,15 +1965,14 @@ describe("reducer", () => {
       describe("when the Home key is pressed", () => {
         describe("when the first tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2014,15 +1996,14 @@ describe("reducer", () => {
 
         describe("when the first tab stop is not enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2046,15 +2027,14 @@ describe("reducer", () => {
 
         describe("when the first tab stop is already the selected tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2079,15 +2059,14 @@ describe("reducer", () => {
       describe("when the Home+Ctrl key is pressed", () => {
         describe("when the first tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2113,15 +2092,14 @@ describe("reducer", () => {
       describe("when the End key is pressed", () => {
         describe("when the last tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2145,15 +2123,14 @@ describe("reducer", () => {
 
         describe("when the last tab stop is not enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               { ...ELEMENT_THREE_TAB_STOP, disabled: true }
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2177,15 +2154,14 @@ describe("reducer", () => {
 
         describe("when the last tab stop is already the selected tab stop", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_THREE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2210,15 +2186,14 @@ describe("reducer", () => {
       describe("when the End+Ctrl key is pressed", () => {
         describe("when the last tab stop is enabled", () => {
           const givenState: State = Object.freeze({
+            ...INITIAL_STATE,
             selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
               ELEMENT_TWO_TAB_STOP,
               ELEMENT_THREE_TAB_STOP
             ],
-            direction: "both",
-            rowStartMap: null
+            direction: "both"
           });
 
           const action: Action = {
@@ -2244,11 +2219,9 @@ describe("reducer", () => {
 
     describe("when the action is for an unregistered id", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
       });
 
       const action: Action = {
@@ -2277,14 +2250,12 @@ describe("reducer", () => {
 
     describe("when the tab stop of the action is disabled", () => {
       const givenState: State = Object.freeze({
+        ...INITIAL_STATE,
         selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, disabled: true },
           ELEMENT_TWO_TAB_STOP
-        ],
-        direction: "horizontal",
-        rowStartMap: null
+        ]
       });
 
       const action: Action = {
@@ -2307,15 +2278,13 @@ describe("reducer", () => {
     describe("when tabbing to the next tab stop in the current row", () => {
       describe("when the next tab stop is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2339,14 +2308,12 @@ describe("reducer", () => {
 
       describe("when there is no next tab stop in the current row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2366,14 +2333,12 @@ describe("reducer", () => {
 
       describe("when there is no next tab stop in the entire grid", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2393,15 +2358,13 @@ describe("reducer", () => {
 
       describe("when the next tab stop is disabled and it is the last tab stop in the current row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0, disabled: true },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2421,15 +2384,13 @@ describe("reducer", () => {
 
       describe("when the next tab stop is disabled and it is not the last tab stop in the current row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0, disabled: true },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2455,15 +2416,13 @@ describe("reducer", () => {
     describe("when tabbing to the previous tab stop in the current row", () => {
       describe("when the previous tab stop is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2487,14 +2446,12 @@ describe("reducer", () => {
 
       describe("when there is no previous tab stop in the current row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2514,14 +2471,12 @@ describe("reducer", () => {
 
       describe("when there is no previous tab stop in the entire grid", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2541,16 +2496,14 @@ describe("reducer", () => {
 
       describe("when the previous tab stop is disabled and it is the first tab stop in the current row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FOUR_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1, disabled: true },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2570,15 +2523,13 @@ describe("reducer", () => {
 
       describe("when the previous tab stop is disabled and it is not the last first stop in the current row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0, disabled: true },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2604,15 +2555,13 @@ describe("reducer", () => {
     describe("when tabbing to the first tab stop", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2636,15 +2585,13 @@ describe("reducer", () => {
 
       describe("when the first tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0, disabled: true },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2668,15 +2615,13 @@ describe("reducer", () => {
 
       describe("when the first tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2698,15 +2643,13 @@ describe("reducer", () => {
     describe("when tabbing to the last tab stop", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2730,15 +2673,13 @@ describe("reducer", () => {
 
       describe("when the last tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2, disabled: true }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2762,15 +2703,13 @@ describe("reducer", () => {
 
       describe("when the last tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2792,16 +2731,14 @@ describe("reducer", () => {
     describe("when tabbing to the last tab stop in the current row", () => {
       describe("when the last tab stop in the current row is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2829,16 +2766,14 @@ describe("reducer", () => {
 
       describe("when the last tab stop in the current row is disabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_ONE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0, disabled: true },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2866,16 +2801,14 @@ describe("reducer", () => {
 
       describe("when the last tab stop in the current row is currently selected", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2902,15 +2835,13 @@ describe("reducer", () => {
 
       describe("when the last tab stop in the current row is currently selected and there is no next row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_THREE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2936,16 +2867,14 @@ describe("reducer", () => {
     describe("when tabbing to the first tab stop in the current row", () => {
       describe("when the first tab stop in the current row is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FOUR_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -2973,16 +2902,14 @@ describe("reducer", () => {
 
       describe("when the first tab stop in the current row is disabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FOUR_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3010,16 +2937,14 @@ describe("reducer", () => {
 
       describe("when the first tab stop in the current row is currently selected", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3048,8 +2973,8 @@ describe("reducer", () => {
     describe("when tabbing to the next row", () => {
       describe("when the tab stop in the next row is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3057,9 +2982,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3088,8 +3011,8 @@ describe("reducer", () => {
 
       describe("when there is no next row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FIVE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3097,9 +3020,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3119,8 +3040,8 @@ describe("reducer", () => {
 
       describe("when the tab stop in the next row is disabled and there is another row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3128,9 +3049,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1, disabled: true },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3159,16 +3078,14 @@ describe("reducer", () => {
 
       describe("when the tab stop in the next row is disabled and it is the last row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1, disabled: true }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3195,8 +3112,8 @@ describe("reducer", () => {
 
       describe("when the tab stop in all subsequent rows are disabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3204,9 +3121,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1, disabled: true },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2, disabled: true }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3236,8 +3151,8 @@ describe("reducer", () => {
     describe("when tabbing to the previous row", () => {
       describe("when the tab stop in the previous row is enabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FIVE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3245,9 +3160,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3276,8 +3189,8 @@ describe("reducer", () => {
 
       describe("when there is no previous row", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3285,9 +3198,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3307,8 +3218,8 @@ describe("reducer", () => {
 
       describe("when the tab stop in the previous row is disabled and there is another row before", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FIVE_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
@@ -3316,9 +3227,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3347,16 +3256,14 @@ describe("reducer", () => {
 
       describe("when the tab stop in the previous row is disabled and it is the only row before", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_FOUR_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0, disabled: true },
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 },
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3383,8 +3290,8 @@ describe("reducer", () => {
 
       describe("when the tab stop in all previous rows are disabled", () => {
         const givenState: State = Object.freeze({
+          ...INITIAL_STATE,
           selectedId: ELEMENT_SIX_ID,
-          allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0, disabled: true },
@@ -3392,9 +3299,7 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1, disabled: true },
             { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 },
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
-          ],
-          direction: "horizontal",
-          rowStartMap: null
+          ]
         });
 
         const action: Action = {
@@ -3422,23 +3327,27 @@ describe("reducer", () => {
     });
   });
 
-  describe("when changing the direction", () => {
+  describe("when changing the provider params", () => {
     const givenState: State = Object.freeze({
+      ...INITIAL_STATE,
       selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
       tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
       direction: "horizontal",
-      rowStartMap: null
+      allowFocusOnClick: false
     });
 
     const action: Action = {
-      type: ActionType.DIRECTION_UPDATED,
-      payload: { direction: "both" }
+      type: ActionType.PROVIDER_PARAMS_UPDATED,
+      payload: { direction: "both", allowFocusOnClick: true }
     };
 
-    it("should update the key config", () => {
+    it("should update the params", () => {
       const result = reducer(givenState, action);
-      expect(result).toEqual<State>({ ...givenState, direction: "both" });
+      expect(result).toEqual<State>({
+        ...givenState,
+        direction: "both",
+        allowFocusOnClick: true
+      });
     });
   });
 });

@@ -126,7 +126,7 @@ return (
 
 #### Direction
 
-It is the ArrowLeft and ArrowRight keys that are used by default to move to the previous and next input respectively. The `RovingTabIndexProvider` has an optional `direction` property that allows you to change this:
+It is the ArrowLeft and ArrowRight keys that are used by default to move to the previous and next input respectively. The `RovingTabIndexProvider` has an optional `direction` prop that allows you to change this:
 
 ```ts
 const SomeComponent = () => (
@@ -137,6 +137,24 @@ const SomeComponent = () => (
 ```
 
 The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
+
+#### allowFocusOnClick
+
+The tuple returned by the `useRovingTabIndex` hook includes a `focused` flag that is used to signal if the associated input should have `focus()` invoked on it or not. In the code example above in the 'Basic usage' section, it is the `useFocusEffect` hook that invokes `focus()` on the input if necessary. The `RovingTabIndexProvider` has an optional `allowFocusOnClick` prop that affects that `focused` flag when the associated input is clicked.
+
+By default the `allowFocusOnClick` prop is `true` which means that the `focused` flag returned by the `useRovingTabIndex` hook will always be `true` after the associated input is clicked. If you instead set `allowFocusOnClick` to `false` then the `focused` flag will always be `false` after the associated input is clicked.
+
+You may well want to set `allowFocusOnClick` to `false` so that this library's focus behaviour mimics browser focus behaviour. For example in Safari (macOS and iOS), clicking on a button does not result in it becoming focused (as described in [this blog post](https://zellwk.com/blog/inconsistent-button-behavior/)).
+
+The following example code shows how the `allowFocusOnClick` prop can be set to `false`:
+
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider allowFocusOnClick={false}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
 
 ### Grid usage
 
@@ -152,7 +170,7 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 
 The row index value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have `0` passed to the hook, the second row `1`, and so on. If the shape of the grid can change dynamically then it is fine to update the row index value. For example, the grid might initially have four items per row but get updated to have three items per row.
 
-The `direction` property of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
+The `direction` prop of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
 
 ## Upgrading
 
@@ -190,7 +208,7 @@ If you have build errors when building the Storybook locally, you are likely usi
 ### Publishing
 
 - For beta versions: `npm publish --tag next`.
-- For releases: `npm publish`.
+- For releases: `npm publish --tag latest`.
 
 ### Issues
 

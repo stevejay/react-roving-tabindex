@@ -15,8 +15,8 @@ const Button = styled.button`
   padding: 0 0.75em;
 
   &:focus {
-    color: white;
-    background-color: rebeccapurple;
+    outline: none;
+    box-shadow: 0 0 0 6px rgba(66, 153, 225, 0.5);
   }
 
   &::-moz-focus-inner {
@@ -25,7 +25,7 @@ const Button = styled.button`
   }
 
   &:-moz-focusring {
-    outline: 1px dotted ButtonText;
+    outline: none;
   }
 
   &:disabled {

@@ -9,13 +9,14 @@ const MOCK_ID = "test-id";
 jest.mock("../unique-id");
 (uniqueId as jest.Mock).mockReturnValue(MOCK_ID);
 
-const INITIAL_STATE: State = {
+const INITIAL_STATE: State = Object.freeze({
   selectedId: null,
   allowFocusing: false,
   tabStops: [],
   direction: "horizontal",
+  allowFocusOnClick: true,
   rowStartMap: null
-};
+});
 
 const KEY_DOWN_HANDLER_INDEX = 2;
 const CLICK_HANDLER_INDEX = 3;

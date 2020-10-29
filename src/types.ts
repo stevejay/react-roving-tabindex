@@ -34,6 +34,7 @@ export type State = Readonly<{
   allowFocusing: boolean;
   tabStops: readonly TabStop[];
   direction: KeyDirection;
+  allowFocusOnClick: boolean;
   rowStartMap: RowStartMap | null;
 }>;
 
@@ -43,7 +44,7 @@ export enum ActionType {
   KEY_DOWN = "KEY_DOWN",
   CLICKED = "CLICKED",
   TAB_STOP_UPDATED = "TAB_STOP_UPDATED",
-  DIRECTION_UPDATED = "DIRECTION_UPDATED"
+  PROVIDER_PARAMS_UPDATED = "PROVIDER_PARAMS_UPDATED"
 }
 
 export type Action =
@@ -76,8 +77,8 @@ export type Action =
       payload: { id: TabStop["id"] };
     }
   | {
-      type: ActionType.DIRECTION_UPDATED;
-      payload: { direction: KeyDirection };
+      type: ActionType.PROVIDER_PARAMS_UPDATED;
+      payload: { direction: KeyDirection; allowFocusOnClick: boolean };
     };
 
 export type Context = Readonly<{

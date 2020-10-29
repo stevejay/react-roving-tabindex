@@ -302,11 +302,18 @@ export function reducer(state: State, action: Action): State {
       const currentTabStop = state.tabStops[index];
       return currentTabStop.disabled
         ? state
-        : selectTabStop(state, currentTabStop);
+        : {
+            ...selectTabStop(state, currentTabStop),
+            allowFocusing: state.allowFocusOnClick
+          };
     }
-    case ActionType.DIRECTION_UPDATED: {
-      const direction = action.payload.direction;
-      return direction === state.direction ? state : { ...state, direction };
+    case ActionType.PROVIDER_PARAMS_UPDATED: {
+      const { direction, allowFocusOnClick } = action.payload;
+      // Only update if a param has actually changed:
+      return direction === state.direction &&
+        allowFocusOnClick === state.allowFocusOnClick
+        ? state
+        : { ...state, direction, allowFocusOnClick };
     }
     default:
       return state;
@@ -413,6 +420,7 @@ const INITIAL_STATE: State = {
   allowFocusing: false,
   tabStops: [],
   direction: "horizontal",
+  allowFocusOnClick: true,
   rowStartMap: null
 };
 
@@ -439,23 +447,36 @@ export const RovingTabIndexContext = createContext<Context>({
  * If you do not pass an explicit value then the 'horizontal'
  * behaviour applies. You can change this direction value
  * at any time.
+ * @param {boolean} allowFocusOnClick An optional flag for whether
+ * or not the focused flag returned by the useRovingTabIndex hook
+ * will be true or not when the input that hook instance is being
+ * used with is clicked. The default is `true`, which means that
+ * the `useFocusEffect` hook will invoke `focus()` on the input.
+ * You may want to set this value to `false` so that focus
+ * behaviour mimics how browsers generally behave by default.
  */
 export const Provider = ({
   children,
-  direction = "horizontal"
+  direction = "horizontal",
+  allowFocusOnClick = true
 }: {
   children: ReactNode;
   direction?: KeyDirection;
+  allowFocusOnClick?: boolean;
 }): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
-    direction
+    direction,
+    allowFocusOnClick
   });
 
   // Update the direction whenever it changes:
   useEffect(() => {
-    dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
-  }, [direction]);
+    dispatch({
+      type: ActionType.PROVIDER_PARAMS_UPDATED,
+      payload: { direction, allowFocusOnClick }
+    });
+  }, [direction, allowFocusOnClick]);
 
   // Create a cached object to use as the context value:
   const context = useMemo<Context>(() => ({ state, dispatch }), [state]);

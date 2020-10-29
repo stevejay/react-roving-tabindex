@@ -10,9 +10,7 @@ import {
 import { Button } from "./button";
 import { Toolbar } from "./toolbar";
 
-type ButtonClickHandler = (
-  event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-) => void;
+type ButtonClickHandler = (string) => void;
 
 const ToolbarButton: FC<{
   disabled: boolean;
@@ -45,53 +43,45 @@ const ToolbarButton: FC<{
 type ExampleProps = {
   direction: KeyDirection;
   buttonOneDisabled: boolean;
-  onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
-  onButtonTwoClicked: ButtonClickHandler;
   buttonThreeDisabled: boolean;
-  onButtonThreeClicked: ButtonClickHandler;
   buttonFourDisabled: boolean;
-  onButtonFourClicked: ButtonClickHandler;
   buttonFiveDisabled: boolean;
-  onButtonFiveClicked: ButtonClickHandler;
   removeButtonFour: boolean;
+  onClick: ButtonClickHandler;
 };
 
 export const ToolbarExample: FC<ExampleProps> = ({
   direction,
   buttonOneDisabled,
-  onButtonOneClicked,
   buttonTwoDisabled,
-  onButtonTwoClicked,
   buttonThreeDisabled,
-  onButtonThreeClicked,
   buttonFourDisabled,
-  onButtonFourClicked,
   buttonFiveDisabled,
-  onButtonFiveClicked,
-  removeButtonFour
+  removeButtonFour,
+  onClick
 }) => (
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider direction={direction}>
+      <RovingTabIndexProvider direction={direction} allowFocusOnClick={false}>
         <span>
           <ToolbarButton
             disabled={!!buttonOneDisabled}
-            onClick={onButtonOneClicked}
+            onClick={() => onClick("Button One")}
           >
             Button One
           </ToolbarButton>
         </span>
         <ToolbarButton
           disabled={!!buttonTwoDisabled}
-          onClick={onButtonTwoClicked}
+          onClick={() => onClick("Button Two")}
         >
           Button Two
         </ToolbarButton>
         <ToolbarButton
           disabled={!!buttonThreeDisabled}
-          onClick={onButtonThreeClicked}
+          onClick={() => onClick("Button Three")}
         >
           Button Three
         </ToolbarButton>
@@ -100,7 +90,7 @@ export const ToolbarExample: FC<ExampleProps> = ({
             <span>
               <ToolbarButton
                 disabled={!!buttonFourDisabled}
-                onClick={onButtonFourClicked}
+                onClick={() => onClick("Button Four")}
               >
                 Button Four
               </ToolbarButton>
@@ -109,7 +99,7 @@ export const ToolbarExample: FC<ExampleProps> = ({
         )}
         <ToolbarButton
           disabled={!!buttonFiveDisabled}
-          onClick={onButtonFiveClicked}
+          onClick={() => onClick("Button Five")}
         >
           Button Five
         </ToolbarButton>
@@ -127,11 +117,9 @@ export default {
       name: "Direction",
       defaultValue: "horizontal"
     },
-    onButtonOneClicked: { table: { disable: true } },
-    onButtonTwoClicked: { table: { disable: true } },
-    onButtonThreeClicked: { table: { disable: true } },
-    onButtonFourClicked: { table: { disable: true } },
-    onButtonFiveClicked: { table: { disable: true } },
+    onClick: {
+      action: "onClick"
+    },
     buttonOneDisabled: {
       name: "Disable Button One"
     },
@@ -151,6 +139,5 @@ export default {
     removeButtonFour: {
       name: "Remove Button Four"
     }
-  },
-  parameters: { actions: { argTypesRegex: "^on.*" } }
+  }
 } as Meta;

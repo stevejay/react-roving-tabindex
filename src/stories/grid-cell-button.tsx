@@ -1,9 +1,5 @@
 import styled from "styled-components";
 
-type Props = {
-  useAlternateGridLayout: boolean;
-};
-
 const GridCellButton = styled.button`
   appearance: none;
   background: none repeat scroll 0 0;
@@ -16,12 +12,10 @@ const GridCellButton = styled.button`
   border-radius: 0.25em;
   border-spacing: 0;
   padding: 0 0.75em;
-  width: ${(props: Props) =>
-    props.useAlternateGridLayout ? "33.333%" : "25%"};
 
   &:focus {
-    color: white;
-    background-color: rebeccapurple;
+    outline: none;
+    box-shadow: 0 0 0 6px rgba(66, 153, 225, 0.5);
   }
 
   &::-moz-focus-inner {
@@ -30,7 +24,7 @@ const GridCellButton = styled.button`
   }
 
   &:-moz-focusring {
-    outline: 1px dotted ButtonText;
+    outline: none;
   }
 
   &:disabled {

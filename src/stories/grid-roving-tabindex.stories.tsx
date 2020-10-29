@@ -6,19 +6,13 @@ import { Button } from "./button";
 import { Grid } from "./grid";
 import { GridCellButton } from "./grid-cell-button";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const NOOP_HANDLER = () => {};
-
-type ButtonClickHandler = (
-  event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-) => void;
+type ButtonClickHandler = (string) => void;
 
 const GridButton: FC<{
   disabled: boolean;
-  useAlternateGridLayout: boolean;
   rowIndex: number;
   onClick: ButtonClickHandler;
-}> = ({ disabled, useAlternateGridLayout, rowIndex, children, onClick }) => {
+}> = ({ disabled, rowIndex, children, onClick }) => {
   const ref = useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
@@ -39,7 +33,6 @@ const GridButton: FC<{
       }}
       tabIndex={tabIndex}
       disabled={disabled}
-      useAlternateGridLayout={useAlternateGridLayout}
     >
       {children}
     </GridCellButton>
@@ -48,127 +41,107 @@ const GridButton: FC<{
 
 type ExampleProps = {
   buttonOneDisabled: boolean;
-  onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
-  onButtonTwoClicked: ButtonClickHandler;
   buttonThreeDisabled: boolean;
-  onButtonThreeClicked: ButtonClickHandler;
   buttonFourDisabled: boolean;
-  onButtonFourClicked: ButtonClickHandler;
   buttonFiveDisabled: boolean;
-  onButtonFiveClicked: ButtonClickHandler;
   useAlternateGridLayout: boolean;
+  onClick: ButtonClickHandler;
 };
 
 export const GridExample: FC<ExampleProps> = ({
   buttonOneDisabled,
-  onButtonOneClicked,
   buttonTwoDisabled,
-  onButtonTwoClicked,
   buttonThreeDisabled,
-  onButtonThreeClicked,
   buttonFourDisabled,
-  onButtonFourClicked,
   buttonFiveDisabled,
-  onButtonFiveClicked,
-  useAlternateGridLayout
+  useAlternateGridLayout,
+  onClick
 }) => (
   <>
     <Button>Something before to focus on</Button>
-    <Grid role="grid">
-      <RovingTabIndexProvider>
+    <Grid role="grid" useAlternateGridLayout={useAlternateGridLayout}>
+      <RovingTabIndexProvider allowFocusOnClick={false}>
         <GridButton
           disabled={!!buttonOneDisabled}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={onButtonOneClicked}
+          onClick={() => onClick("Button One")}
           rowIndex={useAlternateGridLayout ? 0 : 0}
         >
           Button One
         </GridButton>
         <GridButton
           disabled={!!buttonTwoDisabled}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={onButtonTwoClicked}
+          onClick={() => onClick("Button Two")}
           rowIndex={useAlternateGridLayout ? 0 : 0}
         >
           Button Two
         </GridButton>
         <GridButton
           disabled={!!buttonThreeDisabled}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={onButtonThreeClicked}
+          onClick={() => onClick("Button Three")}
           rowIndex={useAlternateGridLayout ? 0 : 0}
         >
           Button Three
         </GridButton>
         <GridButton
           disabled={!!buttonFourDisabled}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={onButtonFourClicked}
+          onClick={() => onClick("Button Four")}
           rowIndex={useAlternateGridLayout ? 1 : 0}
         >
           Button Four
         </GridButton>
         <GridButton
           disabled={!!buttonFiveDisabled}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={onButtonFiveClicked}
+          onClick={() => onClick("Button Five")}
           rowIndex={useAlternateGridLayout ? 1 : 1}
         >
           Button Five
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Six")}
           rowIndex={useAlternateGridLayout ? 1 : 1}
         >
           Button Six
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Seven")}
           rowIndex={useAlternateGridLayout ? 2 : 1}
         >
           Button Seven
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Eight")}
           rowIndex={useAlternateGridLayout ? 2 : 1}
         >
           Button Eight
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Nine")}
           rowIndex={useAlternateGridLayout ? 2 : 2}
         >
           Button Nine
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Ten")}
           rowIndex={useAlternateGridLayout ? 3 : 2}
         >
           Button Ten
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Eleven")}
           rowIndex={useAlternateGridLayout ? 3 : 2}
         >
           Button Eleven
         </GridButton>
         <GridButton
           disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
+          onClick={() => onClick("Button Twelve")}
           rowIndex={useAlternateGridLayout ? 3 : 2}
         >
           Button Twelve
@@ -183,11 +156,9 @@ export default {
   title: "Grid RovingTabIndex",
   component: GridExample,
   argTypes: {
-    onButtonOneClicked: { table: { disable: true } },
-    onButtonTwoClicked: { table: { disable: true } },
-    onButtonThreeClicked: { table: { disable: true } },
-    onButtonFourClicked: { table: { disable: true } },
-    onButtonFiveClicked: { table: { disable: true } },
+    onClick: {
+      action: "onClick"
+    },
     buttonOneDisabled: {
       name: "Disable Button One"
     },
@@ -207,6 +178,5 @@ export default {
     useAlternateGridLayout: {
       name: "Use a 3x4 grid layout"
     }
-  },
-  parameters: { actions: { argTypesRegex: "^on.*" } }
+  }
 } as Meta;

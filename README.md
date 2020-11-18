@@ -138,6 +138,18 @@ const SomeComponent = () => (
 
 The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
 
+#### Initial index
+
+The `RovingTabIndexProvider` focuses the first element by default. You can pass an initial index to it if you want to focus a specific element.
+
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider initialIndex={5}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
 ### Grid usage
 
 This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ pass a row index value as a third argument to the hook:

@@ -439,16 +439,21 @@ export const RovingTabIndexContext = createContext<Context>({
  * If you do not pass an explicit value then the 'horizontal'
  * behaviour applies. You can change this direction value
  * at any time.
+ * @param {Number} initialIndex The initial index that should be focused when
+ * the component renders for the first time.
  */
 export const Provider = ({
   children,
-  direction = "horizontal"
+  direction = "horizontal",
+  initialIndex
 }: {
   children: ReactNode;
   direction?: KeyDirection;
+  initialIndex?: number;
 }): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
+    selectedId: `rti_${initialIndex}` || null,
     direction
   });
 

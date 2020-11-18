@@ -136,17 +136,17 @@ const SomeComponent = () => (
 );
 ```
 
-The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
+The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` prop at any time.
 
 #### allowFocusOnClick
 
-The tuple returned by the `useRovingTabIndex` hook includes a `focused` flag that is used to signal if the associated input should have `focus()` invoked on it or not. In the code example above in the 'Basic usage' section, it is the `useFocusEffect` hook that invokes `focus()` on the input if necessary. The `RovingTabIndexProvider` has an optional `allowFocusOnClick` prop that affects that `focused` flag when the associated input is clicked.
+The tuple returned by the `useRovingTabIndex` hook includes a `focused` flag that is used to signal if the associated input should have `focus()` invoked on it or not. In the code example above in the 'Basic usage' section, it is the `useFocusEffect` hook that invokes `focus()` on the input if necessary. The `RovingTabIndexProvider` has an optional `allowFocusOnClick` prop that affects that `focused` flag when the associated input is clicked (with an input device or touch).
 
 By default the `allowFocusOnClick` prop is `true` which means that the `focused` flag returned by the `useRovingTabIndex` hook will always be `true` after the associated input is clicked. If you instead set `allowFocusOnClick` to `false` then the `focused` flag will always be `false` after the associated input is clicked.
 
-You may well want to set `allowFocusOnClick` to `false` so that this library's focus behaviour mimics browser focus behaviour. For example in Safari (macOS and iOS), clicking on a button does not result in it becoming focused (as described in [this blog post](https://zellwk.com/blog/inconsistent-button-behavior/)).
+You may want to set `allowFocusOnClick` to `false` so that this library's focus behaviour mimics browser focus behaviour. For example in Safari (macOS and iOS), clicking on a button does not result in it becoming focused (as discussed in [this blog post](https://zellwk.com/blog/inconsistent-button-behavior/)).
 
-The following example code shows how the `allowFocusOnClick` prop can be set to `false`:
+The following code snippet demonstrates setting the `allowFocusOnClick` prop to `false`:
 
 ```ts
 const SomeComponent = () => (
@@ -156,9 +156,11 @@ const SomeComponent = () => (
 );
 ```
 
+You can update this `allowFocusOnClick` prop at any time.
+
 ### Grid usage
 
-This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ pass a row index value as a third argument to the hook:
+This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you **must** pass a row index integer as a third argument to the hook:
 
 ```ts
 const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
@@ -168,7 +170,7 @@ const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
 );
 ```
 
-The row index value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have `0` passed to the hook, the second row `1`, and so on. If the shape of the grid can change dynamically then it is fine to update the row index value. For example, the grid might initially have four items per row but get updated to have three items per row.
+The row index value must be the zero-based row index for the grid item that the hook is being used with. Thus all items that represent the first row of grid items should have the number `0` passed to the hook, the second row the number `1`, and so on. If the shape of the grid can change dynamically then it is fine to update the row index value. For example, the grid might initially have four items per row but get updated to have three items per row.
 
 The `direction` prop of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
 
@@ -178,9 +180,9 @@ The `direction` prop of the `RovingTabIndexProvider` is ignored when row indexes
 
 There are a few breaking changes in version 2.
 
-This package no longer includes a ponyfill for `Array.prototype.findIndex` and now also uses the `Map` class. If you need to support IE then you will need to install polyfills for both. That said, if you currently support IE then you are almost certainly using a suitable global polyfill already. Please see the Installation section earlier in this file for further guidance.
+This package no longer includes a ponyfill for `Array.prototype.findIndex` and it now also uses the `Map` class. If you need to support IE then you will need to install polyfills for both. That said, if you currently support IE then you are almost certainly using a suitable global polyfill already. Please see the Installation section earlier in this file for further guidance.
 
-The optional ID argument that was the third argument to the `useRovingTabIndex` hook has been replaced with the new optional row index argument. The ID argument was included to support server-side rendering (SSR) but it is not actually required. By default this library auto-generates an ID within the hook. This is not a problem in SSR because it never gets generated and serialized on the server. Thus it is fine for it to be auto-generated even when SSR needs to be supported. So if you have previously used the following...
+The optional ID argument that was the third argument to the `useRovingTabIndex` hook has been replaced with the new optional row index argument. The ID argument was included to support server-side rendering (SSR) but it is not actually required. By default this library auto-generates an ID within the hook. This is not a problem for SSR because the ID never gets generated and serialized on the server. Thus it is fine for it to be auto-generated even during SSR. So if you have previously used the following...
 
 ```ts
 const [...] = useRovingTabIndex(ref, true, id);

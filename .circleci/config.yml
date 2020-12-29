@@ -22,15 +22,15 @@ jobs:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: npm install
+      - run: yarn install
 
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package-lock.json" }}
 
-      - run: npm run build
-      - run: npm run test:coverage
+      - run: yarn build
+      - run: yarn test:coverage
       - coveralls/upload
 
 workflows:

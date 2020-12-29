@@ -36,7 +36,11 @@ This package has been written using the React Hooks API, so it is only usable wi
 ## Installation
 
 ```bash
-npm install --save react-roving-tabindex
+npm install react-roving-tabindex
+
+# or 
+
+yarn add react-roving-tabindex
 ```
 
 This package includes TypeScript typings.

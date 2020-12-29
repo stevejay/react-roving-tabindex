@@ -2,7 +2,7 @@
 
 ## 2.1.0
 
-- Updated dev and peer dependencies.
+- Updated dev dependencies.
 - Switched from `npm` to `yarn`.
 
 ## 2.0.0

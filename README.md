@@ -38,7 +38,7 @@ This package has been written using the React Hooks API, so it is only usable wi
 ```bash
 npm install react-roving-tabindex
 
-# or 
+# or
 
 yarn add react-roving-tabindex
 ```
@@ -195,8 +195,3 @@ If you have build errors when building the Storybook locally, you are likely usi
 
 - For beta versions: `npm publish --tag next`.
 - For releases: `npm publish`.
-
-### Issues
-
-- The `@types/styled-components` package is currently downgraded to v4.1.8 because of [this issue](https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311). This only affects the Storybook build.
-- The React dependencies have not yet been upgraded to version 17 because of [this Storybook issue](https://github.com/storybookjs/storybook/issues/12408). Regardless, this package works with React 17 and the `peerDependencies` semver in `package.json` for `react` and `react-dom` permits React 17.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0
+
+- Updated dev dependencies.
+- Switched from `npm` to `yarn`.
+
 ## 2.0.0
 
 This release is a complete rewrite to support a roving tabindex in a grid. There are a few breaking changes, hence the major version bump. Please see the project README file for how to migrate from version 1.

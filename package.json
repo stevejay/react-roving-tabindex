@@ -37,19 +37,6 @@
     "lint:prettier": "prettier --check --ignore-path .gitignore ./src",
     "lint-staged": "lint-staged"
   },
-  "prettier": {
-    "trailingComma": "none"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,tsx,ts}": [
-      "eslint --fix --max-warnings 0 \"src/**/*.{js,jsx,ts,tsx}\""
-    ]
-  },
   "dependencies": {
     "warning": "^4.0.3"
   },
@@ -122,6 +109,7 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/dist/"
-    ]
+    ],
+    "clearMocks": true
   }
 }

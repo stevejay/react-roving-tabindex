@@ -1,7 +1,7 @@
 import React, { FC, KeyboardEvent, RefObject } from 'react';
 import { act, renderHook } from '@testing-library/react-hooks';
 
-import { RovingTabIndexContext } from '../rename-provider';
+import { RovingTabIndexContext } from '../provider';
 import { ActionType, Context, State } from '../types';
 import { uniqueId } from '../unique-id';
 import { useRovingTabIndex } from '../use-roving-tabindex';

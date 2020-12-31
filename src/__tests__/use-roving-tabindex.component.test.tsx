@@ -1,7 +1,7 @@
 import React, { FC, useRef } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 
-import { Provider } from '../rename-provider';
+import { Provider } from '../provider';
 import { ProviderProps } from '../types';
 import { useRovingTabIndex } from '../use-roving-tabindex';
 

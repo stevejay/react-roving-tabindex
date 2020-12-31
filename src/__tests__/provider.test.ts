@@ -1,7 +1,7 @@
 import { RefObject } from 'react';
 import warning from 'warning';
 
-import { reducer } from '../rename-provider';
+import { reducer } from '../provider';
 import { Action, ActionType, EventKey, State, TabStop } from '../types';
 
 jest.mock('warning');

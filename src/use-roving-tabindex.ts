@@ -1,6 +1,6 @@
 import { KeyboardEvent, RefObject, useCallback, useContext, useEffect, useRef } from 'react';
 
-import { RovingTabIndexContext } from './rename-provider';
+import { RovingTabIndexContext } from './provider';
 import { ActionType, EventKey, HookResponse } from './types';
 import { uniqueId } from './unique-id';
 

@@ -1,17 +1,16 @@
-import "jspolyfill-array.prototype.findIndex";
-import React, { FC, useRef } from "react";
-import { Meta } from "@storybook/react/types-6-0";
-import { RovingTabIndexProvider, useRovingTabIndex, useFocusEffect } from "..";
-import { Button } from "./button";
-import { Grid } from "./grid";
-import { GridCellButton } from "./grid-cell-button";
+import React, { FC, useRef } from 'react';
+import { Meta } from '@storybook/react/types-6-0';
+import 'jspolyfill-array.prototype.findIndex';
+
+import { RovingTabIndexProvider, useRovingTabIndex } from '..';
+import { Button } from './button';
+import { Grid } from './grid';
+import { GridCellButton } from './grid-cell-button';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const NOOP_HANDLER = () => {};
 
-type ButtonClickHandler = (
-  event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-) => void;
+type ButtonClickHandler = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 
 const GridButton: FC<{
   disabled: boolean;
@@ -20,13 +19,7 @@ const GridButton: FC<{
   onClick: ButtonClickHandler;
 }> = ({ disabled, useAlternateGridLayout, rowIndex, children, onClick }) => {
   const ref = useRef<HTMLButtonElement>(null);
-  const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
-    ref,
-    disabled,
-    rowIndex
-  );
-
-  useFocusEffect(focused, ref);
+  const [tabIndex, handleKeyDown, handleClick] = useRovingTabIndex(ref, disabled, rowIndex);
 
   return (
     <GridCellButton
@@ -71,7 +64,7 @@ export const GridExample: FC<ExampleProps> = ({
   onButtonFourClicked,
   buttonFiveDisabled,
   onButtonFiveClicked,
-  useAlternateGridLayout
+  useAlternateGridLayout,
 }) => (
   <>
     <Button>Something before to focus on</Button>
@@ -180,7 +173,7 @@ export const GridExample: FC<ExampleProps> = ({
 );
 
 export default {
-  title: "Grid RovingTabIndex",
+  title: 'Grid RovingTabIndex',
   component: GridExample,
   argTypes: {
     onButtonOneClicked: { table: { disable: true } },
@@ -189,24 +182,24 @@ export default {
     onButtonFourClicked: { table: { disable: true } },
     onButtonFiveClicked: { table: { disable: true } },
     buttonOneDisabled: {
-      name: "Disable Button One"
+      name: 'Disable Button One',
     },
     buttonTwoDisabled: {
-      name: "Disable Button Two"
+      name: 'Disable Button Two',
     },
     buttonThreeDisabled: {
-      name: "Disable Button Three",
-      defaultValue: true
+      name: 'Disable Button Three',
+      defaultValue: true,
     },
     buttonFourDisabled: {
-      name: "Disable Button Four"
+      name: 'Disable Button Four',
     },
     buttonFiveDisabled: {
-      name: "Disable Button Five"
+      name: 'Disable Button Five',
     },
     useAlternateGridLayout: {
-      name: "Use a 3x4 grid layout"
-    }
+      name: 'Use a 3x4 grid layout',
+    },
   },
-  parameters: { actions: { argTypesRegex: "^on.*" } }
+  parameters: { actions: { argTypesRegex: '^on.*' } },
 } as Meta;

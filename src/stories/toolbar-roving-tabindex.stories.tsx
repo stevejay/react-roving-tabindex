@@ -1,18 +1,12 @@
-import "jspolyfill-array.prototype.findIndex";
-import React, { FC, useRef } from "react";
-import { Meta } from "@storybook/react/types-6-0";
-import {
-  RovingTabIndexProvider,
-  useRovingTabIndex,
-  useFocusEffect,
-  KeyDirection
-} from "..";
-import { Button } from "./button";
-import { Toolbar } from "./toolbar";
+import React, { FC, useRef } from 'react';
+import { Meta } from '@storybook/react/types-6-0';
+import 'jspolyfill-array.prototype.findIndex';
 
-type ButtonClickHandler = (
-  event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-) => void;
+import { KeyDirection, RovingTabIndexProvider, useRovingTabIndex } from '..';
+import { Button } from './button';
+import { Toolbar } from './toolbar';
+
+type ButtonClickHandler = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 
 const ToolbarButton: FC<{
   disabled: boolean;
@@ -20,12 +14,7 @@ const ToolbarButton: FC<{
   onClick: ButtonClickHandler;
 }> = ({ disabled, id, children, onClick }) => {
   const ref = useRef<HTMLButtonElement>(null);
-  const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
-    ref,
-    disabled
-  );
-
-  useFocusEffect(focused, ref);
+  const [tabIndex, handleKeyDown, handleClick] = useRovingTabIndex(ref, disabled);
 
   return (
     <Button
@@ -71,51 +60,33 @@ export const ToolbarExample: FC<ExampleProps> = ({
   onButtonFourClicked,
   buttonFiveDisabled,
   onButtonFiveClicked,
-  removeButtonFour
+  removeButtonFour,
 }) => (
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider
-        direction={direction}
-        initialTabElementSelector="#button-two"
-      >
+      <RovingTabIndexProvider direction={direction} initialTabElementSelector="#button-two">
         <span>
-          <ToolbarButton
-            disabled={!!buttonOneDisabled}
-            onClick={onButtonOneClicked}
-          >
+          <ToolbarButton disabled={!!buttonOneDisabled} onClick={onButtonOneClicked}>
             Button One
           </ToolbarButton>
         </span>
-        <ToolbarButton
-          disabled={!!buttonTwoDisabled}
-          onClick={onButtonTwoClicked}
-        >
+        <ToolbarButton disabled={!!buttonTwoDisabled} onClick={onButtonTwoClicked}>
           Button Two
         </ToolbarButton>
-        <ToolbarButton
-          disabled={!!buttonThreeDisabled}
-          onClick={onButtonThreeClicked}
-        >
+        <ToolbarButton disabled={!!buttonThreeDisabled} onClick={onButtonThreeClicked}>
           Button Three
         </ToolbarButton>
         {!removeButtonFour && (
           <span>
             <span>
-              <ToolbarButton
-                disabled={!!buttonFourDisabled}
-                onClick={onButtonFourClicked}
-              >
+              <ToolbarButton disabled={!!buttonFourDisabled} onClick={onButtonFourClicked}>
                 Button Four
               </ToolbarButton>
             </span>
           </span>
         )}
-        <ToolbarButton
-          disabled={!!buttonFiveDisabled}
-          onClick={onButtonFiveClicked}
-        >
+        <ToolbarButton disabled={!!buttonFiveDisabled} onClick={onButtonFiveClicked}>
           Button Five
         </ToolbarButton>
       </RovingTabIndexProvider>
@@ -141,7 +112,7 @@ export const ToolbarWithInitialTabElementExample: FC<
   buttonFiveDisabled,
   onButtonFiveClicked,
   removeButtonFour,
-  onTabElementSelected
+  onTabElementSelected,
 }) => (
   <>
     <Button>Something before to focus on</Button>
@@ -152,42 +123,26 @@ export const ToolbarWithInitialTabElementExample: FC<
         onTabElementSelected={onTabElementSelected}
       >
         <span>
-          <ToolbarButton
-            disabled={!!buttonOneDisabled}
-            onClick={onButtonOneClicked}
-          >
+          <ToolbarButton disabled={!!buttonOneDisabled} onClick={onButtonOneClicked}>
             Button One
           </ToolbarButton>
         </span>
-        <ToolbarButton
-          id="button-two"
-          disabled={!!buttonTwoDisabled}
-          onClick={onButtonTwoClicked}
-        >
+        <ToolbarButton id="button-two" disabled={!!buttonTwoDisabled} onClick={onButtonTwoClicked}>
           Button Two *
         </ToolbarButton>
-        <ToolbarButton
-          disabled={!!buttonThreeDisabled}
-          onClick={onButtonThreeClicked}
-        >
+        <ToolbarButton disabled={!!buttonThreeDisabled} onClick={onButtonThreeClicked}>
           Button Three
         </ToolbarButton>
         {!removeButtonFour && (
           <span>
             <span>
-              <ToolbarButton
-                disabled={!!buttonFourDisabled}
-                onClick={onButtonFourClicked}
-              >
+              <ToolbarButton disabled={!!buttonFourDisabled} onClick={onButtonFourClicked}>
                 Button Four
               </ToolbarButton>
             </span>
           </span>
         )}
-        <ToolbarButton
-          disabled={!!buttonFiveDisabled}
-          onClick={onButtonFiveClicked}
-        >
+        <ToolbarButton disabled={!!buttonFiveDisabled} onClick={onButtonFiveClicked}>
           Button Five
         </ToolbarButton>
       </RovingTabIndexProvider>
@@ -197,12 +152,12 @@ export const ToolbarWithInitialTabElementExample: FC<
 );
 
 export default {
-  title: "Toolbar RovingTabIndex",
+  title: 'Toolbar RovingTabIndex',
   component: ToolbarExample,
   argTypes: {
     direction: {
-      name: "Direction",
-      defaultValue: "horizontal"
+      name: 'Direction',
+      defaultValue: 'horizontal',
     },
     onButtonOneClicked: { table: { disable: true } },
     onButtonTwoClicked: { table: { disable: true } },
@@ -210,25 +165,25 @@ export default {
     onButtonFourClicked: { table: { disable: true } },
     onButtonFiveClicked: { table: { disable: true } },
     buttonOneDisabled: {
-      name: "Disable Button One"
+      name: 'Disable Button One',
     },
     buttonTwoDisabled: {
-      name: "Disable Button Two"
+      name: 'Disable Button Two',
     },
     buttonThreeDisabled: {
-      name: "Disable Button Three",
-      defaultValue: true
+      name: 'Disable Button Three',
+      defaultValue: true,
     },
     buttonFourDisabled: {
-      name: "Disable Button Four"
+      name: 'Disable Button Four',
     },
     buttonFiveDisabled: {
-      name: "Disable Button Five"
+      name: 'Disable Button Five',
     },
     removeButtonFour: {
-      name: "Remove Button Four"
+      name: 'Remove Button Four',
     },
-    onTabElementSelected: { table: { disable: true } }
+    onTabElementSelected: { table: { disable: true } },
   },
-  parameters: { actions: { argTypesRegex: "^on.*" } }
+  parameters: { actions: { argTypesRegex: '^on.*' } },
 } as Meta;

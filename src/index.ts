@@ -1,4 +1,3 @@
-export { Provider as RovingTabIndexProvider } from "./Provider";
-export { useRovingTabIndex } from "./use-roving-tabindex";
-export { useFocusEffect } from "./use-focus-effect";
-export * from "./types";
+export { Provider as RovingTabIndexProvider } from './rename-provider';
+export * from './types';
+export { useRovingTabIndex } from './use-roving-tabindex';

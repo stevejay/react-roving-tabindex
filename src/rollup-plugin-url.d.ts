@@ -1,1 +1,1 @@
-declare module "@rollup/plugin-url";
+declare module '@rollup/plugin-url';

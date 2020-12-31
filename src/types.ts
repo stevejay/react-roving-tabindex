@@ -1,25 +1,25 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 export enum EventKey {
-  ArrowLeft = "ArrowLeft",
-  ArrowRight = "ArrowRight",
-  ArrowUp = "ArrowUp",
-  ArrowDown = "ArrowDown",
-  Home = "Home",
-  End = "End"
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight',
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  Home = 'Home',
+  End = 'End',
 }
 
-export type KeyDirection = "horizontal" | "vertical" | "both";
+export type KeyDirection = 'horizontal' | 'vertical' | 'both';
 
 export enum Navigation {
-  PREVIOUS = "PREVIOUS",
-  NEXT = "NEXT",
-  VERY_FIRST = "VERY_FIRST",
-  VERY_LAST = "VERY_LAST",
-  PREVIOUS_ROW = "PREVIOUS_ROW",
-  NEXT_ROW = "NEXT_ROW",
-  FIRST_IN_ROW = "FIRST_IN_ROW",
-  LAST_IN_ROW = "LAST_IN_ROW"
+  PREVIOUS = 'PREVIOUS',
+  NEXT = 'NEXT',
+  VERY_FIRST = 'VERY_FIRST',
+  VERY_LAST = 'VERY_LAST',
+  PREVIOUS_ROW = 'PREVIOUS_ROW',
+  NEXT_ROW = 'NEXT_ROW',
+  FIRST_IN_ROW = 'FIRST_IN_ROW',
+  LAST_IN_ROW = 'LAST_IN_ROW',
 }
 
 export type TabStop = Readonly<{
@@ -29,25 +29,27 @@ export type TabStop = Readonly<{
   rowIndex: number | null;
 }>;
 
-export type RowStartMap = Map<Exclude<TabStop["rowIndex"], null>, number>;
+export type RowStartMap = Map<Exclude<TabStop['rowIndex'], null>, number>;
 
 export type State = Readonly<{
   selectedId: string | null;
-  lastSelectedElement: { domElementRef: TabStop["domElementRef"] } | null;
-  allowFocusing: boolean;
+  lastSelectedElement: { domElementRef: TabStop['domElementRef'] } | null;
+  focusAction: { id: string } | null;
   tabStops: readonly TabStop[];
   direction: KeyDirection;
   rowStartMap: RowStartMap | null;
 }>;
 
 export enum ActionType {
-  REGISTER_TAB_STOP = "REGISTER_TAB_STOP",
-  UNREGISTER_TAB_STOP = "UNREGISTER_TAB_STOP",
-  KEY_DOWN = "KEY_DOWN",
-  CLICKED = "CLICKED",
-  TAB_STOP_UPDATED = "TAB_STOP_UPDATED",
-  DIRECTION_UPDATED = "DIRECTION_UPDATED",
-  SET_INITIAL_TAB_ELEMENT = "SET_INITIAL_TAB_ELEMENT"
+  REGISTER_TAB_STOP = 'REGISTER_TAB_STOP',
+  UNREGISTER_TAB_STOP = 'UNREGISTER_TAB_STOP',
+  KEY_DOWN = 'KEY_DOWN',
+  CLICKED = 'CLICKED',
+  TAB_STOP_UPDATED = 'TAB_STOP_UPDATED',
+  DIRECTION_UPDATED = 'DIRECTION_UPDATED',
+  SET_INITIAL_TAB_ELEMENT = 'SET_INITIAL_TAB_ELEMENT',
+  SELECT_TAB_ELEMENT = 'SELECT_TAB_ELEMENT',
+  SELECT_TAB_ELEMENT_BY_POSITION = 'SELECT_TAB_ELEMENT_BY_POSITION',
 }
 
 export type Action =
@@ -57,27 +59,27 @@ export type Action =
     }
   | {
       type: ActionType.UNREGISTER_TAB_STOP;
-      payload: { id: TabStop["id"] };
+      payload: { id: TabStop['id'] };
     }
   | {
       type: ActionType.TAB_STOP_UPDATED;
       payload: {
-        id: TabStop["id"];
-        rowIndex: TabStop["rowIndex"];
-        disabled: TabStop["disabled"];
+        id: TabStop['id'];
+        rowIndex: TabStop['rowIndex'];
+        disabled: TabStop['disabled'];
       };
     }
   | {
       type: ActionType.KEY_DOWN;
       payload: {
-        id: TabStop["id"];
+        id: TabStop['id'];
         key: EventKey;
         ctrlKey: boolean;
       };
     }
   | {
       type: ActionType.CLICKED;
-      payload: { id: TabStop["id"] };
+      payload: { id: TabStop['id'] };
     }
   | {
       type: ActionType.DIRECTION_UPDATED;
@@ -86,6 +88,14 @@ export type Action =
   | {
       type: ActionType.SET_INITIAL_TAB_ELEMENT;
       payload: { selector: string };
+    }
+  | {
+      type: ActionType.SELECT_TAB_ELEMENT;
+      payload: { id: TabStop['id'] };
+    }
+  | {
+      type: ActionType.SELECT_TAB_ELEMENT_BY_POSITION;
+      payload: { position: 'first' | 'last' };
     };
 
 export type Context = Readonly<{
@@ -100,9 +110,8 @@ export type ProviderProps = {
   onTabElementSelected?: (element: Element) => void;
 };
 
-export type HookResponse = [
-  number,
-  boolean,
-  (event: React.KeyboardEvent) => void,
-  () => void
-];
+export type ProviderAPI = {
+  selectTabElementByPosition: (element: 'first' | 'last') => void;
+};
+
+export type HookResponse = [number, (event: React.KeyboardEvent) => void, () => void, () => void];

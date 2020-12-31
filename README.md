@@ -57,8 +57,7 @@ There is a storybook for this package [here](https://stevejay.github.io/react-ro
 import React, { ReactNode, useRef } from "react";
 import {
   RovingTabIndexProvider,
-  useRovingTabIndex,
-  useFocusEffect
+  useRovingTabIndex
 } from "react-roving-tabindex";
 
 type Props = {
@@ -71,14 +70,10 @@ const ToolbarButton = ({ disabled = false, children }: Props) => {
   const ref = useRef<HTMLButtonElement>(null);
 
   // handleKeyDown and handleClick are stable for the lifetime of the component:
-  const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
+  const [tabIndex, handleKeyDown, handleClick] = useRovingTabIndex(
     ref, // Don't change the value of this ref.
     disabled // But change this as you like throughout the lifetime of the component.
   );
-
-  // Use some mechanism to set focus on the button if it gets focus.
-  // In this case I use the included useFocusEffect hook:
-  useFocusEffect(focused, ref);
 
   return (
     <button

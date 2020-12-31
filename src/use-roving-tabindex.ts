@@ -1,14 +1,8 @@
-import {
-  useCallback,
-  useRef,
-  useContext,
-  useEffect,
-  RefObject,
-  KeyboardEvent
-} from "react";
-import { RovingTabIndexContext } from "./Provider";
-import { ActionType, EventKey, HookResponse } from "./types";
-import { uniqueId } from "./unique-id";
+import { KeyboardEvent, RefObject, useCallback, useContext, useEffect, useRef } from 'react';
+
+import { RovingTabIndexContext } from './rename-provider';
+import { ActionType, EventKey, HookResponse } from './types';
+import { uniqueId } from './unique-id';
 
 /**
  * Includes the given DOM element in the current roving tabindex.
@@ -28,16 +22,15 @@ import { uniqueId } from "./unique-id";
  * component for the roving tabindex to work correctly.
  * First tuple value: The tabIndex value to apply to the tab stop
  * element.
- * Second tuple value: Whether or not focus() should be invoked on the
- * tab stop element.
- * Third tuple value: The onKeyDown callback to apply to the tab
+ * Second tuple value: The onKeyDown callback to apply to the tab
  * stop element. If the key press is relevant to the hook then
  * event.preventDefault() will be invoked on the event.
- * Fourth tuple value: The onClick callback to apply to the tab
+ * Third tuple value: The onClick callback to apply to the tab
  * stop element.
+ * Fourth tuple value: A function that when invoked will select this tab stop.
  */
 export function useRovingTabIndex(
-  domElementRef: RefObject<Element>,
+  domElementRef: RefObject<SVGElement | HTMLElement>,
   disabled: boolean,
   rowIndex: number | null = null
 ): HookResponse {
@@ -54,24 +47,20 @@ export function useRovingTabIndex(
   const isMounted = useRef(false);
   const context = useContext(RovingTabIndexContext);
 
+  // dispatch is stable for the lifetime of the hook.
+  const dispatch = context.dispatch;
+
   // Register the tab stop on mount and unregister it on unmount:
   useEffect(() => {
     const id = getId();
-    context.dispatch({
+    dispatch({
       type: ActionType.REGISTER_TAB_STOP,
-      payload: {
-        id,
-        domElementRef,
-        rowIndex,
-        disabled
-      }
+      payload: { id, domElementRef, rowIndex, disabled },
     });
     return (): void => {
-      context.dispatch({
-        type: ActionType.UNREGISTER_TAB_STOP,
-        payload: { id }
-      });
+      dispatch({ type: ActionType.UNREGISTER_TAB_STOP, payload: { id } });
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update the tab stop data if rowIndex or disabled change.
@@ -80,42 +69,48 @@ export function useRovingTabIndex(
   // REGISTER_TAB_STOP action would have just been dispatched).
   useEffect(() => {
     if (isMounted.current) {
-      context.dispatch({
+      dispatch({
         type: ActionType.TAB_STOP_UPDATED,
-        payload: {
-          id: getId(),
-          rowIndex,
-          disabled
-        }
+        payload: { id: getId(), rowIndex, disabled },
       });
     } else {
       isMounted.current = true;
     }
-  }, [rowIndex, disabled]);
+  }, [rowIndex, disabled, dispatch]);
+
+  // Focus on this tab element if it is the element specified in the focus action:
+  useEffect(() => {
+    const id = context.state.focusAction?.id;
+    if (id && id === getId() && domElementRef.current) {
+      domElementRef.current.focus();
+    }
+  }, [context.state.focusAction, domElementRef]);
 
   // Create a stable callback function for handling key down events:
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const key = EventKey[event.key];
-    if (!key) {
-      return;
-    }
-    context.dispatch({
-      type: ActionType.KEY_DOWN,
-      payload: { id: getId(), key, ctrlKey: event.ctrlKey }
-    });
-    event.preventDefault();
-  }, []);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      const key = EventKey[event.key];
+      if (!key) {
+        return;
+      }
+      dispatch({
+        type: ActionType.KEY_DOWN,
+        payload: { id: getId(), key, ctrlKey: event.ctrlKey },
+      });
+      event.preventDefault();
+    },
+    [dispatch]
+  );
 
   // Create a stable callback function for handling click events:
   const handleClick = useCallback(() => {
-    context.dispatch({ type: ActionType.CLICKED, payload: { id: getId() } });
-  }, []);
+    dispatch({ type: ActionType.CLICKED, payload: { id: getId() } });
+  }, [dispatch]);
 
-  // Determine if the current tab stop is the currently active one:
-  const selected = getId() === context.state.selectedId;
+  // Create a stable callback function for imperatively selecting this tab stop:
+  const select = useCallback(() => {
+    dispatch({ type: ActionType.SELECT_TAB_ELEMENT, payload: { id: getId() } });
+  }, [dispatch]);
 
-  const tabIndex = selected ? 0 : -1;
-  const focused = selected && context.state.allowFocusing;
-
-  return [tabIndex, focused, handleKeyDown, handleClick];
+  return [getId() === context.state.selectedId ? 0 : -1, handleKeyDown, handleClick, select];
 }

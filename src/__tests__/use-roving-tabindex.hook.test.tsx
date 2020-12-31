@@ -1,48 +1,42 @@
-import { renderHook, act } from "@testing-library/react-hooks";
-import React, { RefObject, KeyboardEvent, FC } from "react";
-import { RovingTabIndexContext } from "../Provider";
-import { ActionType, Context, State } from "../types";
-import { useRovingTabIndex } from "../use-roving-tabindex";
-import { uniqueId } from "../unique-id";
+import React, { FC, KeyboardEvent, RefObject } from 'react';
+import { act, renderHook } from '@testing-library/react-hooks';
 
-const MOCK_ID = "test-id";
-jest.mock("../unique-id");
+import { RovingTabIndexContext } from '../rename-provider';
+import { ActionType, Context, State } from '../types';
+import { uniqueId } from '../unique-id';
+import { useRovingTabIndex } from '../use-roving-tabindex';
+
+const MOCK_ID = 'test-id';
+jest.mock('../unique-id');
 (uniqueId as jest.Mock).mockReturnValue(MOCK_ID);
 
 const INITIAL_STATE: State = {
   selectedId: null,
   lastSelectedElement: null,
-  allowFocusing: false,
+  focusAction: null,
   tabStops: [],
-  direction: "horizontal",
-  rowStartMap: null
+  direction: 'horizontal',
+  rowStartMap: null,
 };
 
-const KEY_DOWN_HANDLER_INDEX = 2;
-const CLICK_HANDLER_INDEX = 3;
+const KEY_DOWN_HANDLER_INDEX = 1;
+const CLICK_HANDLER_INDEX = 2;
 
-const MockRovingTabIndexProvider: FC<{ value: Context }> = ({
-  value,
-  children
-}) => (
-  <RovingTabIndexContext.Provider value={value}>
-    {children}
-  </RovingTabIndexContext.Provider>
+const MockRovingTabIndexProvider: FC<{ value: Context }> = ({ value, children }) => (
+  <RovingTabIndexContext.Provider value={value}>{children}</RovingTabIndexContext.Provider>
 );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const MOCK_REF: RefObject<Element> = { current: jest.fn() as any };
+const MOCK_REF: RefObject<HTMLElement> = { current: jest.fn() as any };
 
-it("should register and unregister the tab stop", () => {
+it('should register and unregister the tab stop', () => {
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
 
   const { unmount } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-    wrapper
+    wrapper,
   });
 
   expect(contextValue.dispatch).toHaveBeenCalledTimes(1);
@@ -52,8 +46,8 @@ it("should register and unregister the tab stop", () => {
       id: MOCK_ID,
       domElementRef: MOCK_REF,
       rowIndex: null,
-      disabled: false
-    }
+      disabled: false,
+    },
   });
 
   contextValue.dispatch.mockClear();
@@ -64,24 +58,21 @@ it("should register and unregister the tab stop", () => {
   expect(contextValue.dispatch).toHaveBeenCalledTimes(1);
   expect(contextValue.dispatch).toHaveBeenNthCalledWith(1, {
     type: ActionType.UNREGISTER_TAB_STOP,
-    payload: { id: MOCK_ID }
+    payload: { id: MOCK_ID },
   });
 });
 
-it("should update the tab stop if the hook args change on a re-render", () => {
+it('should update the tab stop if the hook args change on a re-render', () => {
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
   let disabled = false;
   let rowIndex: number | undefined = undefined;
 
-  const { rerender } = renderHook(
-    () => useRovingTabIndex(MOCK_REF, disabled, rowIndex),
-    { wrapper }
-  );
+  const { rerender } = renderHook(() => useRovingTabIndex(MOCK_REF, disabled, rowIndex), {
+    wrapper,
+  });
 
   contextValue.dispatch.mockClear();
   disabled = true;
@@ -94,25 +85,22 @@ it("should update the tab stop if the hook args change on a re-render", () => {
     payload: {
       id: MOCK_ID,
       disabled: true,
-      rowIndex: 999
-    }
+      rowIndex: 999,
+    },
   });
 });
 
-it("should not update the tab stop if the hook args do not change on a re-render", () => {
+it('should not update the tab stop if the hook args do not change on a re-render', () => {
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
   const disabled = true;
   const rowIndex = 999;
 
-  const { rerender } = renderHook(
-    () => useRovingTabIndex(MOCK_REF, disabled, rowIndex),
-    { wrapper }
-  );
+  const { rerender } = renderHook(() => useRovingTabIndex(MOCK_REF, disabled, rowIndex), {
+    wrapper,
+  });
 
   contextValue.dispatch.mockClear();
   rerender();
@@ -120,152 +108,115 @@ it("should not update the tab stop if the hook args do not change on a re-render
   expect(contextValue.dispatch).not.toHaveBeenCalled();
 });
 
-it("should return the correct values when the tab stop is not selected", () => {
+it('should return the correct values when the tab stop is not selected', () => {
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
 
   const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-    wrapper
+    wrapper,
   });
 
-  expect(result.current).toEqual([
-    -1,
-    false,
-    expect.any(Function),
-    expect.any(Function)
-  ]);
+  expect(result.current).toEqual([-1, false, expect.any(Function), expect.any(Function)]);
 });
 
-describe("when the tab stop is selected", () => {
-  describe("when focusing is allowed", () => {
-    it("should return the correct values", () => {
+describe('when the tab stop is selected', () => {
+  describe('when focusing is allowed', () => {
+    it('should return the correct values', () => {
       const contextValue = {
         state: { ...INITIAL_STATE, selectedId: MOCK_ID, allowFocusing: true },
-        dispatch: jest.fn()
+        dispatch: jest.fn(),
       };
       const wrapper: FC = ({ children }) => (
-        <MockRovingTabIndexProvider value={contextValue}>
-          {children}
-        </MockRovingTabIndexProvider>
+        <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
       );
 
       const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-        wrapper
+        wrapper,
       });
 
-      expect(result.current).toEqual([
-        0,
-        true,
-        expect.any(Function),
-        expect.any(Function)
-      ]);
+      expect(result.current).toEqual([0, true, expect.any(Function), expect.any(Function)]);
     });
   });
 
-  describe("when focusing is not allowed", () => {
-    it("should return the correct values", () => {
+  describe('when focusing is not allowed', () => {
+    it('should return the correct values', () => {
       const contextValue = {
         state: {
           ...INITIAL_STATE,
           selectedId: MOCK_ID,
-          allowFocusing: false
+          allowFocusing: false,
         },
-        dispatch: jest.fn()
+        dispatch: jest.fn(),
       };
       const wrapper: FC = ({ children }) => (
-        <MockRovingTabIndexProvider value={contextValue}>
-          {children}
-        </MockRovingTabIndexProvider>
+        <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
       );
 
       const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-        wrapper
+        wrapper,
       });
 
-      expect(result.current).toEqual([
-        0,
-        false,
-        expect.any(Function),
-        expect.any(Function)
-      ]);
+      expect(result.current).toEqual([0, false, expect.any(Function), expect.any(Function)]);
     });
   });
 });
 
-describe("when the tab stop is not selected", () => {
-  describe("when focusing is allowed", () => {
-    it("should return the correct values", () => {
+describe('when the tab stop is not selected', () => {
+  describe('when focusing is allowed', () => {
+    it('should return the correct values', () => {
       const contextValue = {
         state: {
           ...INITIAL_STATE,
-          selectedId: "different-id",
-          allowFocusing: true
+          selectedId: 'different-id',
+          allowFocusing: true,
         },
-        dispatch: jest.fn()
+        dispatch: jest.fn(),
       };
       const wrapper: FC = ({ children }) => (
-        <MockRovingTabIndexProvider value={contextValue}>
-          {children}
-        </MockRovingTabIndexProvider>
+        <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
       );
 
       const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-        wrapper
+        wrapper,
       });
 
-      expect(result.current).toEqual([
-        -1,
-        false,
-        expect.any(Function),
-        expect.any(Function)
-      ]);
+      expect(result.current).toEqual([-1, false, expect.any(Function), expect.any(Function)]);
     });
   });
 
-  describe("when focusing is not allowed", () => {
-    it("should return the correct values", () => {
+  describe('when focusing is not allowed', () => {
+    it('should return the correct values', () => {
       const contextValue = {
         state: {
           ...INITIAL_STATE,
-          selectedId: "different-id",
-          allowFocusing: false
+          selectedId: 'different-id',
+          allowFocusing: false,
         },
-        dispatch: jest.fn()
+        dispatch: jest.fn(),
       };
       const wrapper: FC = ({ children }) => (
-        <MockRovingTabIndexProvider value={contextValue}>
-          {children}
-        </MockRovingTabIndexProvider>
+        <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
       );
 
       const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-        wrapper
+        wrapper,
       });
 
-      expect(result.current).toEqual([
-        -1,
-        false,
-        expect.any(Function),
-        expect.any(Function)
-      ]);
+      expect(result.current).toEqual([-1, false, expect.any(Function), expect.any(Function)]);
     });
   });
 });
 
-it("should dispatch the correct event when the tab stop is clicked", () => {
+it('should dispatch the correct event when the tab stop is clicked', () => {
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
 
   const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-    wrapper
+    wrapper,
   });
 
   contextValue.dispatch.mockClear();
@@ -276,29 +227,27 @@ it("should dispatch the correct event when the tab stop is clicked", () => {
   expect(contextValue.dispatch).toHaveBeenCalledTimes(1);
   expect(contextValue.dispatch).toHaveBeenNthCalledWith(1, {
     type: ActionType.CLICKED,
-    payload: { id: MOCK_ID }
+    payload: { id: MOCK_ID },
   });
 });
 
-it("should dispatch the correct event when the user presses a related key on the tab stop", () => {
+it('should dispatch the correct event when the user presses a related key on the tab stop', () => {
   const mockPreventDefault = jest.fn();
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
 
   const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-    wrapper
+    wrapper,
   });
 
   contextValue.dispatch.mockClear();
   act(() => {
     result.current[KEY_DOWN_HANDLER_INDEX](({
-      key: "Home",
+      key: 'Home',
       ctrlKey: true,
-      preventDefault: mockPreventDefault
+      preventDefault: mockPreventDefault,
     } as unknown) as KeyboardEvent);
   });
 
@@ -307,32 +256,30 @@ it("should dispatch the correct event when the user presses a related key on the
     type: ActionType.KEY_DOWN,
     payload: {
       id: MOCK_ID,
-      key: "Home",
-      ctrlKey: true
-    }
+      key: 'Home',
+      ctrlKey: true,
+    },
   });
   expect(mockPreventDefault).toHaveBeenCalled();
 });
 
-it("should not dispatch anything when the user presses an unrelated key on the tab stop", () => {
+it('should not dispatch anything when the user presses an unrelated key on the tab stop', () => {
   const mockPreventDefault = jest.fn();
   const contextValue = { state: INITIAL_STATE, dispatch: jest.fn() };
   const wrapper: FC = ({ children }) => (
-    <MockRovingTabIndexProvider value={contextValue}>
-      {children}
-    </MockRovingTabIndexProvider>
+    <MockRovingTabIndexProvider value={contextValue}>{children}</MockRovingTabIndexProvider>
   );
 
   const { result } = renderHook(() => useRovingTabIndex(MOCK_REF, false), {
-    wrapper
+    wrapper,
   });
 
   contextValue.dispatch.mockClear();
   act(() => {
     result.current[KEY_DOWN_HANDLER_INDEX](({
-      key: "a",
+      key: 'a',
       ctrlKey: true,
-      preventDefault: mockPreventDefault
+      preventDefault: mockPreventDefault,
     } as unknown) as KeyboardEvent);
   });
 

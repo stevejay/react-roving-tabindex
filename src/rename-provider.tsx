@@ -1,32 +1,35 @@
 import React, {
-  useMemo,
-  useEffect,
   createContext,
+  forwardRef,
+  ReactElement,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
   useReducer,
-  ReactElement
-} from "react";
-import warning from "warning";
+} from 'react';
+import warning from 'warning';
+
 import {
   Action,
   ActionType,
   Context,
   EventKey,
   Navigation,
+  ProviderAPI,
   ProviderProps,
   RowStartMap,
   State,
-  TabStop
-} from "./types";
+  TabStop,
+} from './types';
 
 const DOCUMENT_POSITION_FOLLOWING = 4;
 
-// Note: The `allowFocusing` state property is required
-// to delay focusing of the selected tab stop
-// DOM element until the user has started interacting
-// with the roving tabindex's controls. If this delay
-// did not occur, the selected control would be focused
-// as soon as it was mounted, which is unlikely to be
-// the desired behaviour for the page.
+// Note: The `focusAction` state property is required
+// to allow imperative control over focus. It is initially `null`
+// so that focus is not invoked on mount. The `focusAction`
+// property is an object so that focus can be re-invoked on
+// a tab element that was previously the most recent tab element
+// to be focused.
 //
 // Note: The rowStartMap is only created if row-related
 // navigation occurs (e.g., move to row start or end), so
@@ -81,7 +84,7 @@ export function reducer(state: State, action: Action): State {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
         tabStops: newTabStops,
-        rowStartMap: null
+        rowStartMap: null,
       };
     }
     case ActionType.UNREGISTER_TAB_STOP: {
@@ -95,7 +98,7 @@ export function reducer(state: State, action: Action): State {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
         tabStops: newTabStops,
-        rowStartMap: null
+        rowStartMap: null,
       };
     }
     case ActionType.TAB_STOP_UPDATED: {
@@ -120,7 +123,7 @@ export function reducer(state: State, action: Action): State {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
         tabStops: newTabStops,
-        rowStartMap: null
+        rowStartMap: null,
       };
     }
     case ActionType.KEY_DOWN: {
@@ -135,12 +138,7 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const isGrid = currentTabStop.rowIndex !== null;
-      const navigation = getNavigationValue(
-        key,
-        ctrlKey,
-        isGrid,
-        state.direction
-      );
+      const navigation = getNavigationValue(key, ctrlKey, isGrid, state.direction);
       if (!navigation) {
         return state;
       }
@@ -148,7 +146,12 @@ export function reducer(state: State, action: Action): State {
       switch (navigation) {
         case Navigation.NEXT:
           {
-            for (let i = index + 1; i < state.tabStops.length; ++i) {
+            let i = index;
+            do {
+              ++i;
+              if (i >= state.tabStops.length) {
+                i = 0;
+              }
               const tabStop = state.tabStops[i];
               if (isGrid && tabStop.rowIndex !== currentTabStop.rowIndex) {
                 break;
@@ -156,12 +159,26 @@ export function reducer(state: State, action: Action): State {
               if (!tabStop.disabled) {
                 return selectTabStop(state, tabStop);
               }
-            }
+            } while (i !== index);
+            // for (let i = index + 1; i < state.tabStops.length; ++i) {
+            //   const tabStop = state.tabStops[i];
+            //   if (isGrid && tabStop.rowIndex !== currentTabStop.rowIndex) {
+            //     break;
+            //   }
+            //   if (!tabStop.disabled) {
+            //     return selectTabStop(state, tabStop);
+            //   }
+            // }
           }
           break;
         case Navigation.PREVIOUS:
           {
-            for (let i = index - 1; i >= 0; --i) {
+            let i = index;
+            do {
+              --i;
+              if (i < 0) {
+                i = state.tabStops.length - 1;
+              }
               const tabStop = state.tabStops[i];
               if (isGrid && tabStop.rowIndex !== currentTabStop.rowIndex) {
                 break;
@@ -169,7 +186,16 @@ export function reducer(state: State, action: Action): State {
               if (!tabStop.disabled) {
                 return selectTabStop(state, tabStop);
               }
-            }
+            } while (i !== index);
+            // for (let i = index - 1; i >= 0; --i) {
+            //   const tabStop = state.tabStops[i];
+            //   if (isGrid && tabStop.rowIndex !== currentTabStop.rowIndex) {
+            //     break;
+            //   }
+            //   if (!tabStop.disabled) {
+            //     return selectTabStop(state, tabStop);
+            //   }
+            // }
           }
           break;
         case Navigation.VERY_FIRST:
@@ -194,10 +220,7 @@ export function reducer(state: State, action: Action): State {
           break;
         case Navigation.PREVIOUS_ROW:
           {
-            if (
-              currentTabStop.rowIndex === null ||
-              currentTabStop.rowIndex === 0
-            ) {
+            if (currentTabStop.rowIndex === null || currentTabStop.rowIndex === 0) {
               return state;
             }
             const rowStartMap = state.rowStartMap || createRowStartMap(state);
@@ -216,13 +239,17 @@ export function reducer(state: State, action: Action): State {
                 return selectTabStop(state, rowTabStop, rowStartMap);
               }
             }
-            return { ...state, allowFocusing: true, rowStartMap };
+            // No previous row:
+            return {
+              ...state,
+              focusAction: state.selectedId ? { id: state.selectedId } : null,
+              rowStartMap,
+            };
           }
           break;
         case Navigation.NEXT_ROW:
           {
-            const maxRowIndex =
-              state.tabStops[state.tabStops.length - 1].rowIndex;
+            const maxRowIndex = state.tabStops[state.tabStops.length - 1].rowIndex;
             if (
               currentTabStop.rowIndex === null ||
               maxRowIndex === null ||
@@ -246,7 +273,12 @@ export function reducer(state: State, action: Action): State {
                 return selectTabStop(state, rowTabStop, rowStartMap);
               }
             }
-            return { ...state, allowFocusing: true, rowStartMap };
+            // No next row:
+            return {
+              ...state,
+              focusAction: state.selectedId ? { id: state.selectedId } : null,
+              rowStartMap,
+            };
           }
           break;
         case Navigation.FIRST_IN_ROW:
@@ -299,10 +331,7 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const currentTabStop = state.tabStops[index];
-
-      return currentTabStop.disabled
-        ? state
-        : selectTabStop(state, currentTabStop);
+      return currentTabStop.disabled ? state : selectTabStop(state, currentTabStop);
     }
     case ActionType.DIRECTION_UPDATED: {
       const direction = action.payload.direction;
@@ -313,9 +342,36 @@ export function reducer(state: State, action: Action): State {
       const tabStop = state.tabStops.find((tabStop) =>
         tabStop.domElementRef.current?.matches(selector)
       );
-      return tabStop && !tabStop.disabled
-        ? { ...state, selectedId: tabStop.id }
-        : state;
+      return tabStop && !tabStop.disabled ? { ...state, selectedId: tabStop.id } : state;
+    }
+    case ActionType.SELECT_TAB_ELEMENT: {
+      const id = action.payload.id;
+      const index = state.tabStops.findIndex((tabStop) => tabStop.id === id);
+      if (index === -1) {
+        warning(false, `'${id}' tab stop not registered`);
+        return state;
+      }
+      const tabStop = state.tabStops[index];
+      return tabStop.disabled ? state : selectTabStop(state, state.tabStops[index]);
+    }
+    case ActionType.SELECT_TAB_ELEMENT_BY_POSITION: {
+      const { position } = action.payload;
+      if (position === 'first') {
+        for (let i = 0; i < state.tabStops.length; ++i) {
+          const tabStop = state.tabStops[i];
+          if (!tabStop.disabled) {
+            return selectTabStop(state, tabStop);
+          }
+        }
+      } else {
+        for (let i = state.tabStops.length - 1; i >= 0; --i) {
+          const tabStop = state.tabStops[i];
+          if (!tabStop.disabled) {
+            return selectTabStop(state, tabStop);
+          }
+        }
+      }
+      return state;
     }
     default:
       return state;
@@ -324,9 +380,9 @@ export function reducer(state: State, action: Action): State {
 
 // Determine the updated value for selectedId:
 function getUpdatedSelectedId(
-  tabStops: State["tabStops"],
-  currentSelectedId: State["selectedId"]
-): State["selectedId"] {
+  tabStops: State['tabStops'],
+  currentSelectedId: State['selectedId']
+): State['selectedId'] {
   if (currentSelectedId === null) {
     // There is not currently selected tab stop, so find
     // the first tab stop that is not disabled and return
@@ -356,33 +412,25 @@ function getNavigationValue(
 ): Navigation | null {
   switch (key) {
     case EventKey.ArrowLeft:
-      return isGrid || direction === "horizontal" || direction === "both"
+      return isGrid || direction === 'horizontal' || direction === 'both'
         ? Navigation.PREVIOUS
         : null;
     case EventKey.ArrowRight:
-      return isGrid || direction === "horizontal" || direction === "both"
-        ? Navigation.NEXT
-        : null;
+      return isGrid || direction === 'horizontal' || direction === 'both' ? Navigation.NEXT : null;
     case EventKey.ArrowUp:
       if (isGrid) {
         return Navigation.PREVIOUS_ROW;
       } else {
-        return direction === "vertical" || direction === "both"
-          ? Navigation.PREVIOUS
-          : null;
+        return direction === 'vertical' || direction === 'both' ? Navigation.PREVIOUS : null;
       }
     case EventKey.ArrowDown:
       if (isGrid) {
         return Navigation.NEXT_ROW;
       } else {
-        return direction === "vertical" || direction === "both"
-          ? Navigation.NEXT
-          : null;
+        return direction === 'vertical' || direction === 'both' ? Navigation.NEXT : null;
       }
     case EventKey.Home:
-      return !isGrid || ctrlKey
-        ? Navigation.VERY_FIRST
-        : Navigation.FIRST_IN_ROW;
+      return !isGrid || ctrlKey ? Navigation.VERY_FIRST : Navigation.FIRST_IN_ROW;
     case EventKey.End:
       return !isGrid || ctrlKey ? Navigation.VERY_LAST : Navigation.LAST_IN_ROW;
     default:
@@ -391,17 +439,13 @@ function getNavigationValue(
 }
 
 // Creates the new state for a tab stop when it becomes the selected one.
-function selectTabStop(
-  state: State,
-  tabStop: TabStop,
-  rowStartMap?: RowStartMap
-): State {
+function selectTabStop(state: State, tabStop: TabStop, rowStartMap?: RowStartMap): State {
   return {
     ...state,
-    allowFocusing: true,
+    focusAction: { id: tabStop.id },
     selectedId: tabStop.id,
     lastSelectedElement: { domElementRef: tabStop.domElementRef },
-    rowStartMap: rowStartMap || state.rowStartMap
+    rowStartMap: rowStartMap || state.rowStartMap,
   };
 }
 
@@ -421,16 +465,16 @@ function createRowStartMap(state: State) {
 const INITIAL_STATE: State = {
   selectedId: null,
   lastSelectedElement: null,
-  allowFocusing: false,
+  focusAction: null,
   tabStops: [],
-  direction: "horizontal",
-  rowStartMap: null
+  direction: 'horizontal',
+  rowStartMap: null,
 };
 
 export const RovingTabIndexContext = createContext<Context>({
   state: INITIAL_STATE,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  dispatch: () => {}
+  dispatch: () => {},
 });
 
 /**
@@ -470,51 +514,60 @@ export const RovingTabIndexContext = createContext<Context>({
  * the same for the lifetime of this component. This might require
  * use of `React.useCallback` to create a stable callback function.
  */
-export const Provider = ({
-  children,
-  direction = "horizontal",
-  initialTabElementSelector,
-  onTabElementSelected
-}: ProviderProps): ReactElement => {
-  const [state, dispatch] = useReducer(reducer, {
-    ...INITIAL_STATE,
-    direction
-  });
+export const Provider = forwardRef<ProviderAPI, ProviderProps>(
+  (
+    { children, direction = 'horizontal', initialTabElementSelector, onTabElementSelected },
+    ref
+  ): ReactElement => {
+    const [state, dispatch] = useReducer(reducer, {
+      ...INITIAL_STATE,
+      direction,
+    });
 
-  // Update the direction whenever it changes:
-  useEffect(() => {
-    dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
-  }, [direction]);
+    // Update the direction whenever it changes:
+    useEffect(() => {
+      dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
+    }, [direction]);
 
-  // If given, set the initial tab element:
-  useEffect(() => {
-    if (initialTabElementSelector) {
-      dispatch({
-        type: ActionType.SET_INITIAL_TAB_ELEMENT,
-        payload: { selector: initialTabElementSelector }
-      });
-    }
-  }, [initialTabElementSelector]);
+    // If given, set the initial tab element:
+    useEffect(() => {
+      if (initialTabElementSelector) {
+        dispatch({
+          type: ActionType.SET_INITIAL_TAB_ELEMENT,
+          payload: { selector: initialTabElementSelector },
+        });
+      }
+    }, [initialTabElementSelector]);
 
-  // Invoke the onTabElementSelected callback when the user
-  // selects an element in the index:
-  useEffect(() => {
-    if (
-      !onTabElementSelected ||
-      !state.lastSelectedElement?.domElementRef.current
-    ) {
-      return;
-    }
-    onTabElementSelected(state.lastSelectedElement.domElementRef.current);
-  }, [onTabElementSelected, state.lastSelectedElement]);
+    // Invoke the onTabElementSelected callback when the user
+    // selects an element in the index:
+    useEffect(() => {
+      if (!onTabElementSelected || !state.lastSelectedElement?.domElementRef.current) {
+        return;
+      }
+      onTabElementSelected(state.lastSelectedElement.domElementRef.current);
+    }, [onTabElementSelected, state.lastSelectedElement]);
 
-  // Create a memoized object to use as the context's value.
-  // This prevents unnecessary renders.
-  const context = useMemo<Context>(() => ({ state, dispatch }), [state]);
+    // Create the API for parent roving tabindexes:
+    useImperativeHandle(
+      ref,
+      () => ({
+        selectTabElementByPosition: (element: 'first' | 'last') => {
+          dispatch({
+            type: ActionType.SELECT_TAB_ELEMENT_BY_POSITION,
+            payload: { position: element },
+          });
+        },
+      }),
+      []
+    );
 
-  return (
-    <RovingTabIndexContext.Provider value={context}>
-      {children}
-    </RovingTabIndexContext.Provider>
-  );
-};
+    // Create a memoized object to use as the context's value.
+    // This prevents unnecessary renders.
+    const context = useMemo<Context>(() => ({ state, dispatch }), [state]);
+
+    return (
+      <RovingTabIndexContext.Provider value={context}>{children}</RovingTabIndexContext.Provider>
+    );
+  }
+);

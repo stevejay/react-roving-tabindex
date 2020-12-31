@@ -1,0 +1,47 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint",
+    "filenames-simple",
+    "testing-library",
+    "jest-dom",
+    "react",
+    "simple-import-sort",
+    "import"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:testing-library/react",
+    "plugin:react-hooks/recommended",
+    "plugin:jest-dom/recommended",
+    "prettier" // Must be last in extends list
+  ],
+  "rules": {
+    "curly": "error",
+    "one-var": [2, "never"],
+    "filenames-simple/naming-convention": [
+      "error",
+      {
+        "rule": "kebab-case",
+        "excepts": ["index", "serviceWorker", "setupTests"]
+      }
+    ],
+    "sort-imports": "off",
+    "import/order": "off",
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+    "simple-import-sort/exports": "error",
+    "simple-import-sort/imports": [
+      "error",
+      {
+        "groups": [
+          ["^react(/|$)", "^@?\\w", "^\\u0000"],
+          ["^", "^\\."]
+        ]
+      }
+    ]
+  }
+}

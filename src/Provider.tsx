@@ -116,8 +116,6 @@ export function reducer(state: State, action: Action): State {
       const newTabStops = state.tabStops.slice();
       newTabStops.splice(index, 1, newTabStop);
 
-      // TODO XXX
-
       return {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
@@ -146,8 +144,6 @@ export function reducer(state: State, action: Action): State {
       if (!navigation) {
         return state;
       }
-
-      // TODO XXX
 
       switch (navigation) {
         case Navigation.NEXT:
@@ -303,8 +299,6 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const currentTabStop = state.tabStops[index];
-
-      // TODO XXX
 
       return currentTabStop.disabled
         ? state

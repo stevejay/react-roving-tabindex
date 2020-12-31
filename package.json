@@ -1,6 +1,6 @@
 {
   "name": "react-roving-tabindex",
-  "version": "2.1.0",
+  "version": "2.2.0-beta-1",
   "description": "React implementation of a roving tabindex, now with grid support",
   "author": "stevejay",
   "license": "MIT",
@@ -31,8 +31,10 @@
     "upgrade-to-latest": "yarn upgrade-interactive --latest",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "deploy-storybook": "storybook-to-ghpages",
-    "eslint": "eslint --max-warnings 0 \"src/**/*.{js,jsx,ts,tsx}\"",
-    "lint": "yarn eslint",
+    "lint": "yarn lint:code && yarn lint:ts && yarn lint:prettier",
+    "lint:ts": "tsc --strict --noEmit --project ./tsconfig.json",
+    "lint:code": "eslint --max-warnings 0 --ignore-path .gitignore ./src",
+    "lint:prettier": "prettier --check --ignore-path .gitignore ./src",
     "lint-staged": "lint-staged"
   },
   "prettier": {

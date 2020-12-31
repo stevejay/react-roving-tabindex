@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export enum EventKey {
   ArrowLeft = "ArrowLeft",
   ArrowRight = "ArrowRight",
@@ -31,6 +33,7 @@ export type RowStartMap = Map<Exclude<TabStop["rowIndex"], null>, number>;
 
 export type State = Readonly<{
   selectedId: string | null;
+  lastSelectedElement: { domElementRef: TabStop["domElementRef"] } | null;
   allowFocusing: boolean;
   tabStops: readonly TabStop[];
   direction: KeyDirection;
@@ -43,7 +46,8 @@ export enum ActionType {
   KEY_DOWN = "KEY_DOWN",
   CLICKED = "CLICKED",
   TAB_STOP_UPDATED = "TAB_STOP_UPDATED",
-  DIRECTION_UPDATED = "DIRECTION_UPDATED"
+  DIRECTION_UPDATED = "DIRECTION_UPDATED",
+  SET_INITIAL_TAB_ELEMENT = "SET_INITIAL_TAB_ELEMENT"
 }
 
 export type Action =
@@ -78,12 +82,23 @@ export type Action =
   | {
       type: ActionType.DIRECTION_UPDATED;
       payload: { direction: KeyDirection };
+    }
+  | {
+      type: ActionType.SET_INITIAL_TAB_ELEMENT;
+      payload: { selector: string };
     };
 
 export type Context = Readonly<{
   state: State;
   dispatch: React.Dispatch<Action>;
 }>;
+
+export type ProviderProps = {
+  children: ReactNode;
+  direction?: KeyDirection;
+  initialTabElementSelector?: string | null;
+  onTabElementSelected?: (element: Element) => void;
+};
 
 export type HookResponse = [
   number,

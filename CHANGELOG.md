@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0
+
+- Add an optional `initialTabElementSelector` string prop to the provider.
+- Add an optional `onTabElementSelected` callback prop to the provider.
+
 ## 2.1.0
 
 - Updated dev dependencies.

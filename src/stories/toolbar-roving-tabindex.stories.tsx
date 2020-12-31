@@ -16,8 +16,9 @@ type ButtonClickHandler = (
 
 const ToolbarButton: FC<{
   disabled: boolean;
+  id?: string;
   onClick: ButtonClickHandler;
-}> = ({ disabled, children, onClick }) => {
+}> = ({ disabled, id, children, onClick }) => {
   const ref = useRef<HTMLButtonElement>(null);
   const [tabIndex, focused, handleKeyDown, handleClick] = useRovingTabIndex(
     ref,
@@ -29,6 +30,7 @@ const ToolbarButton: FC<{
   return (
     <Button
       ref={ref}
+      id={id}
       onKeyDown={handleKeyDown}
       onClick={(event) => {
         handleClick();
@@ -74,7 +76,10 @@ export const ToolbarExample: FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider direction={direction}>
+      <RovingTabIndexProvider
+        direction={direction}
+        initialTabElementSelector="#button-two"
+      >
         <span>
           <ToolbarButton
             disabled={!!buttonOneDisabled}
@@ -88,6 +93,78 @@ export const ToolbarExample: FC<ExampleProps> = ({
           onClick={onButtonTwoClicked}
         >
           Button Two
+        </ToolbarButton>
+        <ToolbarButton
+          disabled={!!buttonThreeDisabled}
+          onClick={onButtonThreeClicked}
+        >
+          Button Three
+        </ToolbarButton>
+        {!removeButtonFour && (
+          <span>
+            <span>
+              <ToolbarButton
+                disabled={!!buttonFourDisabled}
+                onClick={onButtonFourClicked}
+              >
+                Button Four
+              </ToolbarButton>
+            </span>
+          </span>
+        )}
+        <ToolbarButton
+          disabled={!!buttonFiveDisabled}
+          onClick={onButtonFiveClicked}
+        >
+          Button Five
+        </ToolbarButton>
+      </RovingTabIndexProvider>
+    </Toolbar>
+    <Button>Something after to focus on</Button>
+  </>
+);
+
+export const ToolbarWithInitialTabElementExample: FC<
+  ExampleProps & {
+    onTabElementSelected: (element: Element) => void;
+  }
+> = ({
+  direction,
+  buttonOneDisabled,
+  onButtonOneClicked,
+  buttonTwoDisabled,
+  onButtonTwoClicked,
+  buttonThreeDisabled,
+  onButtonThreeClicked,
+  buttonFourDisabled,
+  onButtonFourClicked,
+  buttonFiveDisabled,
+  onButtonFiveClicked,
+  removeButtonFour,
+  onTabElementSelected
+}) => (
+  <>
+    <Button>Something before to focus on</Button>
+    <Toolbar role="toolbar">
+      <RovingTabIndexProvider
+        direction={direction}
+        initialTabElementSelector="#button-two"
+        onTabElementSelected={onTabElementSelected}
+      >
+        <span>
+          <ToolbarButton
+            disabled={!!buttonOneDisabled}
+            onClick={onButtonOneClicked}
+          >
+            Button One
+          </ToolbarButton>
+        </span>
+        <ToolbarButton
+          id="button-two"
+          disabled={!!buttonTwoDisabled}
+          onClick={onButtonTwoClicked}
+        >
+          Button Two *
         </ToolbarButton>
         <ToolbarButton
           disabled={!!buttonThreeDisabled}
@@ -150,7 +227,8 @@ export default {
     },
     removeButtonFour: {
       name: "Remove Button Four"
-    }
+    },
+    onTabElementSelected: { table: { disable: true } }
   },
   parameters: { actions: { argTypesRegex: "^on.*" } }
 } as Meta;

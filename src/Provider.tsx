@@ -3,8 +3,7 @@ import React, {
   useEffect,
   createContext,
   useReducer,
-  ReactElement,
-  ReactNode
+  ReactElement
 } from "react";
 import warning from "warning";
 import {
@@ -12,8 +11,8 @@ import {
   ActionType,
   Context,
   EventKey,
-  KeyDirection,
   Navigation,
+  ProviderProps,
   RowStartMap,
   State,
   TabStop
@@ -117,6 +116,8 @@ export function reducer(state: State, action: Action): State {
       const newTabStops = state.tabStops.slice();
       newTabStops.splice(index, 1, newTabStop);
 
+      // TODO XXX
+
       return {
         ...state,
         selectedId: getUpdatedSelectedId(newTabStops, state.selectedId),
@@ -145,6 +146,8 @@ export function reducer(state: State, action: Action): State {
       if (!navigation) {
         return state;
       }
+
+      // TODO XXX
 
       switch (navigation) {
         case Navigation.NEXT:
@@ -300,6 +303,9 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const currentTabStop = state.tabStops[index];
+
+      // TODO XXX
+
       return currentTabStop.disabled
         ? state
         : selectTabStop(state, currentTabStop);
@@ -307,6 +313,15 @@ export function reducer(state: State, action: Action): State {
     case ActionType.DIRECTION_UPDATED: {
       const direction = action.payload.direction;
       return direction === state.direction ? state : { ...state, direction };
+    }
+    case ActionType.SET_INITIAL_TAB_ELEMENT: {
+      const { selector } = action.payload;
+      const tabStop = state.tabStops.find((tabStop) =>
+        tabStop.domElementRef.current?.matches(selector)
+      );
+      return tabStop && !tabStop.disabled
+        ? { ...state, selectedId: tabStop.id }
+        : state;
     }
     default:
       return state;
@@ -386,11 +401,12 @@ function selectTabStop(
   state: State,
   tabStop: TabStop,
   rowStartMap?: RowStartMap
-) {
+): State {
   return {
     ...state,
     allowFocusing: true,
     selectedId: tabStop.id,
+    lastSelectedElement: { domElementRef: tabStop.domElementRef },
     rowStartMap: rowStartMap || state.rowStartMap
   };
 }
@@ -410,6 +426,7 @@ function createRowStartMap(state: State) {
 
 const INITIAL_STATE: State = {
   selectedId: null,
+  lastSelectedElement: null,
   allowFocusing: false,
   tabStops: [],
   direction: "horizontal",
@@ -439,14 +456,32 @@ export const RovingTabIndexContext = createContext<Context>({
  * If you do not pass an explicit value then the 'horizontal'
  * behaviour applies. You can change this direction value
  * at any time.
+ * @param {string} initialTabElementSelector An optional selector for
+ * selecting the element in the roving tab index that will be
+ * the initially selected one. Normally the first registered
+ * element will be the initially tabbable element in the index.
+ * However, you might want to save the last tabbed-to element
+ * so that you can restore it the next time the index is mounted.
+ * The selector will be passed to the
+ * [`Element.matches()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/matches)
+ * method, so the likeliest value would be an ID (e.g., `'#bar'`)
+ * or a data selector (e.g., `'[data-foo-id="bar"]'`).
+ * The value of this prop should remain the same for the lifetime
+ * of this component.
+ * @param {(element: Element) => void} onTabElementSelected
+ * An optional callback so you can be notified when the user
+ * changes the selected element in the roving tab index. This is useful to
+ * extract the information you would need to subsequently pass as the
+ * `initialTabElementSelector` prop. The value of this prop should remain
+ * the same for the lifetime of this component. This might require
+ * use of `React.useCallback` to create a stable callback function.
  */
 export const Provider = ({
   children,
-  direction = "horizontal"
-}: {
-  children: ReactNode;
-  direction?: KeyDirection;
-}): ReactElement => {
+  direction = "horizontal",
+  initialTabElementSelector,
+  onTabElementSelected
+}: ProviderProps): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
     direction
@@ -457,7 +492,30 @@ export const Provider = ({
     dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
   }, [direction]);
 
-  // Create a cached object to use as the context value:
+  // If given, set the initial tab element:
+  useEffect(() => {
+    if (initialTabElementSelector) {
+      dispatch({
+        type: ActionType.SET_INITIAL_TAB_ELEMENT,
+        payload: { selector: initialTabElementSelector }
+      });
+    }
+  }, [initialTabElementSelector]);
+
+  // Invoke the onTabElementSelected callback when the user
+  // selects an element in the index:
+  useEffect(() => {
+    if (
+      !onTabElementSelected ||
+      !state.lastSelectedElement?.domElementRef.current
+    ) {
+      return;
+    }
+    onTabElementSelected(state.lastSelectedElement.domElementRef.current);
+  }, [onTabElementSelected, state.lastSelectedElement]);
+
+  // Create a memoized object to use as the context's value.
+  // This prevents unnecessary renders.
   const context = useMemo<Context>(() => ({ state, dispatch }), [state]);
 
   return (

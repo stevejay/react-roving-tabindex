@@ -142,6 +142,14 @@ const SomeComponent = () => (
 
 The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
 
+#### Initial tab element
+
+You may want to set a particular element in the roving tabindex to be the initially tabbable element (i.e., the element that has a `tabindex` of `0`). This could be because you remember the state of the UI and restore it when the user next uses the app.
+
+To facilitate this, the `RovingTabIndexProvider` has an optional `initialTabElementSelector` prop. This takes a selector string that is used to identify the tab element that should be the initially tabbable element. Each tab element is tested using [`Element.matches()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/matches). This requires that the selector identifies the tabbable element itself (rather than, say, a child element). Thus the selector is most likely to be an ID (e.g., `'#bar'`) or a data selector (e.g., `'[data-foo-id="bar"]'`). If used, the value of this prop should remain the same for the lifetime of the component.
+
+To help with tracking the currently tabbable element in the roving tabindex, the `RovingTabIndexProvider` offers an optional `onTabElementSelected` callback prop. This callback is invoked whenever the user clicks on or uses the keyboard to select a tab element in the roving tabindex. The callback is invoked with that element. This allows you to get some information from that element, e.g., its ID or a data attribute. This information could be used later to provide the value for the `initialTabElementSelector` prop. If used, the value of this prop should remain the same for the lifetime of the component. This might require that you use `React.useCallback` to create a stable callback function.
+
 ### Grid usage
 
 This package supports a roving tabindex in a grid. For each usage of the `useRovingTabIndex` hook in the grid, you _must_ pass a row index value as a third argument to the hook:
@@ -194,4 +202,4 @@ If you have build errors when building the Storybook locally, you are likely usi
 ### Publishing
 
 - For beta versions: `npm publish --tag next`.
-- For releases: `npm publish`.
+- For releases: `npm publish --tag latest`.

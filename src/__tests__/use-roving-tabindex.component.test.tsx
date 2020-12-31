@@ -1,11 +1,15 @@
 import React, { FC, useRef } from "react";
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 import { Provider } from "../Provider";
 import { useRovingTabIndex } from "../use-roving-tabindex";
+import { ProviderProps } from "../types";
 
-const TestButton: FC<{ disabled: boolean; rowIndex?: number }> = ({
+type TestButtonProps = { disabled: boolean; rowIndex?: number; id?: string };
+
+const TestButton: FC<TestButtonProps> = ({
   disabled,
   rowIndex = null,
+  id,
   children
 }) => {
   const ref = useRef<HTMLButtonElement>(null);
@@ -17,6 +21,7 @@ const TestButton: FC<{ disabled: boolean; rowIndex?: number }> = ({
   return (
     <button
       ref={ref}
+      id={id}
       onKeyDown={handleKeyDown}
       onClick={handleClick}
       tabIndex={tabIndex}
@@ -27,21 +32,36 @@ const TestButton: FC<{ disabled: boolean; rowIndex?: number }> = ({
   );
 };
 
-const TestToolbar: FC<{ flags?: Array<boolean> }> = ({
-  flags = [false, false, false]
+type TestToolbarProps = {
+  flags?: Array<boolean>;
+} & Pick<ProviderProps, "initialTabElementSelector" | "onTabElementSelected">;
+
+const TestToolbar: FC<TestToolbarProps> = ({
+  flags = [false, false, false],
+  initialTabElementSelector,
+  onTabElementSelected
 }) => (
-  <Provider>
-    <TestButton disabled={flags[0]}>Button One</TestButton>
+  <Provider
+    initialTabElementSelector={initialTabElementSelector}
+    onTabElementSelected={onTabElementSelected}
+  >
+    <TestButton id="button-one" disabled={flags[0]}>
+      Button One
+    </TestButton>
     <div>
-      <TestButton disabled={flags[1]}>Button Two</TestButton>
+      <TestButton id="button-two" disabled={flags[1]}>
+        Button Two
+      </TestButton>
     </div>
-    <TestButton disabled={flags[2]}>Button Three</TestButton>
+    <TestButton id="button-three" disabled={flags[2]}>
+      Button Three
+    </TestButton>
   </Provider>
 );
 
-const TestGrid: FC<{ flags?: Array<boolean> }> = ({
-  flags = [false, false, false]
-}) => (
+type TestGridProps = { flags?: Array<boolean> };
+
+const TestGrid: FC<TestGridProps> = ({ flags = [false, false, false] }) => (
   <Provider>
     <TestButton disabled={flags[0]} rowIndex={0}>
       Button One
@@ -91,6 +111,87 @@ describe("when used as part of a toolbar", () => {
     expect(getByText("Button One").tabIndex).toEqual(-1);
     expect(getByText("Button Two").tabIndex).toEqual(0);
     expect(getByText("Button Three").tabIndex).toEqual(-1);
+  });
+
+  it("displays correctly initially when there is a known initial tab element", async () => {
+    const flags = [false, false, false];
+    const { getByText } = render(
+      <TestToolbar initialTabElementSelector="#button-two" flags={flags} />
+    );
+    expect(getByText("Button One").tabIndex).toEqual(-1);
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+    expect(getByText("Button Two").tabIndex).toEqual(0);
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+    expect(getByText("Button Three").tabIndex).toEqual(-1);
+    expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+  });
+
+  it("ignores an initial tab element when it is for a currently disabled element", async () => {
+    const flags = [false, true, false];
+    const { getByText } = render(
+      <TestToolbar initialTabElementSelector="#button-two" flags={flags} />
+    );
+    expect(getByText("Button One").tabIndex).toEqual(0);
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+    expect(getByText("Button Two").tabIndex).toEqual(-1);
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+    expect(getByText("Button Three").tabIndex).toEqual(-1);
+    expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+  });
+
+  it("displays correctly initially when there is an unknown initial tab element", async () => {
+    const flags = [false, false, false];
+    const { getByText } = render(
+      <TestToolbar initialTabElementSelector="#does-not-exist" flags={flags} />
+    );
+    expect(getByText("Button One").tabIndex).toEqual(0);
+    expect(getByText("Button One").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+    expect(getByText("Button Two").tabIndex).toEqual(-1);
+    expect(getByText("Button Two").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+    expect(getByText("Button Three").tabIndex).toEqual(-1);
+    expect(getByText("Button Three").getAttribute("data-focused")).toEqual(
+      "false"
+    );
+  });
+
+  describe("when there is an onTabElementSelected callback", () => {
+    it("should correctly invoke the callback", () => {
+      const mockOnTabElementUpdated = jest.fn();
+      const flags = [false, false, false];
+      const { getByText } = render(
+        <TestToolbar
+          onTabElementSelected={mockOnTabElementUpdated}
+          flags={flags}
+        />
+      );
+      expect(mockOnTabElementUpdated).not.toHaveBeenCalled();
+
+      const buttonOne = getByText("Button One");
+      fireEvent.click(buttonOne);
+      expect(mockOnTabElementUpdated).toHaveBeenCalledTimes(1);
+      expect(mockOnTabElementUpdated).toHaveBeenLastCalledWith(buttonOne);
+
+      const buttonThree = getByText("Button Three");
+      fireEvent.click(buttonThree);
+      expect(mockOnTabElementUpdated).toHaveBeenCalledTimes(2);
+      expect(mockOnTabElementUpdated).toHaveBeenLastCalledWith(buttonThree);
+    });
   });
 });
 

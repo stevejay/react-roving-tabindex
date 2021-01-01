@@ -507,9 +507,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the first tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_ONE_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_ONE_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_ONE_ID },
+            });
           });
         });
 
@@ -627,9 +634,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the last tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_TWO_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_TWO_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_TWO_ID },
+            });
           });
         });
 
@@ -1071,9 +1085,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the first tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_ONE_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_ONE_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_ONE_ID },
+            });
           });
         });
 
@@ -1191,9 +1212,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the last tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_TWO_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_TWO_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_TWO_ID },
+            });
           });
         });
 
@@ -1633,9 +1661,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the first tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_ONE_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_ONE_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_ONE_ID },
+            });
           });
         });
 
@@ -1753,9 +1788,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the last tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_TWO_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_TWO_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_TWO_ID },
+            });
           });
         });
 
@@ -1873,9 +1915,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the first tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_ONE_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_ONE_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_ONE_ID },
+            });
           });
         });
 
@@ -1993,9 +2042,16 @@ describe('reducer', () => {
             },
           };
 
-          it('should not change the reducer state', () => {
+          it('should loop around to select the last tab stop', () => {
             const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            expect(result).toEqual<State>({
+              ...givenState,
+              selectedId: ELEMENT_TWO_ID,
+              lastSelectedElement: {
+                domElementRef: ELEMENT_TWO_TAB_STOP.domElementRef,
+              },
+              focusAction: { id: ELEMENT_TWO_ID },
+            });
           });
         });
 
@@ -2480,9 +2536,16 @@ describe('reducer', () => {
           },
         };
 
-        it('should not change the reducer state', () => {
+        it('should loop around to select the first tab stop', () => {
           const result = reducer(givenState, action);
-          expect(result).toEqual<State>(givenState);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_ONE_ID,
+            lastSelectedElement: {
+              domElementRef: ELEMENT_ONE_TAB_STOP.domElementRef,
+            },
+            focusAction: { id: ELEMENT_ONE_ID },
+          });
         });
       });
 
@@ -2639,9 +2702,16 @@ describe('reducer', () => {
           },
         };
 
-        it('should not change the reducer state', () => {
+        it('should loop around to select the last tab stop', () => {
           const result = reducer(givenState, action);
-          expect(result).toEqual<State>(givenState);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_TWO_ID,
+            lastSelectedElement: {
+              domElementRef: ELEMENT_TWO_TAB_STOP.domElementRef,
+            },
+            focusAction: { id: ELEMENT_TWO_ID },
+          });
         });
       });
 

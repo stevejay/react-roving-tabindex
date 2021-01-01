@@ -57,9 +57,11 @@
     "@storybook/react": "^6.0.27",
     "@storybook/storybook-deployer": "^2.8.7",
     "@svgr/rollup": "^5.4.0",
+    "@testing-library/dom": "^7.29.0",
     "@testing-library/jest-dom": "^5.11.8",
     "@testing-library/react": "^11.1.0",
     "@testing-library/react-hooks": "^3.4.2",
+    "@testing-library/user-event": "^12.6.0",
     "@types/array-find-index": "^1.0.0",
     "@types/jest": "^26.0.15",
     "@types/jsdom": "^16.2.5",
@@ -120,7 +122,7 @@
       "/dist/"
     ],
     "clearMocks": true,
-    "setupFiles": [
+    "setupFilesAfterEnv": [
       "./src/setup-tests.ts"
     ]
   }

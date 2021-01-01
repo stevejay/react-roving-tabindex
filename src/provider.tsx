@@ -157,7 +157,7 @@ export function reducer(state: State, action: Action): State {
                 break;
               }
               if (!tabStop.disabled) {
-                return selectTabStop(state, tabStop);
+                return currentTabStop === tabStop ? state : selectTabStop(state, tabStop);
               }
             } while (i !== index);
             // for (let i = index + 1; i < state.tabStops.length; ++i) {
@@ -184,7 +184,7 @@ export function reducer(state: State, action: Action): State {
                 break;
               }
               if (!tabStop.disabled) {
-                return selectTabStop(state, tabStop);
+                return currentTabStop === tabStop ? state : selectTabStop(state, tabStop);
               }
             } while (i !== index);
             // for (let i = index - 1; i >= 0; --i) {

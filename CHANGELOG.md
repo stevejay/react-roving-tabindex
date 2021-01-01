@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.0
+
+Breaking changes:
+
+- Next and previous arrow actions now loop around. Consider the situation when a tabindex has a direction of "horizontal" and the first element in the index is focused. Previously, if the user now pressed the ArrowLeft key, focus would stay on that first element. Now focus will shift to the last element in the index.
+
 ## 2.2.0
 
 - Add an optional `initialTabElementSelector` string prop to the provider.

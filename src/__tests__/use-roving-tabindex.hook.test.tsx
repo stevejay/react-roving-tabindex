@@ -118,7 +118,12 @@ it('should return the correct values when the tab stop is not selected', () => {
     wrapper,
   });
 
-  expect(result.current).toEqual([-1, false, expect.any(Function), expect.any(Function)]);
+  expect(result.current).toEqual([
+    -1,
+    expect.any(Function),
+    expect.any(Function),
+    expect.any(Function),
+  ]);
 });
 
 describe('when the tab stop is selected', () => {
@@ -136,7 +141,12 @@ describe('when the tab stop is selected', () => {
         wrapper,
       });
 
-      expect(result.current).toEqual([0, true, expect.any(Function), expect.any(Function)]);
+      expect(result.current).toEqual([
+        0,
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]);
     });
   });
 
@@ -158,7 +168,12 @@ describe('when the tab stop is selected', () => {
         wrapper,
       });
 
-      expect(result.current).toEqual([0, false, expect.any(Function), expect.any(Function)]);
+      expect(result.current).toEqual([
+        0,
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]);
     });
   });
 });
@@ -182,7 +197,12 @@ describe('when the tab stop is not selected', () => {
         wrapper,
       });
 
-      expect(result.current).toEqual([-1, false, expect.any(Function), expect.any(Function)]);
+      expect(result.current).toEqual([
+        -1,
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]);
     });
   });
 
@@ -204,7 +224,12 @@ describe('when the tab stop is not selected', () => {
         wrapper,
       });
 
-      expect(result.current).toEqual([-1, false, expect.any(Function), expect.any(Function)]);
+      expect(result.current).toEqual([
+        -1,
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function),
+      ]);
     });
   });
 });

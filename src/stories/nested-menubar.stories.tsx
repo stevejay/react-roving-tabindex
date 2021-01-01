@@ -123,9 +123,6 @@ const StyledMenuItem = styled.a`
   border-width: 2px;
   border-color: transparent;
   white-space: nowrap;
-  &:focus {
-    border-color: rgb(5, 150, 105);
-  }
   &:hover {
     background-color: rgb(218, 222, 226);
   }
@@ -168,9 +165,6 @@ const StyledMenuToggle = styled.button`
   border-width: 2px;
   border-color: transparent;
   white-space: nowrap;
-  &:focus {
-    border-color: rgb(5, 150, 105);
-  }
   &:hover {
     background-color: rgb(218, 222, 226);
   }

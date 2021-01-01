@@ -6,7 +6,7 @@
 
 ## Background
 
-The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop which speeds up keyboard navigation. The last focused input in the group is also remembered. It receives focus again when the user tabs back into the group.
+The roving tabindex is an accessibility pattern for a grouped set of inputs. It assists people who are using their keyboard to navigate your Web site. All inputs in a group get treated as a single tab stop which speeds up keyboard navigation. The last focused input in the group is also remembered so that it receives focus again when the user tabs back into the group.
 
 When in the group, the ArrowLeft and ArrowRight keys move focus between the inputs. (You can also configure this library so that the ArrowUp and ArrowDown keys move focus.) The Home and End keys (Fn+LeftArrow and Fn+RightArrow on macOS) move focus to the group's first and last inputs respectively.
 
@@ -23,15 +23,13 @@ There are two main architectural choices to be made:
 
 This package opts to support dynamic enabling and unenabling. It also allows inputs to be nested as necessary within subcomponents and wrapper elements. It uses React Context to communicate between the managing group component and the nested inputs.
 
-This package does not support nesting one roving tabindex group inside another. I believe that this complicates keyboard navigation too much.
-
 ### When not to use this package
 
 This package is designed as a general solution for a roving tabindex in a toolbar or a smallish grid. If you need a roving tabindex in a very large grid or table (a few hundred cells or more) then you will likely be better served with a bespoke implementation. By not including any unnecessary flexibility that this package offers then you should create a more performant implementation. For example, you might not need to support the enabling and unenabling of tab stops. It also takes time to register the cells with the package, and there is an overhead to creating the row index mapping for a grid.
 
 ## Requirements
 
-This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards. It has peer dependencies of `react` and `react-dom`.
+This package has been written using the React Hooks API, so it is only usable with React version 16.8 onwards. It has peer dependencies of `react` and `react-dom`, and a single regular dependency of the [`warning`](https://www.npmjs.com/package/warning) package.
 
 ## Installation
 
@@ -54,11 +52,8 @@ There is a storybook for this package [here](https://stevejay.github.io/react-ro
 ### Basic usage
 
 ```tsx
-import React, { ReactNode, useRef } from "react";
-import {
-  RovingTabIndexProvider,
-  useRovingTabIndex
-} from "react-roving-tabindex";
+import React, { ReactNode, useRef } from 'react';
+import { RovingTabIndexProvider, useRovingTabIndex } from 'react-roving-tabindex';
 
 type Props = {
   disabled?: boolean;
@@ -129,9 +124,7 @@ It is the ArrowLeft and ArrowRight keys that are used by default to move to the 
 
 ```ts
 const SomeComponent = () => (
-  <RovingTabIndexProvider direction="vertical">
-    {/* whatever */}
-  </RovingTabIndexProvider>
+  <RovingTabIndexProvider direction="vertical">{/* whatever */}</RovingTabIndexProvider>
 );
 ```
 
@@ -198,3 +191,7 @@ If you have build errors when building the Storybook locally, you are likely usi
 
 - For beta versions: `npm publish --tag next`.
 - For releases: `npm publish --tag latest`.
+
+## TODO
+
+- Rename for consistency (Tabindex not TabIndex).

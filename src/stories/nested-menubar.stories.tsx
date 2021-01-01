@@ -3,7 +3,6 @@ import { Meta } from '@storybook/react/types-6-0';
 import styled from 'styled-components';
 // import useOnclickOutside from "react-cool-onclickoutside";
 import useOnClickOutside from 'use-onclickoutside';
-import 'jspolyfill-array.prototype.findIndex';
 
 import { ProviderAPI, ProviderProps, RovingTabIndexProvider, useRovingTabIndex } from '..';
 import { Button } from './button';

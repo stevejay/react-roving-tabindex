@@ -46,7 +46,7 @@ export function reducer(state: State, action: Action): State {
 
       // Iterate backwards through state.tabStops since it is
       // most likely that the tab stop will need to be inserted
-      // at the end of that array.
+      // at the end of the array.
       let indexToInsertAt = -1;
       for (let i = state.tabStops.length - 1; i >= 0; --i) {
         const loopTabStop = state.tabStops[i];

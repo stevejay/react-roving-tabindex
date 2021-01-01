@@ -1,6 +1,5 @@
 import React, { FC, useRef } from 'react';
 import { Meta } from '@storybook/react/types-6-0';
-import 'jspolyfill-array.prototype.findIndex';
 
 import { RovingTabIndexProvider, useRovingTabIndex } from '..';
 import { Button } from './button';

@@ -43,7 +43,7 @@ yarn add react-roving-tabindex
 
 This package includes TypeScript typings.
 
-If you need to support IE then you also need to install polyfills for `Array.prototype.findIndex` and `Map`. If you are using React with IE then [you already need to use a `Map` polyfill](https://reactjs.org/docs/javascript-environment-requirements.html). If you use a global polyfill like [core-js](https://github.com/zloirock/core-js) or [babel-polyfill](https://babeljs.io/docs/usage/polyfill/) then it should include a `findIndex` polyfill.
+If you need to support IE then you also need to install polyfills for `Array.prototype.findIndex`, `Array.prototype.find`, and `Map`. If you are using React with IE then [you already need to use a `Map` polyfill](https://reactjs.org/docs/javascript-environment-requirements.html). If you use a global polyfill like [core-js](https://github.com/zloirock/core-js) or [babel-polyfill](https://babeljs.io/docs/usage/polyfill/) then it should include `findIndex` and `find` polyfills.
 
 ## Usage
 
@@ -195,3 +195,8 @@ If you have build errors when building the Storybook locally, you are likely usi
 ## TODO
 
 - Rename for consistency (Tabindex not TabIndex).
+- Separate registration and tab stop update.
+- Use a tabstop map.
+- find and findIndex polyfills
+- Use or uninstall react-cool-onclickoutside
+- Test in IE11

@@ -14,6 +14,10 @@ const Button = styled.button`
   margin: 0.5rem;
   padding: 0 0.75em;
 
+  &:active {
+    background-color: #d5c2e7;
+  }
+
   &:focus {
     color: white;
     background-color: rebeccapurple;

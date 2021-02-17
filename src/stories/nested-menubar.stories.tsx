@@ -208,6 +208,9 @@ const Menu: FC<MenuProps> = ({ children, label, isNested = false }) => {
 const StyledMenuBar = styled.ul`
   display: flex;
   gap: 1rem;
+  margin: 10px;
+  padding: 10px;
+  background-color: #eee;
 `;
 
 const MenuItemSeparator = styled.div`

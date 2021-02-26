@@ -34,6 +34,7 @@ export type State = Readonly<{
   allowFocusing: boolean;
   tabStops: readonly TabStop[];
   direction: KeyDirection;
+  shouldLoopAround?: boolean;
   rowStartMap: RowStartMap | null;
 }>;
 
@@ -43,7 +44,8 @@ export enum ActionType {
   KEY_DOWN = "KEY_DOWN",
   CLICKED = "CLICKED",
   TAB_STOP_UPDATED = "TAB_STOP_UPDATED",
-  DIRECTION_UPDATED = "DIRECTION_UPDATED"
+  DIRECTION_UPDATED = "DIRECTION_UPDATED",
+  SHOULD_LOOP_AROUND_UPDATED = "SHOULD_LOOP_AROUND_UPDATED"
 }
 
 export type Action =
@@ -78,6 +80,10 @@ export type Action =
   | {
       type: ActionType.DIRECTION_UPDATED;
       payload: { direction: KeyDirection };
+    }
+  | {
+      type: ActionType.SHOULD_LOOP_AROUND_UPDATED;
+      payload: { shouldLoopAround: boolean };
     };
 
 export type Context = Readonly<{

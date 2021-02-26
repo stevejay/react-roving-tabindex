@@ -136,11 +136,16 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const isGrid = currentTabStop.rowIndex !== null;
+      const isFirst = index === 0;
+      const isLast = index === state.tabStops.length - 1;
       const navigation = getNavigationValue(
         key,
         ctrlKey,
         isGrid,
-        state.direction
+        state.direction,
+        !!state.shouldLoopAround,
+        isFirst,
+        isLast
       );
       if (!navigation) {
         return state;
@@ -308,6 +313,12 @@ export function reducer(state: State, action: Action): State {
       const direction = action.payload.direction;
       return direction === state.direction ? state : { ...state, direction };
     }
+    case ActionType.SHOULD_LOOP_AROUND_UPDATED: {
+      const shouldLoopAround = action.payload.shouldLoopAround;
+      return shouldLoopAround === state.shouldLoopAround
+        ? state
+        : { ...state, shouldLoopAround };
+    }
     default:
       return state;
   }
@@ -343,33 +354,44 @@ function getNavigationValue(
   key: EventKey,
   ctrlKey: boolean,
   isGrid: boolean,
-  direction: string
+  direction: string,
+  shouldLoopAround: boolean,
+  isFirst: boolean,
+  isLast: boolean
 ): Navigation | null {
   switch (key) {
     case EventKey.ArrowLeft:
-      return isGrid || direction === "horizontal" || direction === "both"
-        ? Navigation.PREVIOUS
-        : null;
+      if (isGrid || direction === "horizontal" || direction === "both") {
+        return !isGrid && shouldLoopAround && isFirst
+          ? Navigation.VERY_LAST
+          : Navigation.PREVIOUS;
+      }
+      return null;
     case EventKey.ArrowRight:
-      return isGrid || direction === "horizontal" || direction === "both"
-        ? Navigation.NEXT
-        : null;
+      if (isGrid || direction === "horizontal" || direction === "both") {
+        return !isGrid && shouldLoopAround && isLast
+          ? Navigation.VERY_FIRST
+          : Navigation.NEXT;
+      }
+      return null;
     case EventKey.ArrowUp:
       if (isGrid) {
         return Navigation.PREVIOUS_ROW;
-      } else {
-        return direction === "vertical" || direction === "both"
-          ? Navigation.PREVIOUS
-          : null;
+      } else if (direction === "vertical" || direction === "both") {
+        return !isGrid && shouldLoopAround && isFirst
+          ? Navigation.VERY_LAST
+          : Navigation.PREVIOUS;
       }
+      return null;
     case EventKey.ArrowDown:
       if (isGrid) {
         return Navigation.NEXT_ROW;
-      } else {
-        return direction === "vertical" || direction === "both"
-          ? Navigation.NEXT
-          : null;
+      } else if (direction === "vertical" || direction === "both") {
+        return !isGrid && shouldLoopAround && isLast
+          ? Navigation.VERY_FIRST
+          : Navigation.NEXT;
       }
+      return null;
     case EventKey.Home:
       return !isGrid || ctrlKey
         ? Navigation.VERY_FIRST
@@ -413,6 +435,7 @@ const INITIAL_STATE: State = {
   allowFocusing: false,
   tabStops: [],
   direction: "horizontal",
+  shouldLoopAround: false,
   rowStartMap: null
 };
 
@@ -439,23 +462,39 @@ export const RovingTabIndexContext = createContext<Context>({
  * If you do not pass an explicit value then the 'horizontal'
  * behaviour applies. You can change this direction value
  * at any time.
+ * @param {boolean} shouldLoopAround An optional boolean flag
+ * activating the tabindex navigation loop around. This will make
+ * the tabindex loop around to the other side of the list when
+ * trying to go past the first or last elements. You can
+ * change this direction value at any time.
  */
 export const Provider = ({
   children,
-  direction = "horizontal"
+  direction = "horizontal",
+  shouldLoopAround = false
 }: {
   children: ReactNode;
   direction?: KeyDirection;
+  shouldLoopAround?: boolean;
 }): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
-    direction
+    direction,
+    shouldLoopAround
   });
 
   // Update the direction whenever it changes:
   useEffect(() => {
     dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
   }, [direction]);
+
+  // Update shouldLoopAround whenever it changes:
+  useEffect(() => {
+    dispatch({
+      type: ActionType.SHOULD_LOOP_AROUND_UPDATED,
+      payload: { shouldLoopAround }
+    });
+  }, [shouldLoopAround]);
 
   // Create a cached object to use as the context value:
   const context = useMemo<Context>(() => ({ state, dispatch }), [state]);

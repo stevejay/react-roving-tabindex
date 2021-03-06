@@ -27,7 +27,8 @@ const DOCUMENT_POSITION_FOLLOWING = 4;
 // with the roving tabindex's controls. If this delay
 // did not occur, the selected control would be focused
 // as soon as it was mounted, which is unlikely to be
-// the desired behaviour for the page.
+// the desired behaviour for the page. The property is
+// also used for respecting `:focus-visible` behavior.
 //
 // Note: The rowStartMap is only created if row-related
 // navigation occurs (e.g., move to row start or end), so
@@ -302,7 +303,7 @@ export function reducer(state: State, action: Action): State {
       const currentTabStop = state.tabStops[index];
       return currentTabStop.disabled
         ? state
-        : selectTabStop(state, currentTabStop);
+        : selectTabStop(state, currentTabStop, state.rowStartMap, false);
     }
     case ActionType.DIRECTION_UPDATED: {
       const direction = action.payload.direction;
@@ -385,11 +386,12 @@ function getNavigationValue(
 function selectTabStop(
   state: State,
   tabStop: TabStop,
-  rowStartMap?: RowStartMap
+  rowStartMap?: RowStartMap,
+  allowFocusing = true
 ) {
   return {
     ...state,
-    allowFocusing: true,
+    allowFocusing,
     selectedId: tabStop.id,
     rowStartMap: rowStartMap || state.rowStartMap
   };

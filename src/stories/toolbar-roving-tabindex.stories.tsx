@@ -44,6 +44,8 @@ const ToolbarButton: FC<{
 
 type ExampleProps = {
   direction: KeyDirection;
+  focusOnClick: boolean;
+  loopAround: boolean;
   buttonOneDisabled: boolean;
   onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
@@ -59,6 +61,8 @@ type ExampleProps = {
 
 export const ToolbarExample: FC<ExampleProps> = ({
   direction,
+  focusOnClick,
+  loopAround,
   buttonOneDisabled,
   onButtonOneClicked,
   buttonTwoDisabled,
@@ -74,7 +78,7 @@ export const ToolbarExample: FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Toolbar role="toolbar">
-      <RovingTabIndexProvider direction={direction}>
+      <RovingTabIndexProvider options={{ direction, focusOnClick, loopAround }}>
         <span>
           <ToolbarButton
             disabled={!!buttonOneDisabled}
@@ -126,6 +130,14 @@ export default {
     direction: {
       name: "Direction",
       defaultValue: "horizontal"
+    },
+    focusOnClick: {
+      name: "Focus on click",
+      defaultValue: false
+    },
+    loopAround: {
+      name: "Loop around",
+      defaultValue: false
     },
     onButtonOneClicked: { table: { disable: true } },
     onButtonTwoClicked: { table: { disable: true } },

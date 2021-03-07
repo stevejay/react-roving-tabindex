@@ -56,6 +56,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -80,6 +82,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -103,6 +107,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [ELEMENT_TWO_TAB_STOP],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -126,6 +132,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -155,6 +163,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -180,6 +190,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -210,6 +222,8 @@ describe("reducer", () => {
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -234,6 +248,8 @@ describe("reducer", () => {
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -263,6 +279,8 @@ describe("reducer", () => {
           { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
         ],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -287,6 +305,8 @@ describe("reducer", () => {
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -316,6 +336,8 @@ describe("reducer", () => {
             { ...ELEMENT_TWO_TAB_STOP, disabled: false }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -347,6 +369,8 @@ describe("reducer", () => {
           { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
         ],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -373,25 +397,55 @@ describe("reducer", () => {
 
   describe("when clicking on a tab stop", () => {
     describe("when the tab stop is not disabled", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        rowStartMap: null
+      describe("when focusOnClick is false", () => {
+        const givenState: State = Object.freeze({
+          selectedId: ELEMENT_ONE_ID,
+          allowFocusing: false,
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+          direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
+          rowStartMap: null
+        });
+
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: ELEMENT_TWO_ID }
+        };
+
+        it("should not set the clicked tab stop as the selected tab stop", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_TWO_ID,
+            allowFocusing: false
+          });
+        });
       });
 
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: ELEMENT_TWO_ID }
-      };
+      describe("when focusOnClick is true", () => {
+        const givenState: State = Object.freeze({
+          selectedId: ELEMENT_ONE_ID,
+          allowFocusing: false,
+          tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+          direction: "horizontal",
+          focusOnClick: true,
+          loopAround: false,
+          rowStartMap: null
+        });
 
-      it("should set the clicked tab stop as the selected tab stop", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          selectedId: ELEMENT_TWO_ID,
-          allowFocusing: true
+        const action: Action = {
+          type: ActionType.CLICKED,
+          payload: { id: ELEMENT_TWO_ID }
+        };
+
+        it("should set the clicked tab stop as the selected tab stop", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_TWO_ID,
+            allowFocusing: true
+          });
         });
       });
     });
@@ -405,6 +459,8 @@ describe("reducer", () => {
           { ...ELEMENT_TWO_TAB_STOP, disabled: true }
         ],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -425,6 +481,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -458,6 +516,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -481,26 +541,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no next tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "horizontal",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "horizontal",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowRight,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_TWO_ID,
-              key: EventKey.ArrowRight,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "horizontal",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowRight,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the first tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_ONE_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -513,6 +607,8 @@ describe("reducer", () => {
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -541,6 +637,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -571,6 +669,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -594,26 +694,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no previous tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "horizontal",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "horizontal",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowLeft,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_ONE_ID,
-              key: EventKey.ArrowLeft,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "horizontal",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowLeft,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the last tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_TWO_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -626,6 +760,8 @@ describe("reducer", () => {
               ELEMENT_TWO_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -654,6 +790,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -683,6 +821,8 @@ describe("reducer", () => {
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -707,6 +847,8 @@ describe("reducer", () => {
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -736,6 +878,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -768,6 +912,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -800,6 +946,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -833,6 +981,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -867,6 +1017,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -899,6 +1051,8 @@ describe("reducer", () => {
               { ...ELEMENT_THREE_TAB_STOP, disabled: true }
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -931,6 +1085,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -964,6 +1120,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "horizontal",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -996,6 +1154,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1019,26 +1179,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no next tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "vertical",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "vertical",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowDown,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_TWO_ID,
-              key: EventKey.ArrowDown,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "vertical",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowDown,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the first tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_ONE_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -1051,6 +1245,8 @@ describe("reducer", () => {
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1079,6 +1275,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1109,6 +1307,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1132,26 +1332,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no previous tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "vertical",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "vertical",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowUp,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_ONE_ID,
-              key: EventKey.ArrowUp,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "vertical",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowUp,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the last tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_TWO_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -1164,6 +1398,8 @@ describe("reducer", () => {
               ELEMENT_TWO_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1192,6 +1428,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1221,6 +1459,8 @@ describe("reducer", () => {
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "vertical",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -1245,6 +1485,8 @@ describe("reducer", () => {
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "vertical",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -1274,6 +1516,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1306,6 +1550,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1338,6 +1584,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1371,6 +1619,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1405,6 +1655,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1437,6 +1689,8 @@ describe("reducer", () => {
               { ...ELEMENT_THREE_TAB_STOP, disabled: true }
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1469,6 +1723,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1502,6 +1758,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "vertical",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1534,6 +1792,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1557,26 +1817,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no next tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowRight,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_TWO_ID,
-              key: EventKey.ArrowRight,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowRight,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the first tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_ONE_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -1589,6 +1883,8 @@ describe("reducer", () => {
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1617,6 +1913,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1647,6 +1945,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1670,26 +1970,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no previous tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowLeft,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_ONE_ID,
-              key: EventKey.ArrowLeft,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowLeft,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the last tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_TWO_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -1702,6 +2036,8 @@ describe("reducer", () => {
               ELEMENT_TWO_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1730,6 +2066,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1760,6 +2098,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1783,26 +2123,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no next tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowDown,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_TWO_ID,
-              key: EventKey.ArrowDown,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_TWO_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_TWO_ID,
+                key: EventKey.ArrowDown,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the first tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_ONE_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -1815,6 +2189,8 @@ describe("reducer", () => {
               { ...ELEMENT_TWO_TAB_STOP, disabled: true }
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1843,6 +2219,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1873,6 +2251,8 @@ describe("reducer", () => {
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1896,26 +2276,60 @@ describe("reducer", () => {
         });
 
         describe("when there is no previous tab stop", () => {
-          const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
-            allowFocusing: false,
-            tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-            direction: "both",
-            rowStartMap: null
+          describe("when loopAround is false", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: false,
+              rowStartMap: null
+            });
+
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowUp,
+                ctrlKey: false
+              }
+            };
+
+            it("should not change the reducer state", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>(givenState);
+            });
           });
 
-          const action: Action = {
-            type: ActionType.KEY_DOWN,
-            payload: {
-              id: ELEMENT_ONE_ID,
-              key: EventKey.ArrowUp,
-              ctrlKey: false
-            }
-          };
+          describe("when loopAround is true", () => {
+            const givenState: State = Object.freeze({
+              selectedId: ELEMENT_ONE_ID,
+              allowFocusing: false,
+              tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+              direction: "both",
+              focusOnClick: false,
+              loopAround: true,
+              rowStartMap: null
+            });
 
-          it("should not change the reducer state", () => {
-            const result = reducer(givenState, action);
-            expect(result).toEqual<State>(givenState);
+            const action: Action = {
+              type: ActionType.KEY_DOWN,
+              payload: {
+                id: ELEMENT_ONE_ID,
+                key: EventKey.ArrowUp,
+                ctrlKey: false
+              }
+            };
+
+            it("should loop around to the last tab stop", () => {
+              const result = reducer(givenState, action);
+              expect(result).toEqual<State>({
+                ...givenState,
+                selectedId: ELEMENT_TWO_ID,
+                allowFocusing: true
+              });
+            });
           });
         });
 
@@ -1928,6 +2342,8 @@ describe("reducer", () => {
               ELEMENT_TWO_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1956,6 +2372,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -1990,6 +2408,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2022,6 +2442,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2054,6 +2476,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2087,6 +2511,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2121,6 +2547,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2153,6 +2581,8 @@ describe("reducer", () => {
               { ...ELEMENT_THREE_TAB_STOP, disabled: true }
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2185,6 +2615,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2218,6 +2650,8 @@ describe("reducer", () => {
               ELEMENT_THREE_TAB_STOP
             ],
             direction: "both",
+            focusOnClick: false,
+            loopAround: false,
             rowStartMap: null
           });
 
@@ -2248,6 +2682,8 @@ describe("reducer", () => {
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -2284,6 +2720,8 @@ describe("reducer", () => {
           ELEMENT_TWO_TAB_STOP
         ],
         direction: "horizontal",
+        focusOnClick: false,
+        loopAround: false,
         rowStartMap: null
       });
 
@@ -2315,6 +2753,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2346,6 +2786,8 @@ describe("reducer", () => {
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2373,6 +2815,8 @@ describe("reducer", () => {
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2401,6 +2845,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2429,6 +2875,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2463,6 +2911,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2494,6 +2944,8 @@ describe("reducer", () => {
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2521,6 +2973,8 @@ describe("reducer", () => {
             { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2550,6 +3004,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2578,6 +3034,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2612,6 +3070,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2644,6 +3104,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2676,6 +3138,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2706,6 +3170,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2738,6 +3204,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2, disabled: true }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2770,6 +3238,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2801,6 +3271,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2838,6 +3310,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2875,6 +3349,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2910,6 +3386,8 @@ describe("reducer", () => {
             { ...ELEMENT_THREE_TAB_STOP, rowIndex: 0 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2945,6 +3423,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -2982,6 +3462,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3019,6 +3501,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3059,6 +3543,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3099,6 +3585,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3130,6 +3618,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3168,6 +3658,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1, disabled: true }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3206,6 +3698,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2, disabled: true }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3247,6 +3741,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3287,6 +3783,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3318,6 +3816,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3356,6 +3856,8 @@ describe("reducer", () => {
             { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3394,6 +3896,8 @@ describe("reducer", () => {
             { ...ELEMENT_SIX_TAB_STOP, rowIndex: 2 }
           ],
           direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
           rowStartMap: null
         });
 
@@ -3422,23 +3926,30 @@ describe("reducer", () => {
     });
   });
 
-  describe("when changing the direction", () => {
+  describe("when changing the options", () => {
     const givenState: State = Object.freeze({
       selectedId: ELEMENT_ONE_ID,
       allowFocusing: false,
       tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
       direction: "horizontal",
+      focusOnClick: false,
+      loopAround: false,
       rowStartMap: null
     });
 
     const action: Action = {
-      type: ActionType.DIRECTION_UPDATED,
-      payload: { direction: "both" }
+      type: ActionType.OPTIONS_UPDATED,
+      payload: { direction: "both", focusOnClick: true, loopAround: true }
     };
 
     it("should update the key config", () => {
       const result = reducer(givenState, action);
-      expect(result).toEqual<State>({ ...givenState, direction: "both" });
+      expect(result).toEqual<State>({
+        ...givenState,
+        direction: "both",
+        focusOnClick: true,
+        loopAround: true
+      });
     });
   });
 });

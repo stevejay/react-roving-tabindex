@@ -12,8 +12,8 @@ import {
   ActionType,
   Context,
   EventKey,
-  KeyDirection,
   Navigation,
+  Options,
   RowStartMap,
   State,
   TabStop
@@ -136,11 +136,16 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const isGrid = currentTabStop.rowIndex !== null;
+      const isFirst = index === 0;
+      const isLast = index === state.tabStops.length - 1;
       const navigation = getNavigationValue(
         key,
         ctrlKey,
         isGrid,
-        state.direction
+        state.direction,
+        state.loopAround,
+        isFirst,
+        isLast
       );
       if (!navigation) {
         return state;
@@ -302,12 +307,10 @@ export function reducer(state: State, action: Action): State {
       const currentTabStop = state.tabStops[index];
       return currentTabStop.disabled
         ? state
-        : selectTabStop(state, currentTabStop);
+        : selectTabStop(state, currentTabStop, undefined, state.focusOnClick);
     }
-    case ActionType.DIRECTION_UPDATED: {
-      const direction = action.payload.direction;
-      return direction === state.direction ? state : { ...state, direction };
-    }
+    case ActionType.OPTIONS_UPDATED:
+      return { ...state, ...action.payload };
     default:
       return state;
   }
@@ -343,33 +346,42 @@ function getNavigationValue(
   key: EventKey,
   ctrlKey: boolean,
   isGrid: boolean,
-  direction: string
+  direction: string,
+  loopAround: boolean,
+  isFirst: boolean,
+  isLast: boolean
 ): Navigation | null {
   switch (key) {
     case EventKey.ArrowLeft:
-      return isGrid || direction === "horizontal" || direction === "both"
-        ? Navigation.PREVIOUS
-        : null;
+      if (isGrid || direction === "horizontal" || direction === "both") {
+        return !isGrid && loopAround && isFirst
+          ? Navigation.VERY_LAST
+          : Navigation.PREVIOUS;
+      }
+      return null;
     case EventKey.ArrowRight:
-      return isGrid || direction === "horizontal" || direction === "both"
-        ? Navigation.NEXT
-        : null;
+      if (isGrid || direction === "horizontal" || direction === "both") {
+        return !isGrid && loopAround && isLast
+          ? Navigation.VERY_FIRST
+          : Navigation.NEXT;
+      }
+      return null;
     case EventKey.ArrowUp:
       if (isGrid) {
         return Navigation.PREVIOUS_ROW;
-      } else {
-        return direction === "vertical" || direction === "both"
-          ? Navigation.PREVIOUS
-          : null;
+      } else if (direction === "vertical" || direction === "both") {
+        return loopAround && isFirst
+          ? Navigation.VERY_LAST
+          : Navigation.PREVIOUS;
       }
+      return null;
     case EventKey.ArrowDown:
       if (isGrid) {
         return Navigation.NEXT_ROW;
-      } else {
-        return direction === "vertical" || direction === "both"
-          ? Navigation.NEXT
-          : null;
+      } else if (direction === "vertical" || direction === "both") {
+        return loopAround && isLast ? Navigation.VERY_FIRST : Navigation.NEXT;
       }
+      return null;
     case EventKey.Home:
       return !isGrid || ctrlKey
         ? Navigation.VERY_FIRST
@@ -385,11 +397,12 @@ function getNavigationValue(
 function selectTabStop(
   state: State,
   tabStop: TabStop,
-  rowStartMap?: RowStartMap
+  rowStartMap?: RowStartMap,
+  allowFocusing = true
 ) {
   return {
     ...state,
-    allowFocusing: true,
+    allowFocusing,
     selectedId: tabStop.id,
     rowStartMap: rowStartMap || state.rowStartMap
   };
@@ -413,6 +426,8 @@ const INITIAL_STATE: State = {
   allowFocusing: false,
   tabStops: [],
   direction: "horizontal",
+  focusOnClick: false,
+  loopAround: false,
   rowStartMap: null
 };
 
@@ -424,11 +439,16 @@ export const RovingTabIndexContext = createContext<Context>({
 
 /**
  * Creates a roving tabindex context.
- * @param {ReactNode} children The child content, which will
+ * @param {ReactNode} children - The child content, which will
  * include the DOM elements to rove between using the tab key.
- * @param {KeyDirection} direction An optional direction value
+ * @param {Object} options - An optional options object to customize the
+ * behaviour of the library. It is fine to pass a new object
+ * every time the containing component is rendered, and the options
+ * can be updated at any time.
+ * @param {KeyDirection} options.direction - An optional direction value
  * that only applies when the roving tabindex is not being
  * used within a grid. This value specifies the arrow key behaviour.
+ * The default value is 'horizontal'.
  * When set to 'horizontal' then only the ArrowLeft and ArrowRight
  * keys move to the previous and next tab stop respectively.
  * When set to 'vertical' then only the ArrowUp and ArrowDown keys
@@ -437,25 +457,47 @@ export const RovingTabIndexContext = createContext<Context>({
  * to move to the previous tab stop, and both the ArrowRight
  * and ArrowDown keys can be used to move to the next tab stop.
  * If you do not pass an explicit value then the 'horizontal'
- * behaviour applies. You can change this direction value
- * at any time.
+ * behaviour applies.
+ * @param {boolean} options.focusOnClick - An optional flag for indicating
+ * if `focus()` should invoked on an item in the roving tabindex
+ * when it is clicked. The default value for this flag is `false`,
+ * meaning that `focus()` will not be invoked on click.
+ * Browsers are
+ * [inconsistent in their behaviour](https://zellwk.com/blog/inconsistent-button-behavior/)
+ * when a button is clicked so you will see some variation between
+ * the browsers with the default value. Prior to version 3 of this library,
+ * the behaviour was to always invoke `focus()` on click; this behaviour
+ * can be maintained by passing `true`.
+ * @param {boolean} options.loopAround - An optional flag that,
+ * when set to `true`, will loop the tabindex around when the user
+ * tries to tab the first or last elements in the roving tabindex,
+ * rather than stopping any further movement. The default value is `false`
+ * (no looping). Note that this option does not apply if the roving
+ * tabindex is being used on a grid.
  */
 export const Provider = ({
   children,
-  direction = "horizontal"
+  options
 }: {
   children: ReactNode;
-  direction?: KeyDirection;
+  options?: Options;
 }): ReactElement => {
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
-    direction
+    ...options
   });
 
-  // Update the direction whenever it changes:
+  // Update the options whenever they change:
   useEffect(() => {
-    dispatch({ type: ActionType.DIRECTION_UPDATED, payload: { direction } });
-  }, [direction]);
+    dispatch({
+      type: ActionType.OPTIONS_UPDATED,
+      payload: {
+        direction: options?.direction ?? INITIAL_STATE.direction,
+        focusOnClick: options?.focusOnClick ?? INITIAL_STATE.focusOnClick,
+        loopAround: options?.loopAround ?? INITIAL_STATE.loopAround
+      }
+    });
+  }, [options?.direction, options?.focusOnClick, options?.loopAround]);
 
   // Create a cached object to use as the context value:
   const context = useMemo<Context>(() => ({ state, dispatch }), [state]);

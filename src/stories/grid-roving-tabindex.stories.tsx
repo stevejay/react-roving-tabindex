@@ -47,6 +47,7 @@ const GridButton: FC<{
 };
 
 type ExampleProps = {
+  focusOnClick: boolean;
   buttonOneDisabled: boolean;
   onButtonOneClicked: ButtonClickHandler;
   buttonTwoDisabled: boolean;
@@ -61,6 +62,7 @@ type ExampleProps = {
 };
 
 export const GridExample: FC<ExampleProps> = ({
+  focusOnClick,
   buttonOneDisabled,
   onButtonOneClicked,
   buttonTwoDisabled,
@@ -76,7 +78,7 @@ export const GridExample: FC<ExampleProps> = ({
   <>
     <Button>Something before to focus on</Button>
     <Grid role="grid">
-      <RovingTabIndexProvider>
+      <RovingTabIndexProvider options={{ focusOnClick }}>
         <GridButton
           disabled={!!buttonOneDisabled}
           useAlternateGridLayout={useAlternateGridLayout}
@@ -183,6 +185,10 @@ export default {
   title: "Grid RovingTabIndex",
   component: GridExample,
   argTypes: {
+    focusOnClick: {
+      name: "Focus on click",
+      defaultValue: false
+    },
     onButtonOneClicked: { table: { disable: true } },
     onButtonTwoClicked: { table: { disable: true } },
     onButtonThreeClicked: { table: { disable: true } },

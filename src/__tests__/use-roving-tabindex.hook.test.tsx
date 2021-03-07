@@ -14,6 +14,8 @@ const INITIAL_STATE: State = {
   allowFocusing: false,
   tabStops: [],
   direction: "horizontal",
+  focusOnClick: false,
+  loopAround: false,
   rowStartMap: null
 };
 

@@ -3926,7 +3926,7 @@ describe("reducer", () => {
     });
   });
 
-  describe("when changing the options", () => {
+  describe("when changing all of the options", () => {
     const givenState: State = Object.freeze({
       selectedId: ELEMENT_ONE_ID,
       allowFocusing: false,
@@ -3949,6 +3949,33 @@ describe("reducer", () => {
         direction: "both",
         focusOnClick: true,
         loopAround: true
+      });
+    });
+  });
+
+  describe("when changing some of the options", () => {
+    const givenState: State = Object.freeze({
+      selectedId: ELEMENT_ONE_ID,
+      allowFocusing: false,
+      tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
+      direction: "horizontal",
+      focusOnClick: false,
+      loopAround: false,
+      rowStartMap: null
+    });
+
+    const action: Action = {
+      type: ActionType.OPTIONS_UPDATED,
+      payload: { direction: "both" }
+    };
+
+    it("should update the key config", () => {
+      const result = reducer(givenState, action);
+      expect(result).toEqual<State>({
+        ...givenState,
+        direction: "both",
+        focusOnClick: false,
+        loopAround: false
       });
     });
   });

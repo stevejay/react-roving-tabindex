@@ -49,7 +49,7 @@ If you need to support IE then you also need to install polyfills for `Array.pro
 
 ## Usage
 
-There is a storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/), with both toolbar and grid usage examples.
+There is a basic storybook for this package [here](https://stevejay.github.io/react-roving-tabindex/), with both toolbar and grid usage examples.
 
 ### Basic usage
 
@@ -128,19 +128,61 @@ return (
 );
 ```
 
-#### Direction
+### Options
 
-It is the ArrowLeft and ArrowRight keys that are used by default to move to the previous and next input respectively. The `RovingTabIndexProvider` has an optional `direction` property that allows you to change this:
+The `RovingTabIndexProvider` component includes an optional `options` prop for tailoring the behaviour of the library:
 
-```ts
+```tsx
 const SomeComponent = () => (
-  <RovingTabIndexProvider direction="vertical">
+  <RovingTabIndexProvider options={{ direction: "vertical" }}>
     {/* whatever */}
   </RovingTabIndexProvider>
 );
 ```
 
-The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
+There are currently three options available: `direction`, `focusOnClick`, and `loopAround`. Note that it is fine to create a new `options` object on every render - the library's internal state is only updated if the actual option values change, rather than the containing `options` object.
+
+#### Direction
+
+By default, it is the ArrowLeft and ArrowRight keys that are used to move to the previous and next item respectively. The `RovingTabIndexProvider` has an optional `direction` property on the `options` prop that allows you to change this:
+
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider options={{ direction: "vertical" }}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
+The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next item. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous item, and both the ArrowRight and ArrowDown keys can be used to move to the next item. You can update the `direction` value at any time.
+
+#### Loop Around
+
+By default, if you try to tab past the very start or very end of the roving tabindex then tabbing does not wrap around. The `RovingTabIndexProvider` has an optional `loopAround` property on the `options` prop that allows you to change this:
+
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider options={{ loopAround: true }}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
+If this option is set to `true` then tabbing will wrap around if you reach the very start or very end of the roving tabindex items, rather than stopping. Note that this option does not apply if the roving tabindex is being used with a grid.
+
+#### Focus on Click
+
+By default, clicking on a roving tabindex item will not result in `focus()` being invoked on the item (via `useFocusEffect`). It is only when you use the keyboard to move to an item that `focus()` is invoked on it. The `RovingTabIndexProvider` has an optional `focusOnClick` property on the `options` prop that allows you to change this:
+
+```ts
+const SomeComponent = () => (
+  <RovingTabIndexProvider options={{ focusOnClick: true }}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
+Browsers are [inconsistent in their behaviour](https://zellwk.com/blog/inconsistent-button-behavior/) when a button is clicked so you will see some variation between the browsers with the default value of `false` for this option. Please set this option to `true` if you want this library to behave as it did prior to version 3.
 
 ### Grid usage
 
@@ -159,6 +201,10 @@ The row index value must be the zero-based row index for the grid item that the 
 The `direction` property of the `RovingTabIndexProvider` is ignored when row indexes are provided. This is because the ArrowUp and ArrowDown keys are always used to move between rows.
 
 ## Upgrading
+
+### From version 2 to version 3
+
+Please see the CHANGELOG.md file for instructions to upgrade from version 2 to version 3.
 
 ### From version 1 to version 2
 

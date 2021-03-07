@@ -1,5 +1,41 @@
 # Changelog
 
+## 3.0.0
+
+This release has two breaking changes.
+
+The first is that the `RovingTabIndexProvider` now takes an optional `options` prop for tailoring the behaviour of the library. If you have previously used the `direction` prop on the provider then you will need to update your usage as follows:
+
+```tsx
+// Old:
+const SomeComponent = () => (
+  <RovingTabIndexProvider direction="vertical">
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+
+// New:
+const SomeComponent = () => (
+  <RovingTabIndexProvider options={{ direction: "vertical" }}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
+Note that it is fine to create a new `options` object on every render - the library's internal state is only updated if the individual values of the `options` object's properties change.
+
+The second breaking change is that now, when an element that is part of the roving tabindex is clicked, `focus()` is no longer automatically invoked on the element. The previous behaviour of this library was that `focus()` would be invoked on a click. The reason for this was that browsers are quite inconsistent in their behaviour when a button is clicked, and invoking `focus()` in that situation improved consistency. However, [@kripod](https://github.com/kripod) suggested that a better default is to not automatically invoke `focus()` on click. If you want to maintain the old behaviour then you can use the new `focusOnClick` option and set it to `true`:
+
+```tsx
+const SomeComponent = () => (
+  <RovingTabIndexProvider options={{ focusOnClick: true }}>
+    {/* whatever */}
+  </RovingTabIndexProvider>
+);
+```
+
+There is also a third option available on the `RovingTabIndexProvider`, called `loopAround`. If set to `true` then tabbing wraps around if you reach the very start or very end of the roving tabindex items, rather than stopping. This option does not apply if the roving tabindex is being used with a grid.
+
 ## 2.1.0
 
 - Updated dev dependencies.

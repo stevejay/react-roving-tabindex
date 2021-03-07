@@ -34,8 +34,14 @@ export type State = Readonly<{
   allowFocusing: boolean;
   tabStops: readonly TabStop[];
   direction: KeyDirection;
+  focusOnClick: boolean;
+  loopAround: boolean;
   rowStartMap: RowStartMap | null;
 }>;
+
+export type Options = Partial<
+  Pick<State, "direction" | "focusOnClick" | "loopAround">
+>;
 
 export enum ActionType {
   REGISTER_TAB_STOP = "REGISTER_TAB_STOP",
@@ -43,7 +49,7 @@ export enum ActionType {
   KEY_DOWN = "KEY_DOWN",
   CLICKED = "CLICKED",
   TAB_STOP_UPDATED = "TAB_STOP_UPDATED",
-  DIRECTION_UPDATED = "DIRECTION_UPDATED"
+  OPTIONS_UPDATED = "OPTIONS_UPDATED"
 }
 
 export type Action =
@@ -76,8 +82,8 @@ export type Action =
       payload: { id: TabStop["id"] };
     }
   | {
-      type: ActionType.DIRECTION_UPDATED;
-      payload: { direction: KeyDirection };
+      type: ActionType.OPTIONS_UPDATED;
+      payload: Options;
     };
 
 export type Context = Readonly<{

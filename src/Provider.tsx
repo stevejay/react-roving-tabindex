@@ -441,7 +441,7 @@ export const RovingTabIndexContext = createContext<Context>({
  * Creates a roving tabindex context.
  * @param {ReactNode} children - The child content, which will
  * include the DOM elements to rove between using the tab key.
- * @param {Object} options - An optional options object to customize the
+ * @param {Object} options - An optional object to customize the
  * behaviour of the library. It is fine to pass a new object
  * every time the containing component is rendered, and the options
  * can be updated at any time.
@@ -470,10 +470,10 @@ export const RovingTabIndexContext = createContext<Context>({
  * can be maintained by passing `true`.
  * @param {boolean} options.loopAround - An optional flag that,
  * when set to `true`, will loop the tabindex around when the user
- * tries to tab the first or last elements in the roving tabindex,
- * rather than stopping any further movement. The default value is `false`
- * (no looping). Note that this option does not apply if the roving
- * tabindex is being used on a grid.
+ * tries to tab to the first or last elements in the roving tabindex,
+ * rather than stopping. The default value is `false` (no looping).
+ * Note that this option does not apply if the roving tabindex
+ * is being used on a grid.
  */
 export const Provider = ({
   children,

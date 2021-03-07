@@ -4,7 +4,7 @@
 
 This release has two breaking changes.
 
-The first is that the `RovingTabIndexProvider` now takes an optional `options` prop for tailoring the behaviour of the library. If you have used the `direction` prop on the provider then you will need to update your usage as follows:
+The first is that the `RovingTabIndexProvider` now takes an optional `options` prop for tailoring the behaviour of the library. If you have previously used the `direction` prop on the provider then you will need to update your usage as follows:
 
 ```tsx
 // Old:
@@ -24,7 +24,7 @@ const SomeComponent = () => (
 
 Note that it is fine to create a new `options` object on every render - the library's internal state is only updated if the individual values of the `options` object's properties change.
 
-The second breaking change is that now, when an element that is part of the roving tabindex is clicked, `focus()` is no longer automatically invoked on the element. The previous behaviour of this library was that `focus()` would be invoked on a click. The reason for this was that browsers are quite inconsistent in their behaviour when a button is clicked, and invoking `focus()` in that situation brings consistency. However, [@kripod](https://github.com/kripod) suggested that a better default is to not automatically invoke `focus()` on click. If you want to maintain the old behaviour then you can use the new `focusOnClick` option and set it to `true`:
+The second breaking change is that now, when an element that is part of the roving tabindex is clicked, `focus()` is no longer automatically invoked on the element. The previous behaviour of this library was that `focus()` would be invoked on a click. The reason for this was that browsers are quite inconsistent in their behaviour when a button is clicked, and invoking `focus()` in that situation improved consistency. However, [@kripod](https://github.com/kripod) suggested that a better default is to not automatically invoke `focus()` on click. If you want to maintain the old behaviour then you can use the new `focusOnClick` option and set it to `true`:
 
 ```tsx
 const SomeComponent = () => (

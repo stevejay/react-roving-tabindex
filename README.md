@@ -140,7 +140,7 @@ const SomeComponent = () => (
 );
 ```
 
-There are currently three available options: `direction`, `focusOnClick`, and `loopAround`. Note that it is fine to create a new `options` object on every render - the library's internal state is only updated if the values of the `options` object's properties change.
+There are currently three options available: `direction`, `focusOnClick`, and `loopAround`. Note that it is fine to create a new `options` object on every render - the library's internal state is only updated if the actual option values change, rather than the containing `options` object.
 
 #### Direction
 
@@ -154,7 +154,7 @@ const SomeComponent = () => (
 );
 ```
 
-The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next input. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous input, and both the ArrowRight and ArrowDown keys can be used to move to the next input. You can update this `direction` value at any time.
+The default behaviour is selected by setting the direction to `horizontal`. If the direction is set to `vertical` then it is the ArrowUp and ArrowDown keys that are used to move to the previous and next item. If the direction is set to `both` then both the ArrowLeft and ArrowUp keys can be used to move to the previous item, and both the ArrowRight and ArrowDown keys can be used to move to the next item. You can update the `direction` value at any time.
 
 #### Loop Around
 
@@ -182,7 +182,7 @@ const SomeComponent = () => (
 );
 ```
 
-Browsers are [inconsistent in their behaviour](https://zellwk.com/blog/inconsistent-button-behavior/) when a button is clicked so you will see some variation between the browsers with the default value (`false`) for this option. Please set this option to `true` if you want the 'focus on click' behaviour or if you want this library to behave as it did prior to version 3.
+Browsers are [inconsistent in their behaviour](https://zellwk.com/blog/inconsistent-button-behavior/) when a button is clicked so you will see some variation between the browsers with the default value of `false` for this option. Please set this option to `true` if you want this library to behave as it did prior to version 3.
 
 ### Grid usage
 
@@ -204,7 +204,7 @@ The `direction` property of the `RovingTabIndexProvider` is ignored when row ind
 
 ### From version 2 to version 3
 
-Please see the CHANGELOG.md file for instructions on upgrading from version 2 to version 3.
+Please see the CHANGELOG.md file for instructions to upgrade from version 2 to version 3.
 
 ### From version 1 to version 2
 

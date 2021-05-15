@@ -59,6 +59,7 @@ type ExampleProps = {
   buttonFiveDisabled: boolean;
   onButtonFiveClicked: ButtonClickHandler;
   useAlternateGridLayout: boolean;
+  useShortFinalRow: boolean;
 };
 
 export const GridExample: FC<ExampleProps> = ({
@@ -73,7 +74,8 @@ export const GridExample: FC<ExampleProps> = ({
   onButtonFourClicked,
   buttonFiveDisabled,
   onButtonFiveClicked,
-  useAlternateGridLayout
+  useAlternateGridLayout,
+  useShortFinalRow
 }) => (
   <>
     <Button>Something before to focus on</Button>
@@ -167,14 +169,16 @@ export const GridExample: FC<ExampleProps> = ({
         >
           Button Eleven
         </GridButton>
-        <GridButton
-          disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
-          rowIndex={useAlternateGridLayout ? 3 : 2}
-        >
-          Button Twelve
-        </GridButton>
+        {!useShortFinalRow && (
+          <GridButton
+            disabled={false}
+            useAlternateGridLayout={useAlternateGridLayout}
+            onClick={NOOP_HANDLER}
+            rowIndex={useAlternateGridLayout ? 3 : 2}
+          >
+            Button Twelve
+          </GridButton>
+        )}
       </RovingTabIndexProvider>
     </Grid>
     <Button>Something after to focus on</Button>
@@ -212,6 +216,9 @@ export default {
     },
     useAlternateGridLayout: {
       name: "Use a 3x4 grid layout"
+    },
+    useShortFinalRow: {
+      name: "Use a short final row"
     }
   },
   parameters: { actions: { argTypesRegex: "^on.*" } }

@@ -218,7 +218,7 @@ export function reducer(state: State, action: Action): State {
                 return state;
               }
               const rowTabStop = state.tabStops[rowStartIndex + columnOffset];
-              if (!rowTabStop.disabled) {
+              if (rowTabStop && !rowTabStop.disabled) {
                 return selectTabStop(state, rowTabStop, rowStartMap);
               }
             }
@@ -248,7 +248,7 @@ export function reducer(state: State, action: Action): State {
                 return state;
               }
               const rowTabStop = state.tabStops[rowStartIndex + columnOffset];
-              if (!rowTabStop.disabled) {
+              if (rowTabStop && !rowTabStop.disabled) {
                 return selectTabStop(state, rowTabStop, rowStartMap);
               }
             }

@@ -167,14 +167,6 @@ export const GridExample: FC<ExampleProps> = ({
         >
           Button Eleven
         </GridButton>
-        <GridButton
-          disabled={false}
-          useAlternateGridLayout={useAlternateGridLayout}
-          onClick={NOOP_HANDLER}
-          rowIndex={useAlternateGridLayout ? 3 : 2}
-        >
-          Button Twelve
-        </GridButton>
       </RovingTabIndexProvider>
     </Grid>
     <Button>Something after to focus on</Button>

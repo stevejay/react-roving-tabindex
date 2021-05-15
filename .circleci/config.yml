@@ -7,8 +7,7 @@ orbs:
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/node:10.15-browsers
+      - image: cimg/node:16.1.0
 
     working_directory: ~/repo
 
@@ -18,16 +17,16 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - yarn-packages-v1-{{ .Branch }}-
+            - yarn-packages-v1-
 
-      - run: yarn install
+      - run: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
 
       - save_cache:
           paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package-lock.json" }}
+            - ~/.cache/yarn
+          key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
 
       - run: yarn build
       - run: yarn test:coverage

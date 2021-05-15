@@ -9,11 +9,11 @@ const DOCUMENT_POSITION_FOLLOWING = 4;
 
 function createMockDomElementRef(index: number): RefObject<Element> {
   return {
-    current: ({
+    current: {
       index,
       compareDocumentPosition: (other) =>
         other.index > index ? DOCUMENT_POSITION_FOLLOWING : 0
-    } as unknown) as Element
+    } as unknown as Element
   } as RefObject<Element>;
 }
 

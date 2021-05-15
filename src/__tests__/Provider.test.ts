@@ -3530,6 +3530,47 @@ describe("reducer", () => {
     });
 
     describe("when tabbing to the next row", () => {
+      describe("when there is no tab stop in the relative position in the next row", () => {
+        const givenState: State = Object.freeze({
+          selectedId: ELEMENT_FOUR_ID,
+          allowFocusing: false,
+          tabStops: [
+            { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
+            { ...ELEMENT_TWO_TAB_STOP, rowIndex: 0 },
+            { ...ELEMENT_THREE_TAB_STOP, rowIndex: 1 },
+            { ...ELEMENT_FOUR_TAB_STOP, rowIndex: 1 },
+            { ...ELEMENT_FIVE_TAB_STOP, rowIndex: 2 }
+          ],
+          direction: "horizontal",
+          focusOnClick: false,
+          loopAround: false,
+          rowStartMap: null
+        });
+
+        const action: Action = {
+          type: ActionType.KEY_DOWN,
+          payload: {
+            id: ELEMENT_FOUR_ID,
+            key: EventKey.ArrowDown,
+            ctrlKey: false
+          }
+        };
+
+        it("should not tab to the next row", () => {
+          const result = reducer(givenState, action);
+          expect(result).toEqual<State>({
+            ...givenState,
+            selectedId: ELEMENT_FOUR_ID,
+            allowFocusing: true,
+            rowStartMap: new Map([
+              [0, 0],
+              [1, 2],
+              [2, 4]
+            ])
+          });
+        });
+      });
+
       describe("when the tab stop in the next row is enabled", () => {
         const givenState: State = Object.freeze({
           selectedId: ELEMENT_TWO_ID,

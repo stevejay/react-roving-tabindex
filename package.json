@@ -1,6 +1,6 @@
 {
   "name": "react-roving-tabindex",
-  "version": "3.1.0-beta",
+  "version": "3.1.0",
   "description": "React implementation of a roving tabindex, now with grid support",
   "author": "stevejay",
   "license": "MIT",

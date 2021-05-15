@@ -1,9 +1,9 @@
 # Changelog
 
-## 3.1.0-beta
+## 3.1.0
 
 - Updated dev dependencies.
-- Support having a short final row of tab stops in a grid layout.
+- Support having a short final row of tab stops in a grid layout (thanks to @webextensions).
 
 ## 3.0.0
 

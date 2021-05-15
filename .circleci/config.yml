@@ -7,8 +7,7 @@ orbs:
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/node:10.15-browsers
+      - image: cimg/node:16.1.0
 
     working_directory: ~/repo
 

@@ -293,11 +293,11 @@ it("should dispatch the correct event when the user presses a related key on the
 
   contextValue.dispatch.mockClear();
   act(() => {
-    result.current[KEY_DOWN_HANDLER_INDEX](({
+    result.current[KEY_DOWN_HANDLER_INDEX]({
       key: "Home",
       ctrlKey: true,
       preventDefault: mockPreventDefault
-    } as unknown) as KeyboardEvent);
+    } as unknown as KeyboardEvent);
   });
 
   expect(contextValue.dispatch).toHaveBeenCalledTimes(1);
@@ -327,11 +327,11 @@ it("should not dispatch anything when the user presses an unrelated key on the t
 
   contextValue.dispatch.mockClear();
   act(() => {
-    result.current[KEY_DOWN_HANDLER_INDEX](({
+    result.current[KEY_DOWN_HANDLER_INDEX]({
       key: "a",
       ctrlKey: true,
       preventDefault: mockPreventDefault
-    } as unknown) as KeyboardEvent);
+    } as unknown as KeyboardEvent);
   });
 
   expect(contextValue.dispatch).not.toHaveBeenCalled();

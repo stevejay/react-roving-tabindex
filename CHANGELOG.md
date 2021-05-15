@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.0-beta
+
+- Updated dev dependencies.
+- Support having a short final row of tab stops in a grid layout.
+
 ## 3.0.0
 
 This release has two breaking changes.

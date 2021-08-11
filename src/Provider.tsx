@@ -136,8 +136,9 @@ export function reducer(state: State, action: Action): State {
         return state;
       }
       const isGrid = currentTabStop.rowIndex !== null;
-      const isFirst = index === 0;
-      const isLast = index === state.tabStops.length - 1;
+      const isFirst =
+        index === findIndexOfVeryFirstActiveTabStop(state.tabStops);
+      const isLast = index === findIndexOfVeryLastActiveTabStop(state.tabStops);
       const navigation = getNavigationValue(
         key,
         ctrlKey,
@@ -180,21 +181,17 @@ export function reducer(state: State, action: Action): State {
           break;
         case Navigation.VERY_FIRST:
           {
-            for (let i = 0; i < state.tabStops.length; ++i) {
-              const tabStop = state.tabStops[i];
-              if (!tabStop.disabled) {
-                return selectTabStop(state, tabStop);
-              }
+            const index = findIndexOfVeryFirstActiveTabStop(state.tabStops);
+            if (index > -1) {
+              return selectTabStop(state, state.tabStops[index]);
             }
           }
           break;
         case Navigation.VERY_LAST:
           {
-            for (let i = state.tabStops.length - 1; i >= 0; --i) {
-              const tabStop = state.tabStops[i];
-              if (!tabStop.disabled) {
-                return selectTabStop(state, tabStop);
-              }
+            const index = findIndexOfVeryLastActiveTabStop(state.tabStops);
+            if (index > -1) {
+              return selectTabStop(state, state.tabStops[index]);
             }
           }
           break;
@@ -314,6 +311,22 @@ export function reducer(state: State, action: Action): State {
     default:
       return state;
   }
+}
+
+function findIndexOfVeryFirstActiveTabStop(
+  tabStops: State["tabStops"]
+): number {
+  return tabStops.findIndex((tabStop) => !tabStop.disabled);
+}
+
+function findIndexOfVeryLastActiveTabStop(tabStops: State["tabStops"]): number {
+  for (let i = tabStops.length - 1; i >= 0; --i) {
+    const tabStop = tabStops[i];
+    if (!tabStop.disabled) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 // Determine the updated value for selectedId:

@@ -1239,11 +1239,12 @@ describe("reducer", () => {
         describe("when the next tab stop is disabled and it is the last tab stop", () => {
           describe("when loopAround is false", () => {
             const givenState: State = Object.freeze({
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_TWO_ID,
               allowFocusing: false,
               tabStops: [
                 ELEMENT_ONE_TAB_STOP,
-                { ...ELEMENT_TWO_TAB_STOP, disabled: true }
+                ELEMENT_TWO_TAB_STOP,
+                { ...ELEMENT_THREE_TAB_STOP, disabled: true }
               ],
               direction: "vertical",
               focusOnClick: false,
@@ -1254,7 +1255,7 @@ describe("reducer", () => {
             const action: Action = {
               type: ActionType.KEY_DOWN,
               payload: {
-                id: ELEMENT_ONE_ID,
+                id: ELEMENT_TWO_ID,
                 key: EventKey.ArrowDown,
                 ctrlKey: false
               }
@@ -1268,11 +1269,12 @@ describe("reducer", () => {
 
           describe("when loopAround is true", () => {
             const givenState: State = Object.freeze({
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_TWO_ID,
               allowFocusing: false,
               tabStops: [
                 ELEMENT_ONE_TAB_STOP,
-                { ...ELEMENT_TWO_TAB_STOP, disabled: true }
+                ELEMENT_TWO_TAB_STOP,
+                { ...ELEMENT_THREE_TAB_STOP, disabled: true }
               ],
               direction: "vertical",
               focusOnClick: false,
@@ -1283,7 +1285,7 @@ describe("reducer", () => {
             const action: Action = {
               type: ActionType.KEY_DOWN,
               payload: {
-                id: ELEMENT_ONE_ID,
+                id: ELEMENT_TWO_ID,
                 key: EventKey.ArrowDown,
                 ctrlKey: false
               }
@@ -1431,7 +1433,8 @@ describe("reducer", () => {
               allowFocusing: false,
               tabStops: [
                 { ...ELEMENT_ONE_TAB_STOP, disabled: true },
-                ELEMENT_TWO_TAB_STOP
+                ELEMENT_TWO_TAB_STOP,
+                ELEMENT_THREE_TAB_STOP
               ],
               direction: "vertical",
               focusOnClick: false,
@@ -1460,7 +1463,8 @@ describe("reducer", () => {
               allowFocusing: false,
               tabStops: [
                 { ...ELEMENT_ONE_TAB_STOP, disabled: true },
-                ELEMENT_TWO_TAB_STOP
+                ELEMENT_TWO_TAB_STOP,
+                ELEMENT_THREE_TAB_STOP
               ],
               direction: "vertical",
               focusOnClick: false,
@@ -1481,7 +1485,7 @@ describe("reducer", () => {
               const result = reducer(givenState, action);
               expect(result).toEqual<State>({
                 ...givenState,
-                selectedId: ELEMENT_TWO_ID,
+                selectedId: ELEMENT_THREE_ID,
                 allowFocusing: true
               });
             });

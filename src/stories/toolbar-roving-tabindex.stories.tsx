@@ -145,23 +145,28 @@ export default {
     onButtonFourClicked: { table: { disable: true } },
     onButtonFiveClicked: { table: { disable: true } },
     buttonOneDisabled: {
-      name: "Disable Button One"
+      name: "Disable Button One",
+      defaultValue: false
     },
     buttonTwoDisabled: {
-      name: "Disable Button Two"
+      name: "Disable Button Two",
+      defaultValue: false
     },
     buttonThreeDisabled: {
       name: "Disable Button Three",
       defaultValue: true
     },
     buttonFourDisabled: {
-      name: "Disable Button Four"
+      name: "Disable Button Four",
+      defaultValue: false
     },
     buttonFiveDisabled: {
-      name: "Disable Button Five"
+      name: "Disable Button Five",
+      defaultValue: false
     },
     removeButtonFour: {
-      name: "Remove Button Four"
+      name: "Remove Button Four",
+      defaultValue: false
     }
   },
   parameters: { actions: { argTypesRegex: "^on.*" } }

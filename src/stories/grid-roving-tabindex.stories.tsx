@@ -199,26 +199,32 @@ export default {
     onButtonFourClicked: { table: { disable: true } },
     onButtonFiveClicked: { table: { disable: true } },
     buttonOneDisabled: {
-      name: "Disable Button One"
+      name: "Disable Button One",
+      defaultValue: false
     },
     buttonTwoDisabled: {
-      name: "Disable Button Two"
+      name: "Disable Button Two",
+      defaultValue: false
     },
     buttonThreeDisabled: {
       name: "Disable Button Three",
       defaultValue: true
     },
     buttonFourDisabled: {
-      name: "Disable Button Four"
+      name: "Disable Button Four",
+      defaultValue: false
     },
     buttonFiveDisabled: {
-      name: "Disable Button Five"
+      name: "Disable Button Five",
+      defaultValue: false
     },
     useAlternateGridLayout: {
-      name: "Use a 3x4 grid layout"
+      name: "Use a 3x4 grid layout",
+      defaultValue: false
     },
     useShortFinalRow: {
-      name: "Use a short final row"
+      name: "Use a short final row",
+      defaultValue: false
     }
   },
   parameters: { actions: { argTypesRegex: "^on.*" } }

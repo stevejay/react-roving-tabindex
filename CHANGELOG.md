@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.1
+
+- Updated dev dependencies.
+- Fixed a bug whereby `loopAround` option on a toolbar doesn't loop if first/last tabStop is disabled (thanks to @bfeigin).
+
 ## 3.1.0
 
 - Updated dev dependencies.

@@ -308,6 +308,7 @@ export function reducer(state: State, action: Action): State {
     }
     case ActionType.OPTIONS_UPDATED:
       return { ...state, ...action.payload };
+    /* istanbul ignore next */
     default:
       return state;
   }
@@ -401,6 +402,7 @@ function getNavigationValue(
         : Navigation.FIRST_IN_ROW;
     case EventKey.End:
       return !isGrid || ctrlKey ? Navigation.VERY_LAST : Navigation.LAST_IN_ROW;
+    /* istanbul ignore next */
     default:
       return null;
   }

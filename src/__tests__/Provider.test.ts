@@ -1,13 +1,12 @@
 import { RefObject } from "react";
 import warning from "warning";
-import { Action, ActionType, EventKey, State, TabStop } from "../types";
+import { Action, ActionType, EventKey, State } from "../types";
 import { reducer } from "../Provider";
 
 jest.mock("warning");
 
-const DOCUMENT_POSITION_FOLLOWING = 4;
-
 function createMockDomElementRef(index: number): RefObject<Element> {
+  const DOCUMENT_POSITION_FOLLOWING = 4;
   return {
     current: {
       index,
@@ -17,493 +16,478 @@ function createMockDomElementRef(index: number): RefObject<Element> {
   } as RefObject<Element>;
 }
 
-function createTabStop(id: string, index: number): TabStop {
-  return {
-    id,
-    domElementRef: createMockDomElementRef(index),
-    disabled: false,
-    rowIndex: null
-  };
-}
+const ELEMENT_ONE_TAB_STOP = {
+  id: "element-1",
+  domElementRef: createMockDomElementRef(1),
+  disabled: false,
+  rowIndex: null
+};
 
-const ELEMENT_ONE_ID = "element-1";
-const ELEMENT_ONE_TAB_STOP = createTabStop(ELEMENT_ONE_ID, 1);
+const ELEMENT_TWO_TAB_STOP = {
+  id: "element-2",
+  domElementRef: createMockDomElementRef(2),
+  disabled: false,
+  rowIndex: null
+};
 
-const ELEMENT_TWO_ID = "element-2";
-const ELEMENT_TWO_TAB_STOP = createTabStop(ELEMENT_TWO_ID, 2);
+const ELEMENT_THREE_TAB_STOP = {
+  id: "element-3",
+  domElementRef: createMockDomElementRef(3),
+  disabled: false,
+  rowIndex: null
+};
 
-const ELEMENT_THREE_ID = "element-3";
-const ELEMENT_THREE_TAB_STOP = createTabStop(ELEMENT_THREE_ID, 3);
+const ELEMENT_FOUR_TAB_STOP = {
+  id: "element-4",
+  domElementRef: createMockDomElementRef(4),
+  disabled: false,
+  rowIndex: null
+};
 
-const ELEMENT_FOUR_ID = "element-4";
-const ELEMENT_FOUR_TAB_STOP = createTabStop(ELEMENT_FOUR_ID, 4);
+const ELEMENT_FIVE_TAB_STOP = {
+  id: "element-5",
+  domElementRef: createMockDomElementRef(5),
+  disabled: false,
+  rowIndex: null
+};
 
-const ELEMENT_FIVE_ID = "element-5";
-const ELEMENT_FIVE_TAB_STOP = createTabStop(ELEMENT_FIVE_ID, 5);
-
-const ELEMENT_SIX_ID = "element-6";
-const ELEMENT_SIX_TAB_STOP = createTabStop(ELEMENT_SIX_ID, 6);
+const ELEMENT_SIX_TAB_STOP = {
+  id: "element-6",
+  domElementRef: createMockDomElementRef(6),
+  disabled: false,
+  rowIndex: null
+};
 
 beforeEach(() => {
   (warning as jest.Mock).mockReset();
 });
 
-describe("when registering a tab stop", () => {
-  describe("when no tab stops have been registered", () => {
-    const givenState: State = Object.freeze({
-      selectedId: null,
-      allowFocusing: false,
-      tabStops: [],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
+// Registration
 
-    const action: Action = {
-      type: ActionType.REGISTER_TAB_STOP,
-      payload: ELEMENT_ONE_TAB_STOP
-    };
-
-    it("should add the tab stop as the only tab stop", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>({
-        ...givenState,
-        selectedId: ELEMENT_ONE_ID,
-        tabStops: [ELEMENT_ONE_TAB_STOP]
-      });
-    });
+it("registers a tab stop when no tab stops have been registered", () => {
+  const givenState: State = Object.freeze({
+    selectedId: null,
+    allowFocusing: false,
+    tabStops: [],
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null
   });
 
-  describe("when one earlier tab stop has already been registered", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [ELEMENT_ONE_TAB_STOP],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
+  const action: Action = {
+    type: ActionType.REGISTER_TAB_STOP,
+    payload: ELEMENT_ONE_TAB_STOP
+  };
 
-    const action: Action = {
-      type: ActionType.REGISTER_TAB_STOP,
-      payload: ELEMENT_TWO_TAB_STOP
-    };
+  const result = reducer(givenState, action);
 
-    it("should add the new tab stop after the existing tab stop", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>({
-        ...givenState,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
-      });
-    });
-  });
-
-  describe("when one later tab stop has already been registered", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_TWO_ID,
-      allowFocusing: false,
-      tabStops: [ELEMENT_TWO_TAB_STOP],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
-
-    const action: Action = {
-      type: ActionType.REGISTER_TAB_STOP,
-      payload: ELEMENT_ONE_TAB_STOP
-    };
-
-    it("should add the new tab stop before the existing tab stop", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>({
-        ...givenState,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
-      });
-    });
-  });
-
-  describe("when the same tab stop has already been registered", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [ELEMENT_ONE_TAB_STOP],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
-
-    const action: Action = {
-      type: ActionType.REGISTER_TAB_STOP,
-      payload: ELEMENT_ONE_TAB_STOP
-    };
-
-    it("should not add the tab stop again", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
-
-    it("should log a warning", () => {
-      reducer(givenState, action);
-      expect(warning).toHaveBeenNthCalledWith(
-        1,
-        false,
-        `'${ELEMENT_ONE_ID}' tab stop already registered`
-      );
-    });
-  });
-
-  describe("when the tab stop being registered has no DOM element ref", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [ELEMENT_ONE_TAB_STOP],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
-
-    const action: Action = {
-      type: ActionType.REGISTER_TAB_STOP,
-      payload: {
-        ...ELEMENT_TWO_TAB_STOP,
-        domElementRef: { current: null } as RefObject<Element>
-      }
-    };
-
-    it("should not change the reducer state", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
+  expect(result).toEqual<State>({
+    ...givenState,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [ELEMENT_ONE_TAB_STOP]
   });
 });
 
-describe("when unregistering a tab stop", () => {
-  describe("when the tab stop to remove is not registered", () => {
-    const givenState: State = Object.freeze({
-      selectedId: null,
-      allowFocusing: false,
-      tabStops: [],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
-
-    const action: Action = {
-      type: ActionType.UNREGISTER_TAB_STOP,
-      payload: { id: ELEMENT_ONE_ID }
-    };
-
-    it("should not change the reducer state", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
-
-    it("should log a warning", () => {
-      reducer(givenState, action);
-      expect(warning).toHaveBeenNthCalledWith(
-        1,
-        false,
-        `'${ELEMENT_ONE_ID}' tab stop already unregistered`
-      );
-    });
+it("registers a tab stop when a tab stop earlier in the DOM is already registered", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [ELEMENT_ONE_TAB_STOP]
   });
 
-  describe("when the tab stop to remove is registered", () => {
-    describe("when it is the currently selected tab stop", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        focusOnClick: false,
-        loopAround: false,
-        rowStartMap: null
-      });
+  const action: Action = {
+    type: ActionType.REGISTER_TAB_STOP,
+    payload: ELEMENT_TWO_TAB_STOP
+  };
 
-      const action: Action = {
-        type: ActionType.UNREGISTER_TAB_STOP,
-        payload: { id: ELEMENT_ONE_ID }
-      };
+  const result = reducer(givenState, action);
 
-      it("should unregister the tab stop", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          selectedId: ELEMENT_TWO_ID,
-          tabStops: [ELEMENT_TWO_TAB_STOP]
-        });
-      });
-    });
-
-    describe("when it is not the currently selected tab stop", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        focusOnClick: false,
-        loopAround: false,
-        rowStartMap: null
-      });
-
-      const action: Action = {
-        type: ActionType.UNREGISTER_TAB_STOP,
-        payload: { id: ELEMENT_TWO_ID }
-      };
-
-      it("should unregister the tab stop", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          tabStops: [ELEMENT_ONE_TAB_STOP]
-        });
-      });
-    });
+  expect(result).toEqual<State>({
+    ...givenState,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
   });
 });
 
-describe("when updating a tab stop", () => {
-  describe("when the updated data is the same as the current data", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [
-        ELEMENT_ONE_TAB_STOP,
-        { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
-      ],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
-
-    const action: Action = {
-      type: ActionType.TAB_STOP_UPDATED,
-      payload: { id: ELEMENT_TWO_ID, rowIndex: 1, disabled: true }
-    };
-
-    it("should not change the reducer state", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
+it("registers a tab stop when a tab stop later in the DOM is already registered", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_TWO_TAB_STOP.id,
+    tabStops: [ELEMENT_TWO_TAB_STOP]
   });
 
-  describe("when the updated data is different to the current data", () => {
-    describe("when the updated tab stop is not selected", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [
-          ELEMENT_ONE_TAB_STOP,
-          { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
-        ],
-        direction: "horizontal",
-        focusOnClick: false,
-        loopAround: false,
-        rowStartMap: null
-      });
+  const action: Action = {
+    type: ActionType.REGISTER_TAB_STOP,
+    payload: ELEMENT_ONE_TAB_STOP
+  };
 
-      const action: Action = {
-        type: ActionType.TAB_STOP_UPDATED,
-        payload: { id: ELEMENT_TWO_ID, rowIndex: 2, disabled: false }
-      };
+  const result = reducer(givenState, action);
 
-      it("should change the tab stop data", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          tabStops: [
-            ELEMENT_ONE_TAB_STOP,
-            { ...ELEMENT_TWO_TAB_STOP, rowIndex: 2, disabled: false }
-          ]
-        });
-      });
-    });
-
-    describe("when the updated tab stop is selected and becomes disabled", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
-        allowFocusing: false,
-        tabStops: [
-          ELEMENT_ONE_TAB_STOP,
-          { ...ELEMENT_TWO_TAB_STOP, disabled: false }
-        ],
-        direction: "horizontal",
-        focusOnClick: false,
-        loopAround: false,
-        rowStartMap: null
-      });
-
-      const action: Action = {
-        type: ActionType.TAB_STOP_UPDATED,
-        payload: { id: ELEMENT_TWO_ID, rowIndex: null, disabled: true }
-      };
-
-      it("should change the tab stop data and the selectedId", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          selectedId: ELEMENT_ONE_ID,
-          tabStops: [
-            ELEMENT_ONE_TAB_STOP,
-            { ...ELEMENT_TWO_TAB_STOP, disabled: true }
-          ]
-        });
-      });
-    });
-  });
-
-  describe("when the updated data has an unregistered id", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [
-        ELEMENT_ONE_TAB_STOP,
-        { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
-      ],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
-
-    const action: Action = {
-      type: ActionType.TAB_STOP_UPDATED,
-      payload: { id: "unregistered-id", rowIndex: 1, disabled: true }
-    };
-
-    it("should not change the reducer state", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
-
-    it("should log a warning", () => {
-      reducer(givenState, action);
-      expect(warning).toHaveBeenNthCalledWith(
-        1,
-        false,
-        "'unregistered-id' tab stop not registered"
-      );
-    });
+  expect(result).toEqual<State>({
+    ...givenState,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
   });
 });
 
-describe("when clicking on a tab stop", () => {
-  describe("when the tab stop is not disabled", () => {
-    describe("when focusOnClick is false", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        focusOnClick: false,
-        loopAround: false,
-        rowStartMap: null
-      });
-
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: ELEMENT_TWO_ID }
-      };
-
-      it("should not set the clicked tab stop as the selected tab stop", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          selectedId: ELEMENT_TWO_ID,
-          allowFocusing: false
-        });
-      });
-    });
-
-    describe("when focusOnClick is true", () => {
-      const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
-        allowFocusing: false,
-        tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-        direction: "horizontal",
-        focusOnClick: true,
-        loopAround: false,
-        rowStartMap: null
-      });
-
-      const action: Action = {
-        type: ActionType.CLICKED,
-        payload: { id: ELEMENT_TWO_ID }
-      };
-
-      it("should set the clicked tab stop as the selected tab stop", () => {
-        const result = reducer(givenState, action);
-        expect(result).toEqual<State>({
-          ...givenState,
-          selectedId: ELEMENT_TWO_ID,
-          allowFocusing: true
-        });
-      });
-    });
+it("does not register a tab stop when it has already been registered", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [ELEMENT_ONE_TAB_STOP]
   });
 
-  describe("when the tab stop is disabled", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [
-        ELEMENT_ONE_TAB_STOP,
-        { ...ELEMENT_TWO_TAB_STOP, disabled: true }
-      ],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
+  const action: Action = {
+    type: ActionType.REGISTER_TAB_STOP,
+    payload: ELEMENT_ONE_TAB_STOP
+  };
 
-    const action: Action = {
-      type: ActionType.CLICKED,
-      payload: { id: ELEMENT_TWO_ID }
-    };
+  const result = reducer(givenState, action);
 
-    it("should not change the reducer state", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
+  expect(result).toEqual<State>(givenState);
+});
+
+it("does not register a tab stop that does not have a DOM element ref", () => {
+  const givenState: State = Object.freeze({
+    selectedId: null,
+    allowFocusing: false,
+    tabStops: [],
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null
   });
 
-  describe("when the click action has an unregistered id", () => {
-    const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
-      allowFocusing: false,
-      tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
-      direction: "horizontal",
-      focusOnClick: false,
-      loopAround: false,
-      rowStartMap: null
-    });
+  const action: Action = {
+    type: ActionType.REGISTER_TAB_STOP,
+    payload: {
+      ...ELEMENT_TWO_TAB_STOP,
+      domElementRef: { current: null } as RefObject<Element>
+    }
+  };
 
-    const action: Action = {
-      type: ActionType.CLICKED,
-      payload: { id: "unregistered-id" }
-    };
+  const result = reducer(givenState, action);
 
-    it("should not change the reducer state", () => {
-      const result = reducer(givenState, action);
-      expect(result).toEqual<State>(givenState);
-    });
+  expect(result).toEqual<State>(givenState);
+});
 
-    it("should log a warning", () => {
-      reducer(givenState, action);
-      expect(warning).toHaveBeenNthCalledWith(
-        1,
-        false,
-        "'unregistered-id' tab stop not registered"
-      );
-    });
+it("ignores unregistering a tab stop that has not been registered", () => {
+  const givenState: State = Object.freeze({
+    selectedId: null,
+    allowFocusing: false,
+    tabStops: [],
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null
   });
+
+  const action: Action = {
+    type: ActionType.UNREGISTER_TAB_STOP,
+    payload: { id: ELEMENT_ONE_TAB_STOP.id }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>(givenState);
+});
+
+it("can unregister a registered tab stop that is the currently focused tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
+  });
+
+  const action: Action = {
+    type: ActionType.UNREGISTER_TAB_STOP,
+    payload: { id: ELEMENT_ONE_TAB_STOP.id }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    selectedId: ELEMENT_TWO_TAB_STOP.id,
+    tabStops: [ELEMENT_TWO_TAB_STOP]
+  });
+});
+
+it("can unregister a registered tab stop that is not the currently focused tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
+  });
+
+  const action: Action = {
+    type: ActionType.UNREGISTER_TAB_STOP,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    tabStops: [ELEMENT_ONE_TAB_STOP]
+  });
+});
+
+// Updating tab stop parameters
+
+it("ignores an update to a tab stop that does not change the focused tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
+    ]
+  });
+
+  const action: Action = {
+    type: ActionType.TAB_STOP_UPDATED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id, rowIndex: 1, disabled: true }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>(givenState);
+});
+
+it("can enable a tab stop that is not the currently focused tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
+    ]
+  });
+
+  const action: Action = {
+    type: ActionType.TAB_STOP_UPDATED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id, rowIndex: 2, disabled: false }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: 2, disabled: false }
+    ]
+  });
+});
+
+it("can update a tab stop that is the currently focused tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_TWO_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: false }
+    ]
+  });
+
+  const action: Action = {
+    type: ActionType.TAB_STOP_UPDATED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id, rowIndex: 2, disabled: false }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: 2, disabled: false }
+    ]
+  });
+});
+
+it("can disable a tab stop that is the currently focused tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_TWO_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: null, disabled: false }
+    ]
+  });
+
+  const action: Action = {
+    type: ActionType.TAB_STOP_UPDATED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id, rowIndex: null, disabled: true }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: null, disabled: true }
+    ]
+  });
+});
+
+it("ignores an update for an unregistered tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, rowIndex: 1, disabled: true }
+    ]
+  });
+
+  const action: Action = {
+    type: ActionType.TAB_STOP_UPDATED,
+    payload: { id: "unregistered-tab-stop-id", rowIndex: 1, disabled: true }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>(givenState);
+});
+
+// Tab stop click handling
+
+it("does not allow focusing when focusOnClick is false and a tab stop is clicked", () => {
+  const givenState: State = Object.freeze({
+    direction: "horizontal",
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    focusOnClick: false,
+    allowFocusing: true,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
+  });
+
+  const action: Action = {
+    type: ActionType.CLICKED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    selectedId: ELEMENT_TWO_TAB_STOP.id,
+    allowFocusing: false
+  });
+});
+
+it("allows focusing when focusOnClick is true and a tab stop is clicked", () => {
+  const givenState: State = Object.freeze({
+    direction: "horizontal",
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    focusOnClick: true,
+    allowFocusing: false,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
+  });
+
+  const action: Action = {
+    type: ActionType.CLICKED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>({
+    ...givenState,
+    selectedId: ELEMENT_TWO_TAB_STOP.id,
+    allowFocusing: true
+  });
+});
+
+it("should ignore a click on a disabled tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [
+      ELEMENT_ONE_TAB_STOP,
+      { ...ELEMENT_TWO_TAB_STOP, disabled: true }
+    ]
+  });
+
+  const action: Action = {
+    type: ActionType.CLICKED,
+    payload: { id: ELEMENT_TWO_TAB_STOP.id }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>(givenState);
+});
+
+it("should ignore a click on an unregistered tab stop", () => {
+  const givenState: State = Object.freeze({
+    allowFocusing: false,
+    direction: "horizontal",
+    focusOnClick: false,
+    loopAround: false,
+    rowStartMap: null,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
+    tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP]
+  });
+
+  const action: Action = {
+    type: ActionType.CLICKED,
+    payload: { id: "unregistered-tab-stop-id" }
+  };
+
+  const result = reducer(givenState, action);
+
+  expect(result).toEqual<State>(givenState);
 });
 
 describe("when the roving tabindex is for a toolbar", () => {
@@ -511,7 +495,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowRight key is pressed", () => {
       describe("when the next tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "horizontal",
@@ -523,7 +507,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowRight,
             ctrlKey: false
           }
@@ -533,7 +517,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -542,7 +526,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no next tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "horizontal",
@@ -554,7 +538,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowRight,
               ctrlKey: false
             }
@@ -568,7 +552,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "horizontal",
@@ -580,7 +564,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowRight,
               ctrlKey: false
             }
@@ -590,7 +574,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_ONE_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -599,7 +583,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -614,7 +598,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowRight,
             ctrlKey: false
           }
@@ -628,7 +612,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is not the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -644,7 +628,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowRight,
             ctrlKey: false
           }
@@ -654,7 +638,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -664,7 +648,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowLeft key is pressed", () => {
       describe("when the previous tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "horizontal",
@@ -676,7 +660,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowLeft,
             ctrlKey: false
           }
@@ -686,7 +670,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -695,7 +679,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no previous tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "horizontal",
@@ -707,7 +691,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowLeft,
               ctrlKey: false
             }
@@ -721,7 +705,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "horizontal",
@@ -733,7 +717,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowLeft,
               ctrlKey: false
             }
@@ -743,7 +727,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_TWO_ID,
+              selectedId: ELEMENT_TWO_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -752,7 +736,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -767,7 +751,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowLeft,
             ctrlKey: false
           }
@@ -781,7 +765,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -797,7 +781,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.ArrowLeft,
             ctrlKey: false
           }
@@ -807,7 +791,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -816,7 +800,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
     describe("when the ArrowUp key is pressed", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
         direction: "horizontal",
@@ -828,7 +812,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowUp,
           ctrlKey: false
         }
@@ -842,7 +826,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
     describe("when the ArrowDown key is pressed", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
         direction: "horizontal",
@@ -854,7 +838,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -869,7 +853,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the Home key is pressed", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -885,7 +869,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -895,7 +879,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -903,7 +887,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the first tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -919,7 +903,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -929,7 +913,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -937,7 +921,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the first tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -953,7 +937,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -972,7 +956,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the Home+Ctrl key is pressed", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -988,7 +972,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: true
           }
@@ -998,7 +982,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1008,7 +992,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the End key is pressed", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1024,7 +1008,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -1034,7 +1018,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1042,7 +1026,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the last tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1058,7 +1042,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -1068,7 +1052,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1076,7 +1060,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the last tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1092,7 +1076,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -1111,7 +1095,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the End+Ctrl key is pressed", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1127,7 +1111,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: true
           }
@@ -1137,7 +1121,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1149,7 +1133,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowDown key is pressed", () => {
       describe("when the next tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "vertical",
@@ -1161,7 +1145,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowDown,
             ctrlKey: false
           }
@@ -1171,7 +1155,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1180,7 +1164,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no next tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "vertical",
@@ -1192,7 +1176,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowDown,
               ctrlKey: false
             }
@@ -1206,7 +1190,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "vertical",
@@ -1218,7 +1202,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowDown,
               ctrlKey: false
             }
@@ -1228,7 +1212,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_ONE_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -1238,7 +1222,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when the next tab stop is disabled and it is the last tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
@@ -1254,7 +1238,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowDown,
               ctrlKey: false
             }
@@ -1268,7 +1252,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [
               ELEMENT_ONE_TAB_STOP,
@@ -1284,7 +1268,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowDown,
               ctrlKey: false
             }
@@ -1294,7 +1278,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_ONE_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -1303,7 +1287,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is not the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1319,7 +1303,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowDown,
             ctrlKey: false
           }
@@ -1329,7 +1313,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1339,7 +1323,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowUp key is pressed", () => {
       describe("when the previous tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "vertical",
@@ -1351,7 +1335,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowUp,
             ctrlKey: false
           }
@@ -1361,7 +1345,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1370,7 +1354,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no previous tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "vertical",
@@ -1382,7 +1366,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowUp,
               ctrlKey: false
             }
@@ -1396,7 +1380,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "vertical",
@@ -1408,7 +1392,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowUp,
               ctrlKey: false
             }
@@ -1418,7 +1402,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_TWO_ID,
+              selectedId: ELEMENT_TWO_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -1428,7 +1412,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when the previous tab stop is disabled and it is the first tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -1444,7 +1428,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowUp,
               ctrlKey: false
             }
@@ -1458,7 +1442,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [
               { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -1474,7 +1458,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowUp,
               ctrlKey: false
             }
@@ -1484,7 +1468,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_THREE_ID,
+              selectedId: ELEMENT_THREE_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -1493,7 +1477,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1509,7 +1493,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.ArrowUp,
             ctrlKey: false
           }
@@ -1519,7 +1503,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1528,7 +1512,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
     describe("when the ArrowLeft key is pressed", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
         direction: "vertical",
@@ -1540,7 +1524,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowLeft,
           ctrlKey: false
         }
@@ -1554,7 +1538,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
     describe("when the ArrowRight key is pressed", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
         direction: "vertical",
@@ -1566,7 +1550,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowRight,
           ctrlKey: false
         }
@@ -1581,7 +1565,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the Home key is pressed", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1597,7 +1581,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -1607,7 +1591,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1615,7 +1599,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the first tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -1631,7 +1615,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -1641,7 +1625,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1649,7 +1633,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the first tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1665,7 +1649,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -1684,7 +1668,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the Home+Ctrl key is pressed", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1700,7 +1684,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: true
           }
@@ -1710,7 +1694,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1720,7 +1704,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the End key is pressed", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1736,7 +1720,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -1746,7 +1730,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1754,7 +1738,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the last tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1770,7 +1754,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -1780,7 +1764,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1788,7 +1772,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the last tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1804,7 +1788,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -1823,7 +1807,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the End+Ctrl key is pressed", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1839,7 +1823,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: true
           }
@@ -1849,7 +1833,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1861,7 +1845,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowRight key is pressed", () => {
       describe("when the next tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "both",
@@ -1873,7 +1857,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowRight,
             ctrlKey: false
           }
@@ -1883,7 +1867,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -1892,7 +1876,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no next tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -1904,7 +1888,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowRight,
               ctrlKey: false
             }
@@ -1918,7 +1902,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -1930,7 +1914,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowRight,
               ctrlKey: false
             }
@@ -1940,7 +1924,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_ONE_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -1949,7 +1933,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1964,7 +1948,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowRight,
             ctrlKey: false
           }
@@ -1978,7 +1962,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is not the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -1994,7 +1978,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowRight,
             ctrlKey: false
           }
@@ -2004,7 +1988,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2014,7 +1998,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowLeft key is pressed", () => {
       describe("when the previous tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "both",
@@ -2026,7 +2010,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowLeft,
             ctrlKey: false
           }
@@ -2036,7 +2020,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2045,7 +2029,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no previous tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -2057,7 +2041,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowLeft,
               ctrlKey: false
             }
@@ -2071,7 +2055,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -2083,7 +2067,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowLeft,
               ctrlKey: false
             }
@@ -2093,7 +2077,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_TWO_ID,
+              selectedId: ELEMENT_TWO_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -2102,7 +2086,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -2117,7 +2101,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowLeft,
             ctrlKey: false
           }
@@ -2131,7 +2115,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2147,7 +2131,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.ArrowLeft,
             ctrlKey: false
           }
@@ -2157,7 +2141,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2167,7 +2151,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowDown key is pressed", () => {
       describe("when the next tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "both",
@@ -2179,7 +2163,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowDown,
             ctrlKey: false
           }
@@ -2189,7 +2173,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2198,7 +2182,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no next tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -2210,7 +2194,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowDown,
               ctrlKey: false
             }
@@ -2224,7 +2208,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -2236,7 +2220,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_TWO_ID,
+              id: ELEMENT_TWO_TAB_STOP.id,
               key: EventKey.ArrowDown,
               ctrlKey: false
             }
@@ -2246,7 +2230,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_ONE_ID,
+              selectedId: ELEMENT_ONE_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -2255,7 +2239,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2270,7 +2254,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowDown,
             ctrlKey: false
           }
@@ -2284,7 +2268,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the next tab stop is disabled and it is not the last tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2300,7 +2284,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.ArrowDown,
             ctrlKey: false
           }
@@ -2310,7 +2294,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2320,7 +2304,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the ArrowUp key is pressed", () => {
       describe("when the previous tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
           direction: "both",
@@ -2332,7 +2316,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowUp,
             ctrlKey: false
           }
@@ -2342,7 +2326,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2351,7 +2335,7 @@ describe("when the roving tabindex is for a toolbar", () => {
       describe("when there is no previous tab stop", () => {
         describe("when loopAround is false", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -2363,7 +2347,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowUp,
               ctrlKey: false
             }
@@ -2377,7 +2361,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
         describe("when loopAround is true", () => {
           const givenState: State = Object.freeze({
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: false,
             tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
             direction: "both",
@@ -2389,7 +2373,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const action: Action = {
             type: ActionType.KEY_DOWN,
             payload: {
-              id: ELEMENT_ONE_ID,
+              id: ELEMENT_ONE_TAB_STOP.id,
               key: EventKey.ArrowUp,
               ctrlKey: false
             }
@@ -2399,7 +2383,7 @@ describe("when the roving tabindex is for a toolbar", () => {
             const result = reducer(givenState, action);
             expect(result).toEqual<State>({
               ...givenState,
-              selectedId: ELEMENT_TWO_ID,
+              selectedId: ELEMENT_TWO_TAB_STOP.id,
               allowFocusing: true
             });
           });
@@ -2408,7 +2392,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -2423,7 +2407,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_TWO_ID,
+            id: ELEMENT_TWO_TAB_STOP.id,
             key: EventKey.ArrowUp,
             ctrlKey: false
           }
@@ -2437,7 +2421,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the previous tab stop is disabled and it is not the first tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2453,7 +2437,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.ArrowUp,
             ctrlKey: false
           }
@@ -2463,7 +2447,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2473,7 +2457,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the Home key is pressed", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2489,7 +2473,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -2499,7 +2483,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2507,7 +2491,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the first tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -2523,7 +2507,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -2533,7 +2517,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2541,7 +2525,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the first tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2557,7 +2541,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: false
           }
@@ -2576,7 +2560,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the Home+Ctrl key is pressed", () => {
       describe("when the first tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2592,7 +2576,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.Home,
             ctrlKey: true
           }
@@ -2602,7 +2586,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_ONE_ID,
+            selectedId: ELEMENT_ONE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2612,7 +2596,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the End key is pressed", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2628,7 +2612,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -2638,7 +2622,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2646,7 +2630,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the last tab stop is not enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2662,7 +2646,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -2672,7 +2656,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_TWO_ID,
+            selectedId: ELEMENT_TWO_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2680,7 +2664,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
       describe("when the last tab stop is already the selected tab stop", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2696,7 +2680,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_THREE_ID,
+            id: ELEMENT_THREE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: false
           }
@@ -2715,7 +2699,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     describe("when the End+Ctrl key is pressed", () => {
       describe("when the last tab stop is enabled", () => {
         const givenState: State = Object.freeze({
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: false,
           tabStops: [
             ELEMENT_ONE_TAB_STOP,
@@ -2731,7 +2715,7 @@ describe("when the roving tabindex is for a toolbar", () => {
         const action: Action = {
           type: ActionType.KEY_DOWN,
           payload: {
-            id: ELEMENT_ONE_ID,
+            id: ELEMENT_ONE_TAB_STOP.id,
             key: EventKey.End,
             ctrlKey: true
           }
@@ -2741,7 +2725,7 @@ describe("when the roving tabindex is for a toolbar", () => {
           const result = reducer(givenState, action);
           expect(result).toEqual<State>({
             ...givenState,
-            selectedId: ELEMENT_THREE_ID,
+            selectedId: ELEMENT_THREE_TAB_STOP.id,
             allowFocusing: true
           });
         });
@@ -2751,7 +2735,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
   describe("when the action is for an unregistered id", () => {
     const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
+      selectedId: ELEMENT_ONE_TAB_STOP.id,
       allowFocusing: false,
       tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
       direction: "horizontal",
@@ -2786,7 +2770,7 @@ describe("when the roving tabindex is for a toolbar", () => {
 
   describe("when the tab stop of the action is disabled", () => {
     const givenState: State = Object.freeze({
-      selectedId: ELEMENT_ONE_ID,
+      selectedId: ELEMENT_ONE_TAB_STOP.id,
       allowFocusing: false,
       tabStops: [
         { ...ELEMENT_ONE_TAB_STOP, disabled: true },
@@ -2801,7 +2785,7 @@ describe("when the roving tabindex is for a toolbar", () => {
     const action: Action = {
       type: ActionType.KEY_DOWN,
       payload: {
-        id: ELEMENT_ONE_ID,
+        id: ELEMENT_ONE_TAB_STOP.id,
         key: EventKey.ArrowRight,
         ctrlKey: false
       }
@@ -2818,7 +2802,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the next tab stop in the current row", () => {
     describe("when the next tab stop is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -2834,7 +2818,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowRight,
           ctrlKey: false
         }
@@ -2844,7 +2828,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -2852,7 +2836,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when there is no next tab stop in the current row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -2867,7 +2851,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowRight,
           ctrlKey: false
         }
@@ -2881,7 +2865,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when there is no next tab stop in the entire grid", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -2896,7 +2880,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowRight,
           ctrlKey: false
         }
@@ -2910,7 +2894,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the next tab stop is disabled and it is the last tab stop in the current row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -2926,7 +2910,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowRight,
           ctrlKey: false
         }
@@ -2940,7 +2924,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the next tab stop is disabled and it is not the last tab stop in the current row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -2956,7 +2940,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowRight,
           ctrlKey: false
         }
@@ -2966,7 +2950,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -2976,7 +2960,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the previous tab stop in the current row", () => {
     describe("when the previous tab stop is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -2992,7 +2976,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.ArrowLeft,
           ctrlKey: false
         }
@@ -3002,7 +2986,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -3010,7 +2994,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when there is no previous tab stop in the current row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3025,7 +3009,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowLeft,
           ctrlKey: false
         }
@@ -3039,7 +3023,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when there is no previous tab stop in the entire grid", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3054,7 +3038,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.ArrowLeft,
           ctrlKey: false
         }
@@ -3068,7 +3052,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the previous tab stop is disabled and it is the first tab stop in the current row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FOUR_ID,
+        selectedId: ELEMENT_FOUR_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3085,7 +3069,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FOUR_ID,
+          id: ELEMENT_FOUR_TAB_STOP.id,
           key: EventKey.ArrowLeft,
           ctrlKey: false
         }
@@ -3099,7 +3083,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the previous tab stop is disabled and it is not the last first stop in the current row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3115,7 +3099,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.ArrowLeft,
           ctrlKey: false
         }
@@ -3125,7 +3109,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -3135,7 +3119,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the first tab stop", () => {
     describe("when the first tab stop is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3151,7 +3135,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.Home,
           ctrlKey: true
         }
@@ -3161,7 +3145,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -3169,7 +3153,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the first tab stop is not enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0, disabled: true },
@@ -3185,7 +3169,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.Home,
           ctrlKey: true
         }
@@ -3195,7 +3179,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -3203,7 +3187,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the first tab stop is already the selected tab stop", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3219,7 +3203,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.Home,
           ctrlKey: true
         }
@@ -3235,7 +3219,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the last tab stop", () => {
     describe("when the last tab stop is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3251,7 +3235,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: true
         }
@@ -3261,7 +3245,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -3269,7 +3253,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the last tab stop is not enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3285,7 +3269,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: true
         }
@@ -3295,7 +3279,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: true
         });
       });
@@ -3303,7 +3287,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the last tab stop is already the selected tab stop", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3319,7 +3303,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: true
         }
@@ -3335,7 +3319,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the last tab stop in the current row", () => {
     describe("when the last tab stop in the current row is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3352,7 +3336,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: false
         }
@@ -3362,7 +3346,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3374,7 +3358,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the last tab stop in the current row is disabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_ONE_ID,
+        selectedId: ELEMENT_ONE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3391,7 +3375,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_ONE_ID,
+          id: ELEMENT_ONE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: false
         }
@@ -3401,7 +3385,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3413,7 +3397,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the last tab stop in the current row is currently selected", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3430,7 +3414,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: false
         }
@@ -3451,7 +3435,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the last tab stop in the current row is currently selected and there is no next row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_THREE_ID,
+        selectedId: ELEMENT_THREE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3467,7 +3451,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_THREE_ID,
+          id: ELEMENT_THREE_TAB_STOP.id,
           key: EventKey.End,
           ctrlKey: false
         }
@@ -3487,7 +3471,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the first tab stop in the current row", () => {
     describe("when the first tab stop in the current row is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FOUR_ID,
+        selectedId: ELEMENT_FOUR_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3504,7 +3488,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FOUR_ID,
+          id: ELEMENT_FOUR_TAB_STOP.id,
           key: EventKey.Home,
           ctrlKey: false
         }
@@ -3514,7 +3498,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_TWO_ID,
+          selectedId: ELEMENT_TWO_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3526,7 +3510,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the first tab stop in the current row is disabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FOUR_ID,
+        selectedId: ELEMENT_FOUR_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3543,7 +3527,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FOUR_ID,
+          id: ELEMENT_FOUR_TAB_STOP.id,
           key: EventKey.Home,
           ctrlKey: false
         }
@@ -3553,7 +3537,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3565,7 +3549,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the first tab stop in the current row is currently selected", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3582,7 +3566,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.Home,
           ctrlKey: false
         }
@@ -3605,7 +3589,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the next row", () => {
     describe("when there is no tab stop in the relative position in the next row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FOUR_ID,
+        selectedId: ELEMENT_FOUR_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3623,7 +3607,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FOUR_ID,
+          id: ELEMENT_FOUR_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -3633,7 +3617,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_FOUR_ID,
+          selectedId: ELEMENT_FOUR_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3646,7 +3630,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in the next row is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3665,7 +3649,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -3675,7 +3659,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_FOUR_ID,
+          selectedId: ELEMENT_FOUR_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3688,7 +3672,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when there is no next row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FIVE_ID,
+        selectedId: ELEMENT_FIVE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3707,7 +3691,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FIVE_ID,
+          id: ELEMENT_FIVE_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -3721,7 +3705,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in the next row is disabled and there is another row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3740,7 +3724,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -3750,7 +3734,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_SIX_ID,
+          selectedId: ELEMENT_SIX_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3763,7 +3747,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in the next row is disabled and it is the last row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3780,7 +3764,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -3801,7 +3785,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in all subsequent rows are disabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3820,7 +3804,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowDown,
           ctrlKey: false
         }
@@ -3844,7 +3828,7 @@ describe("when the roving tabindex is for a grid", () => {
   describe("when tabbing to the previous row", () => {
     describe("when the tab stop in the previous row is enabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FIVE_ID,
+        selectedId: ELEMENT_FIVE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3863,7 +3847,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FIVE_ID,
+          id: ELEMENT_FIVE_TAB_STOP.id,
           key: EventKey.ArrowUp,
           ctrlKey: false
         }
@@ -3873,7 +3857,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_THREE_ID,
+          selectedId: ELEMENT_THREE_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3886,7 +3870,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when there is no previous row", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_TWO_ID,
+        selectedId: ELEMENT_TWO_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3905,7 +3889,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_TWO_ID,
+          id: ELEMENT_TWO_TAB_STOP.id,
           key: EventKey.ArrowUp,
           ctrlKey: false
         }
@@ -3919,7 +3903,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in the previous row is disabled and there is another row before", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FIVE_ID,
+        selectedId: ELEMENT_FIVE_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3938,7 +3922,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FIVE_ID,
+          id: ELEMENT_FIVE_TAB_STOP.id,
           key: EventKey.ArrowUp,
           ctrlKey: false
         }
@@ -3948,7 +3932,7 @@ describe("when the roving tabindex is for a grid", () => {
         const result = reducer(givenState, action);
         expect(result).toEqual<State>({
           ...givenState,
-          selectedId: ELEMENT_ONE_ID,
+          selectedId: ELEMENT_ONE_TAB_STOP.id,
           allowFocusing: true,
           rowStartMap: new Map([
             [0, 0],
@@ -3961,7 +3945,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in the previous row is disabled and it is the only row before", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_FOUR_ID,
+        selectedId: ELEMENT_FOUR_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -3978,7 +3962,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_FOUR_ID,
+          id: ELEMENT_FOUR_TAB_STOP.id,
           key: EventKey.ArrowUp,
           ctrlKey: false
         }
@@ -3999,7 +3983,7 @@ describe("when the roving tabindex is for a grid", () => {
 
     describe("when the tab stop in all previous rows are disabled", () => {
       const givenState: State = Object.freeze({
-        selectedId: ELEMENT_SIX_ID,
+        selectedId: ELEMENT_SIX_TAB_STOP.id,
         allowFocusing: false,
         tabStops: [
           { ...ELEMENT_ONE_TAB_STOP, rowIndex: 0 },
@@ -4018,7 +4002,7 @@ describe("when the roving tabindex is for a grid", () => {
       const action: Action = {
         type: ActionType.KEY_DOWN,
         payload: {
-          id: ELEMENT_SIX_ID,
+          id: ELEMENT_SIX_TAB_STOP.id,
           key: EventKey.ArrowUp,
           ctrlKey: false
         }
@@ -4042,7 +4026,7 @@ describe("when the roving tabindex is for a grid", () => {
 
 describe("when changing all of the options", () => {
   const givenState: State = Object.freeze({
-    selectedId: ELEMENT_ONE_ID,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
     allowFocusing: false,
     tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
     direction: "horizontal",
@@ -4069,7 +4053,7 @@ describe("when changing all of the options", () => {
 
 describe("when changing some of the options", () => {
   const givenState: State = Object.freeze({
-    selectedId: ELEMENT_ONE_ID,
+    selectedId: ELEMENT_ONE_TAB_STOP.id,
     allowFocusing: false,
     tabStops: [ELEMENT_ONE_TAB_STOP, ELEMENT_TWO_TAB_STOP],
     direction: "horizontal",

@@ -54,7 +54,7 @@ There is a basic storybook for this package [here](https://stevejay.github.io/re
 ### Basic usage
 
 ```tsx
-import React, { ReactNode, useRef } from "react";
+import { ReactNode, useRef } from "react";
 import {
   RovingTabIndexProvider,
   useRovingTabIndex,
@@ -239,5 +239,6 @@ If you have build errors when building the Storybook locally, you are likely usi
 
 ### Publishing
 
-- For beta versions: `npm publish --tag next`.
-- For releases: `npm publish`.
+- `npm run build`
+- For beta versions, add or bump a `-rcX` suffix to the package.json version number and then run `npm publish --tag next`.
+- For releases, remove the `-rcX` suffix from the package.json version number and then run `npm publish`.

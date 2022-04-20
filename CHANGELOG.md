@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.0
+
+- Updated dev dependencies.
+
 ## 3.1.1
 
 - Updated dev dependencies.
